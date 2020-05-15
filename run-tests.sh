@@ -1,10 +1,20 @@
 #!/usr/bin/env sh
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2019 UCLouvain.
+# INVENIO-SIP2
+# Copyright (C) 2020 UCLouvain
 #
-# Invenio-SIP2 is free software; you can redistribute it and/or modify it
-# under the terms of the MIT License; see LICENSE file for more details.
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, version 3 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 RED='\033[0;31m'
 GREEN='\033[0;0;32m'
@@ -26,17 +36,17 @@ display_error_message_and_exit () {
 if [ $# -eq 0 ]
     then
         set -e
-        pipenv check -i 36759
+        # pipenv check -i 36759
         display_success_message "Test pydocstyle:"
-        pipenv run pydocstyle invenio_sip2 tests docs
+        pydocstyle invenio_sip2 tests docs
         display_success_message "Test isort:"
-        pipenv run isort -rc -c -df
+        isort -rc -c -df
         echo -e ${GREEN}Test useless imports:${NC}
-        pipenv run autoflake --remove-all-unused-imports -c -r --ignore-init-module-imports . || display_error_message_and_exit "\nUse this command to check imports:\n\tautoflake --remove-all-unused-imports -r --exclude ui --ignore-init-module-imports .\n"
+        autoflake --remove-all-unused-imports -c -r --ignore-init-module-imports . || display_error_message_and_exit "\nUse this command to check imports:\n\tautoflake --remove-all-unused-imports -r --ignore-init-module-imports .\n"
         display_success_message "Check-manifest:"
-        pipenv run check-manifest --ignore ".travis-*,docs/_build*"
+        check-manifest --ignore ".travis-*,docs/_build*"
         display_success_message "Sphinx-build:"
-        pipenv run sphinx-build -qnNW docs docs/_build/html
+        sphinx-build -qnNW docs docs/_build/html
         display_success_message "Tests:"
-        pipenv run test
+        python setup.py test
 fi

@@ -1,9 +1,19 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2019 UCLouvain.
+# INVENIO-SIP2
+# Copyright (C) 2020 UCLouvain
 #
-# Invenio-SIP2 is free software; you can redistribute it and/or modify it
-# under the terms of the MIT License; see LICENSE file for more details.
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, version 3 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 notifications:
   email: false
@@ -14,29 +24,23 @@ language: python
 
 matrix:
   fast_finish: true
-  allow_failures:
-    # To allow failures, you need to specify the full environment
-    - env: REQUIREMENTS=devel
 
 cache:
   - pip
 
 env:
-  - REQUIREMENTS=lowest
   - REQUIREMENTS=release DEPLOY=true
   - REQUIREMENTS=devel
 
 python:
-  - "2.7"
-  - "3.5"
+  - "3.6"
 
 before_install:
-  - "nvm install 6; nvm use 6"
+  - "nvm install 8; nvm use 8"
   - "travis_retry pip install --upgrade pip setuptools py"
   - "travis_retry pip install twine wheel coveralls requirements-builder"
-  - "requirements-builder -e all --level=min setup.py > .travis-lowest-requirements.txt"
-  - "requirements-builder -e all --level=pypi setup.py > .travis-release-requirements.txt"
-  - "requirements-builder -e all --level=dev --req requirements-devel.txt setup.py > .travis-devel-requirements.txt"
+  - "requirements-builder --level=dev --req requirements-devel.txt setup.py > .travis-devel-requirements.txt"
+  - "requirements-builder --level=pypi setup.py > .travis-release-requirements.txt"
 
 install:
   - "travis_retry pip install -r .travis-${REQUIREMENTS}-requirements.txt"

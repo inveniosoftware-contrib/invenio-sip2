@@ -1,0 +1,487 @@
+# Dutch translations for invenio-sip2.
+# Copyright (C) 2020 UCLouvain
+# This file is distributed under the same license as the invenio-sip2
+# project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2020.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: invenio-sip2 0.0.1\n"
+"Report-Msgid-Bugs-To: laurent.dubois@uclouvain.be\n"
+"POT-Creation-Date: 2020-05-15 14:23+0200\n"
+"PO-Revision-Date: 2020-05-15 14:21+0200\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: nl\n"
+"Language-Team: nl <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n != 1)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.8.0\n"
+
+#: invenio_sip2/config.py:338 invenio_sip2/config.py:339
+msgid "transaction date"
+msgstr ""
+
+#: invenio_sip2/config.py:340
+msgid "ok"
+msgstr ""
+
+#: invenio_sip2/config.py:341
+msgid "uid algorithm"
+msgstr ""
+
+#: invenio_sip2/config.py:342
+msgid "pwd algorithm"
+msgstr ""
+
+#: invenio_sip2/config.py:343 invenio_sip2/config.py:425
+msgid "fee type"
+msgstr ""
+
+#: invenio_sip2/config.py:344
+msgid "payment type"
+msgstr ""
+
+#: invenio_sip2/config.py:345 invenio_sip2/config.py:414
+msgid "currency type"
+msgstr ""
+
+#: invenio_sip2/config.py:346
+msgid "payment accepted"
+msgstr ""
+
+#: invenio_sip2/config.py:347
+msgid "circulation status"
+msgstr ""
+
+#: invenio_sip2/config.py:348
+msgid "security marker"
+msgstr ""
+
+#: invenio_sip2/config.py:349
+msgid "language"
+msgstr ""
+
+#: invenio_sip2/config.py:350
+msgid "patron status"
+msgstr ""
+
+#: invenio_sip2/config.py:351
+msgid "End Session"
+msgstr ""
+
+#: invenio_sip2/config.py:352
+msgid "summary"
+msgstr ""
+
+#: invenio_sip2/config.py:353
+msgid "hold mode"
+msgstr ""
+
+#: invenio_sip2/config.py:354
+msgid "hold items count"
+msgstr ""
+
+#: invenio_sip2/config.py:355
+msgid "overdue items count"
+msgstr ""
+
+#: invenio_sip2/config.py:356
+msgid "charged items count"
+msgstr ""
+
+#: invenio_sip2/config.py:357
+msgid "fine items count"
+msgstr ""
+
+#: invenio_sip2/config.py:358
+msgid "recall items count"
+msgstr ""
+
+#: invenio_sip2/config.py:359
+msgid "unavailable holds count"
+msgstr ""
+
+#: invenio_sip2/config.py:360
+msgid "sc renewal policy"
+msgstr ""
+
+#: invenio_sip2/config.py:361
+msgid "no block"
+msgstr ""
+
+#: invenio_sip2/config.py:362
+msgid "card retained"
+msgstr ""
+
+#: invenio_sip2/config.py:363
+msgid "nb due date"
+msgstr ""
+
+#: invenio_sip2/config.py:364
+msgid "Third party allowed"
+msgstr ""
+
+#: invenio_sip2/config.py:365 invenio_sip2/config.py:366
+#: invenio_sip2/config.py:367
+msgid "renewal ok"
+msgstr ""
+
+#: invenio_sip2/config.py:368
+msgid "magnetic media"
+msgstr ""
+
+#: invenio_sip2/config.py:369
+msgid "desensitize"
+msgstr ""
+
+#: invenio_sip2/config.py:370
+msgid "resensitize"
+msgstr ""
+
+#: invenio_sip2/config.py:371
+msgid "return date"
+msgstr ""
+
+#: invenio_sip2/config.py:372
+msgid "alert"
+msgstr ""
+
+#: invenio_sip2/config.py:373
+msgid "status code"
+msgstr ""
+
+#: invenio_sip2/config.py:374
+msgid "max print width"
+msgstr ""
+
+#: invenio_sip2/config.py:375
+msgid "protocol version"
+msgstr ""
+
+#: invenio_sip2/config.py:376
+msgid "on-line status"
+msgstr ""
+
+#: invenio_sip2/config.py:377
+msgid "checkin ok"
+msgstr ""
+
+#: invenio_sip2/config.py:378
+msgid "checkout ok"
+msgstr ""
+
+#: invenio_sip2/config.py:379
+msgid "item properties ok"
+msgstr ""
+
+#: invenio_sip2/config.py:380
+msgid "acs renewal policy"
+msgstr ""
+
+#: invenio_sip2/config.py:381
+msgid "status update ok"
+msgstr ""
+
+#: invenio_sip2/config.py:382
+msgid "offline ok"
+msgstr ""
+
+#: invenio_sip2/config.py:383
+msgid "timeout period"
+msgstr ""
+
+#: invenio_sip2/config.py:384
+msgid "retries allowed"
+msgstr ""
+
+#: invenio_sip2/config.py:385
+msgid "date/time sync"
+msgstr ""
+
+#: invenio_sip2/config.py:389
+msgid "patron identifier"
+msgstr ""
+
+#: invenio_sip2/config.py:390
+msgid "item identifier"
+msgstr ""
+
+#: invenio_sip2/config.py:391
+msgid "terminal password"
+msgstr ""
+
+#: invenio_sip2/config.py:392
+msgid "patron password"
+msgstr ""
+
+#: invenio_sip2/config.py:393
+msgid "personal name"
+msgstr ""
+
+#: invenio_sip2/config.py:394
+msgid "screen message"
+msgstr ""
+
+#: invenio_sip2/config.py:395
+msgid "print line"
+msgstr ""
+
+#: invenio_sip2/config.py:396
+msgid "due date"
+msgstr ""
+
+#: invenio_sip2/config.py:397
+msgid "title identifier"
+msgstr ""
+
+#: invenio_sip2/config.py:398
+msgid "blocked card msg"
+msgstr ""
+
+#: invenio_sip2/config.py:399
+msgid "library name"
+msgstr ""
+
+#: invenio_sip2/config.py:400
+msgid "terminal location"
+msgstr ""
+
+#: invenio_sip2/config.py:401
+msgid "institution id"
+msgstr ""
+
+#: invenio_sip2/config.py:402
+msgid "current location"
+msgstr ""
+
+#: invenio_sip2/config.py:403
+msgid "permanent location"
+msgstr ""
+
+#: invenio_sip2/config.py:404
+msgid "hold items"
+msgstr ""
+
+#: invenio_sip2/config.py:405
+msgid "overdue items"
+msgstr ""
+
+#: invenio_sip2/config.py:406
+msgid "charged items"
+msgstr ""
+
+#: invenio_sip2/config.py:407
+msgid "fine items"
+msgstr ""
+
+#: invenio_sip2/config.py:408
+msgid "sequence number"
+msgstr ""
+
+#: invenio_sip2/config.py:409
+msgid "checksum"
+msgstr ""
+
+#: invenio_sip2/config.py:410
+msgid "home address"
+msgstr ""
+
+#: invenio_sip2/config.py:411
+msgid "e-mail address"
+msgstr ""
+
+#: invenio_sip2/config.py:412
+msgid "home phone number"
+msgstr ""
+
+#: invenio_sip2/config.py:413
+msgid "owner"
+msgstr ""
+
+#: invenio_sip2/config.py:415
+msgid "cancel"
+msgstr ""
+
+#: invenio_sip2/config.py:416
+msgid "transaction id"
+msgstr ""
+
+#: invenio_sip2/config.py:417
+msgid "valid patron"
+msgstr ""
+
+#: invenio_sip2/config.py:418
+msgid "renewed items"
+msgstr ""
+
+#: invenio_sip2/config.py:419
+msgid "unrenewed items"
+msgstr ""
+
+#: invenio_sip2/config.py:420
+msgid "fee acknowledged"
+msgstr ""
+
+#: invenio_sip2/config.py:421
+msgid "start item"
+msgstr ""
+
+#: invenio_sip2/config.py:422
+msgid "end item"
+msgstr ""
+
+#: invenio_sip2/config.py:423
+msgid "queue position"
+msgstr ""
+
+#: invenio_sip2/config.py:424
+msgid "pickup location"
+msgstr ""
+
+#: invenio_sip2/config.py:426
+msgid "recall items"
+msgstr ""
+
+#: invenio_sip2/config.py:427
+msgid "fee amount"
+msgstr ""
+
+#: invenio_sip2/config.py:428
+msgid "expiration date"
+msgstr ""
+
+#: invenio_sip2/config.py:429
+msgid "supported messages"
+msgstr ""
+
+#: invenio_sip2/config.py:430
+msgid "hold type"
+msgstr ""
+
+#: invenio_sip2/config.py:431
+msgid "hold items limit"
+msgstr ""
+
+#: invenio_sip2/config.py:432
+msgid "overdue items limit"
+msgstr ""
+
+#: invenio_sip2/config.py:433
+msgid "charged items limit"
+msgstr ""
+
+#: invenio_sip2/config.py:434
+msgid "fee limit"
+msgstr ""
+
+#: invenio_sip2/config.py:435
+msgid "unavailable hold items"
+msgstr ""
+
+#: invenio_sip2/config.py:436
+msgid "hold queue length"
+msgstr ""
+
+#: invenio_sip2/config.py:437
+msgid "fee identifier"
+msgstr ""
+
+#: invenio_sip2/config.py:438
+msgid "item properties"
+msgstr ""
+
+#: invenio_sip2/config.py:439
+msgid "security inhibit"
+msgstr ""
+
+#: invenio_sip2/config.py:440
+msgid "recall date"
+msgstr ""
+
+#: invenio_sip2/config.py:441
+msgid "media type"
+msgstr ""
+
+#: invenio_sip2/config.py:442
+msgid "sort bin"
+msgstr ""
+
+#: invenio_sip2/config.py:443
+msgid "hold pickup date"
+msgstr ""
+
+#: invenio_sip2/config.py:444
+msgid "login user id"
+msgstr ""
+
+#: invenio_sip2/config.py:445
+msgid "login password"
+msgstr ""
+
+#: invenio_sip2/config.py:446
+msgid "location code"
+msgstr ""
+
+#: invenio_sip2/config.py:447
+msgid "valid patron password"
+msgstr ""
+
+#: invenio_sip2/config.py:448
+msgid "patron internet profile"
+msgstr ""
+
+#: invenio_sip2/config.py:449
+msgid "call number"
+msgstr ""
+
+#: invenio_sip2/config.py:450
+msgid "collection code"
+msgstr ""
+
+#: invenio_sip2/config.py:451
+msgid "alert type"
+msgstr ""
+
+#: invenio_sip2/config.py:452
+msgid "hold patron id"
+msgstr ""
+
+#: invenio_sip2/config.py:453
+msgid "hold patron name"
+msgstr ""
+
+#: invenio_sip2/config.py:454
+msgid "destination location"
+msgstr ""
+
+#: invenio_sip2/config.py:455
+msgid "patron expire date"
+msgstr ""
+
+#: invenio_sip2/config.py:456
+msgid "patron birth date"
+msgstr ""
+
+#: invenio_sip2/config.py:457
+msgid "patron class"
+msgstr ""
+
+#: invenio_sip2/config.py:458
+msgid "register login"
+msgstr ""
+
+#: invenio_sip2/config.py:459
+msgid "check number"
+msgstr ""
+
+#: invenio_sip2/views.py:42
+msgid "Invenio-SIP2"
+msgstr ""
+
+#: invenio_sip2/templates/invenio_sip2/monitoring.html:12
+#, python-format
+msgid "Welcome to %(module_name)s"
+msgstr ""
+

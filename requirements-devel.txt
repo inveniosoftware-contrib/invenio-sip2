@@ -1,12 +1,26 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2019 UCLouvain.
+# INVENIO-SIP2
+# Copyright (C) 2020 UCLouvain
 #
-# Invenio-SIP2 is free software; you can redistribute it and/or modify it
-# under the terms of the MIT License; see LICENSE file for more details.
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, version 3 of the License.
 #
-# TODO: Add development versions of some important dependencies here to get a
-#       warning when there are breaking upstream changes, e.g.:
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
 #
-#     -e git+git://github.com/mitsuhiko/werkzeug.git#egg=Werkzeug
-#     -e git+git://github.com/mitsuhiko/jinja2.git#egg=Jinja2
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+-e git+https://github.com/inveniosoftware/invenio-access#egg=invenio-access
+-e git+https://github.com/inveniosoftware/invenio-base.git#egg=invenio-base
+-e git+https://github.com/inveniosoftware/invenio-db.git#egg=invenio-db
+-e git+https://github.com/inveniosoftware/invenio-logging.git#egg=invenio-logging
+-e git+https://github.com/inveniosoftware/invenio-pidstore.git#egg=invenio-pidstore
+-e git+https://github.com/inveniosoftware/invenio-records.git#egg=invenio-records
+-e git+https://github.com/inveniosoftware/invenio-records-rest.git#egg=invenio-records-rest
+-e git+https://github.com/inveniosoftware/invenio-rest.git#egg=invenio-rest
+-e git+https://github.com/inveniosoftware/invenio-search.git#egg=invenio-search

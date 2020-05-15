@@ -1,11 +1,21 @@
 # -*- coding: utf-8 -*-
 #
-# Copyright (C) 2019 UCLouvain.
+# INVENIO-SIP2
+# Copyright (C) 2020 UCLouvain
 #
-# Invenio-SIP2 is free software; you can redistribute it and/or modify it
-# under the terms of the MIT License; see LICENSE file for more details.
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, version 3 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-"""Module tests."""
+"""Module test."""
 
 from __future__ import absolute_import, print_function
 
@@ -32,8 +42,8 @@ def test_init():
     assert 'invenio-sip2' in app.extensions
 
 
-def test_view(base_client):
+def test_view(app, base_client):
     """Test view."""
-    res = base_client.get("/")
+    res = base_client.get("/sip2/monitoring")
     assert res.status_code == 200
     assert 'Welcome to Invenio-SIP2' in str(res.data)
