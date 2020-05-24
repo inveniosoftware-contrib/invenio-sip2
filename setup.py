@@ -89,11 +89,10 @@ install_requires = [
     'cryptography>=2.1.4',
     'Flask-BabelEx>=0.9.3',
     'Flask-Security>=3.0.0',
-    'Flask-Login>=0.4.0,<0.5.0'
+    'Flask-Login>=0.4.0,<0.5.0',
     'email-validator>=1.0.5',
     'six>=1.12.0',
     'SQLAlchemy-Utils>=0.33.1,<0.36',
-    # 'invenio-accounts>=1.2.1,<1.3.0',
     'invenio-base>=1.2.1',
     'invenio-access>=1.3.1',
 ]
