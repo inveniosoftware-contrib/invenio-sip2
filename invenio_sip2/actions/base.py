@@ -23,17 +23,18 @@ from functools import wraps
 
 from ..api import Message
 from ..proxies import current_sip2 as acs_system
-from ..server import SocketServer
 
 
 def check_selfcheck_authentication(func):
     """Decorator to check authentication of selfcheck client."""
+
     @wraps(func)
-    def decorated_action(*args, **kwargs):
-        client = kwargs.pop('client', None)
-        if client and SocketServer.clients[client[1]]['is_authenticated']:
-            return func(*args, **kwargs)
-    return decorated_action
+    def inner(*args, **kwargs):
+        client = kwargs.pop('client')
+        if client and client.is_authenticated:
+            return func(*args, client)
+
+    return inner
 
 
 class Action(object):
@@ -49,6 +50,7 @@ class Action(object):
 
     def validate_actions(self):
         """Ensure that type and action are valid."""
+        # TODO: write logic to validate actions
         return
 
     def prepare_message_response(self, **kwargs):
@@ -58,12 +60,11 @@ class Action(object):
         )
         for fixed_field in self.response_type.fixed_fields:
             field_value = kwargs.pop(fixed_field.field_id, None)
-            if field_value:
-                message.add_fixed_field(
-                    field=fixed_field,
-                    field_value=field_value
-                )
-            # TO DO: try to raise exception if fixed field does not exist
+            message.add_fixed_field(
+                field=fixed_field,
+                field_value=str(field_value)
+            )
+            # TODO: try to raise exception if fixed field does not exist
         return message
 
     def execute(self, **kwargs):

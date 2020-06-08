@@ -15,51 +15,148 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-"""Invenio module that add SIP2 communication for self-check."""
+"""Invenio module that add SIP2 communication for self-check.
+
+================================ ==============================================
+`SIP2_MESSAGE_ACTIONS`           Dictionary of all selfcheck actions.
+`SIP2_ACTIONS_HANDLERS`          Dictionary of action handlers. See example
+                                 below.
+`SIP2_SELFCHECK_MESSAGE_TYPES`   Define all message types conforming to SIP2
+                                 protocol.
+`SIP2_FIXED_FIELD_DEFINITION`    All fixed field available.
+`SIP2_VARIABLE_FIELD_DEFINITION` All variable field available.
+================================ ==============================================
+
+Each custom handler actions must be defined in the ``SIP2_ACTIONS_HANDLERS``
+dictionary, where the keys are the application names and the values the
+configuration parameters for the application.
+
+.. code-block:: python
+
+    SIP2_ACTIONS_HANDLERS = dict(
+        myapp=dict(
+            # configuration values for myapp ...
+        ),
+    )
+
+The application name is used to start invenio-sip2 server and call customized
+handlers.
+
+
+Remote application Handlers
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Handlers allow customizing endpoints for each selfcheck actions:
+
+Configuration of a single remote application is a dictionary with the following
+keys:
+
+- ``login_handler`` - Import path to login selfcheck callback handler.
+
+- ``logout_handler`` - Import path to logout selfcheck callback handler.
+
+- ``system_status_handler``  - Import path to automated system status callback handler.
+
+- ``patron_handlers`` - A dictionary of import path to patron callback handler.
+    - ``validate_patron`` - Import path to validate patron callback handler.
+    - ``authorize_patron`` - Import path to authorize patron  callback handler.
+    - ``enable_patron`` - Import path to enable patron callback handler.
+    - ``account`` - Import path to retrieve patron account callback handler.
+
+.. code-block:: python
+
+    SIP2_REMOTE_ACTION_HANDLERS = dict(
+        app=dict(
+            login_handler="...",
+            logout_handler="...",
+            system_status_handler="...",
+            patron_handlers=dict(
+                validate_patron="...",
+                authorize_patron="...",
+                enable_patron="...",
+                account="...",
+            )
+        )
+    )
+
+"""
 
 from gettext import gettext as _
 
-from .actions.actions import AutomatedCirculationSystemStatus, SelfCheckLogin
+from .actions.actions import AutomatedCirculationSystemStatus, \
+    EndPatronSession, PatronEnable, PatronInformation, SelfCheckLogin
 from .actions.base import Action
 
+SIP2_REMOTE_ACTION_HANDLERS = {}
+"""Configuration of remote handlers."""
+
 SIP2_TEXT_ENCODING = 'UTF-8'
+"""Message text charset encoding."""
+
 SIP2_LINE_TERMINATOR = '\r'
+"""Message line separator."""
+
 SIP2_SOCKET_BUFFER_SIZE = '1024'
+"""Socket buffer size."""
+
 SIP2_CHECKSUM_CONTROL = True
+"""Message checksum control."""
+
 SIP2_PROTOCOL = '2.00'
+"""SIP2 protocol version."""
 
 SIP2_SUPPORT_CHECKIN = True
+"""Support check in items."""
+
 SIP2_SUPPORT_CHECKOUT = True
+"""Support check out items."""
+
 SIP2_SUPPORT_RENEWAL_POLICY = True
+"""Support patron renewal requests as a policy."""
+
 SIP2_TIMEOUT_PERIOD = 10
+"""Server timeout."""
+
 SIP2_RETRIES_ALLOWED = 10
+"""Number of retries allowed."""
+
 SIP2_SUPPORT_ONLINE_STATUS = True
+"""Support online status send by automatic circulation system."""
+
 SIP2_SUPPORT_OFFLINE_STATUS = True
+"""Support off line operation."""
+
 SIP2_SUPPORT_STATUS_UPDATE = True
+"""Support patron status updating by the selfcheck."""
+
 SIP2_DATE_FORMAT = '%Y%m%d    %H%M%S'
+"""SIP2 date format."""
 
 # Define message action.
 SIP2_MESSAGE_ACTIONS = {
-    '23': dict(response='24', action=Action),
+    '23': dict(message="patron_request_status", response='24',
+               action=PatronInformation),
     '11': dict(response='12', action=Action),
     '09': dict(response='10', action=Action),
     '01': dict(response='94', action=Action),
     '97': dict(response='96', action=Action),
-    '63': dict(response='64', action=Action),
-    '35': dict(response='36', action=Action),
+    '63': dict(message="patron_information", response='64',
+               action=PatronInformation),
+    '35': dict(message="end_patron_session", response='36',
+               action=EndPatronSession),
     '37': dict(response='38', action=Action),
     '17': dict(response='18', action=Action),
     '19': dict(response='20', action=Action),
-    '25': dict(response='26', action=Action),
+    '25': dict(message="patron_enable", response='26', action=PatronEnable),
     '15': dict(response='16', action=Action),
     '29': dict(response='30', action=Action),
     '65': dict(response='66', action=Action),
-    '93': dict(response='94', action=SelfCheckLogin),
-    '99': dict(response='98', action=AutomatedCirculationSystemStatus),
+    '93': dict(message="login", response='94', action=SelfCheckLogin),
+    '99': dict(message="sc_status", response='98',
+               action=AutomatedCirculationSystemStatus),
 }
 
-# Define message type
-SIP2_SELFCHECK_MESSAGE_TYPES = {
+# Define message types
+SIP2_MESSAGE_TYPES = {
     '01': dict(
         label='Block patron',
         handler='block_patron',
@@ -190,6 +287,13 @@ SIP2_SELFCHECK_MESSAGE_TYPES = {
             'language',
             'transaction_date',
         ],
+        variable_fields=[
+            'institution_id',
+            'patron_id',
+            'patron_name',
+            'valid_patron',
+            'valid_patron_pwd',
+        ],
     ),
     '29': dict(
         label='Renew',
@@ -257,6 +361,20 @@ SIP2_SELFCHECK_MESSAGE_TYPES = {
     '64': dict(
         label='Patron information response',
         handler='patron_information',
+        required_fields=[
+            'patron_status',
+            'language',
+            'transaction_date',
+            'hold_items_count',
+            'overdue_items_count',
+            'charged_items_count',
+            'fine_items_count',
+            'recall_items_count',
+            'unavailable_holds_count',
+            'institution_id',
+            'patron_id',
+            'patron_name',
+        ],
         fixed_fields=[
             'patron_status',
             'language',
@@ -267,6 +385,31 @@ SIP2_SELFCHECK_MESSAGE_TYPES = {
             'fine_items_count',
             'recall_items_count',
             'unavailable_holds_count',
+        ],
+        variable_fields=[
+            'institution_id',
+            'patron_id',
+            'patron_name',
+            'patron_home_address',
+            'patron_email_address',
+            'patron_phone_number',
+            'hold_items_limit',
+            'overdue_items_count',
+            'overdue_items_limit',
+            'fine_items_count',
+            'charged_items_limit',
+            'valid_patron',
+            'valid_patron_pwd',
+            'currency_type',
+            'fee_amount',
+            'fee_limit',
+            'hold_items',
+            'overdue_items',
+            'charged_items',
+            'fine_items',
+            'fine_items',
+            'recall_items',
+            'unavailable_items',
         ],
     ),
     '65': dict(
@@ -322,6 +465,10 @@ SIP2_SELFCHECK_MESSAGE_TYPES = {
             'date_time_sync',
             'protocol_version',
         ],
+        variable_fields=[
+            'supported_messages',
+            'institution_id',
+        ],
     ),
     '99': dict(
         label='Selfcheck status',
@@ -334,6 +481,7 @@ SIP2_SELFCHECK_MESSAGE_TYPES = {
     ),
 }
 
+# Define fixed fields
 SIP2_FIXED_FIELD_DEFINITION = dict(
     available=dict(length=1, label=_('transaction date')),
     transaction_date=dict(length=18, label=_('transaction date')),
@@ -351,12 +499,12 @@ SIP2_FIXED_FIELD_DEFINITION = dict(
     end_session=dict(length=1, label=_('End Session')),
     summary=dict(length=10, label=_('summary')),
     hold_mode=dict(length=1, label=_('hold mode')),
-    hold_items_count=dict(length=4, label=_('hold items count')),
-    overdue_items_count=dict(length=4, label=_('overdue items count')),
-    charged_items_count=dict(length=4, label=_('charged items count')),
-    fine_items_count=dict(length=4, label=_('fine items count')),
-    recall_items_count=dict(length=4, label=_('recall items count')),
-    unavailable_holds_count=dict(length=4, label=_('unavailable holds count')),
+    hold_items_count=dict(length=4, fill='0', label=_('hold items count')),
+    overdue_items_count=dict(length=4, fill='0', label=_('overdue items count')),
+    charged_items_count=dict(length=4, fill='0', label=_('charged items count')),
+    fine_items_count=dict(length=4, fill='0', label=_('fine items count')),
+    recall_items_count=dict(length=4, fill='0', label=_('recall items count')),
+    unavailable_holds_count=dict(length=4, fill='0', label=_('unavailable holds count')),
     sc_renewal_policy=dict(length=1, label=_('sc renewal policy')),
     no_block=dict(length=1, label=_('no block')),
     card_retained=dict(length=1, label=_('card retained')),
@@ -385,6 +533,7 @@ SIP2_FIXED_FIELD_DEFINITION = dict(
     date_time_sync=dict(length=18, label=_('date/time sync')),
 )
 
+# Define variable fields
 SIP2_VARIABLE_FIELD_DEFINITION = dict(
     patron_id=dict(field_id='AA', label=_('patron identifier')),
     item_id=dict(field_id='AB', label=_('item identifier')),
@@ -428,9 +577,9 @@ SIP2_VARIABLE_FIELD_DEFINITION = dict(
     expiration_date=dict(field_id='BW', length=18, label=_('expiration date')),
     supported_messages=dict(field_id='BX', label=_('supported messages')),
     hold_type=dict(field_id='BY', length=1, label=_('hold type')),
-    hold_items_limit=dict(field_id='BZ', length=4, label=_('hold items limit')),
-    overdue_items_limit=dict(field_id='CA', length=4, label=_('overdue items limit')),
-    charged_items_limit=dict(field_id='CB', length=4, label=_('charged items limit')),
+    hold_items_limit=dict(field_id='BZ', length=4, fill='0', label=_('hold items limit')),
+    overdue_items_limit=dict(field_id='CA', length=4, fill='0', label=_('overdue items limit')),
+    charged_items_limit=dict(field_id='CB', length=4, fill='0', label=_('charged items limit')),
     fee_limit=dict(field_id='CC', label=_('fee limit')),
     unavail_hold_items=dict(field_id='CD', label=_('unavailable hold items')),
     hold_queue_length=dict(field_id='CF', label=_('hold queue length')),

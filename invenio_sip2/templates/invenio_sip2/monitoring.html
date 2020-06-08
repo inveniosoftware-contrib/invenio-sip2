@@ -8,9 +8,25 @@
 {%- extends config.SIP2_BASE_TEMPLATE %}
 
 {%- block page_body %}
-{{_('Welcome to %(module_name)s', module_name=module_name)}}
-<div>
-  TODO: Monitoring of SocketServer.
+<div class="container">
+  <div>
+    <h2>{{ _('Automated circulation system monitoring') }}</h2>
+  </div>
+  <div>
+    {{ test }}
+  </div>
+  <div>
+      <h4>Connected clients:</h4>
+      {{ clients }}
+      {% for item in clients %}
+          <div class="card">
+            <div class="card-body">
+              {{ item }}
+            </div>
+          </div>
+      {% endfor %}
+  </div>
 </div>
+
 {%- endblock %}
 

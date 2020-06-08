@@ -15,18 +15,21 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-"""Socket server test."""
+"""Handlers for customizing sip2 api."""
 
 from __future__ import absolute_import, print_function
 
-import socket
+from .api_handlers import authorize_patron_handler, enable_patron_handler, \
+    patron_handlers, selfcheck_login_handler, system_status_handler, \
+    validate_patron_handler
+from .utils import make_api_handler
 
-
-def test_socket_server(dummy_socket_server):
-    """Test socket server."""
-
-    # This is fake test client to attempt a connect and disconnect
-    fake_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    fake_client.settimeout(1)
-    fake_client.connect(('127.0.0.1', 3005))
-    fake_client.close()
+__all__ = (
+    'make_api_handler',
+    'selfcheck_login_handler',
+    'system_status_handler',
+    'validate_patron_handler',
+    'authorize_patron_handler',
+    'enable_patron_handler',
+    'patron_handlers',
+)

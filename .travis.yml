@@ -15,10 +15,12 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-notifications:
-  email: false
+dist: trusty
 
-sudo: false
+notifications:
+  email: # sent to the committer and the author
+    on_success: never # default: always
+    on_failure: always # default: always
 
 language: python
 
@@ -29,8 +31,8 @@ cache:
   - pip
 
 env:
-  - REQUIREMENTS=release DEPLOY=true
-  - REQUIREMENTS=devel
+  - REQUIREMENTS=release EXTRAS=all DEPLOY=true
+  - REQUIREMENTS=devel EXTRAS=all
 
 python:
   - "3.6"
@@ -60,6 +62,6 @@ deploy:
   distributions: "compile_catalog sdist bdist_wheel"
   on:
     tags: true
-    python: "2.7"
-    repo: lauren-d/invenio-sip2
+    python: "3.6"
+    repo: inveniosoftware-contrib/invenio-sip2
     condition: $DEPLOY = true

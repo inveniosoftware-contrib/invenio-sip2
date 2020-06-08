@@ -15,29 +15,16 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-"""Socket server test."""
+"""CLI test."""
 
 from __future__ import absolute_import, print_function
 
-from invenio_sip2.api import Message
-from invenio_sip2.proxies import current_sip2
+from click.testing import CliRunner
+
+from invenio_sip2.cli import selfcheck
 
 
-def test_selfcheck_login_failed(users, selckeck_failed_login_message):
-    """Test selfcheck login."""
-    response = current_sip2.sip2.execute(
-        Message(request=selckeck_failed_login_message),
-        client=None
-    )
-
-    assert (response == '940')
-
-
-def test_selfcheck_login_success(users,
-                                 selckeck_login_message):
-    """Test selfcheck login."""
-    response = current_sip2.sip2.execute(
-        Message(request=selckeck_login_message),
-        client=None
-    )
-    assert(response == '941')
+def test_basic_cli():
+    """Test version import."""
+    res = CliRunner().invoke(selfcheck)
+    assert res.exit_code == 0

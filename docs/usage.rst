@@ -18,8 +18,10 @@
 Usage
 =====
 
-CLI run example:
+Start SIP2 server with CLI example:
 
-invenio selfcheck start -h 127.0.0.1 -p 3004
+.. code-block:: console
+
+    $ invenio selfcheck start -h 127.0.0.1 -p 3004 -r your-remote-app
 
 

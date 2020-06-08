@@ -26,6 +26,7 @@ from flask import current_app
 
 from .api import Message
 from .errors import InvalidSelfCheckMessageError
+from .models import SelfcheckClient
 from .proxies import current_sip2
 
 
@@ -39,6 +40,7 @@ class SocketServer:
         """Constructor."""
         self.host = host
         self.port = port
+        self.remote_app = kwargs.pop('remote')
         lsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         # Avoid bind() exception: OSError: [Errno 48] Address already in use
         lsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -82,23 +84,23 @@ class SocketServer:
         connection.setblocking(False)
 
         message = SocketEventListener(self.selector, connection, address)
-        self.clients[address[1]] = {
-            'is_authenticated': False
-        }
+        self.clients[address[1]] = SelfcheckClient(address, self.remote_app)
         self.selector.register(connection, selectors.EVENT_READ, data=message)
 
     @classmethod
     def get_clients(cls):
         """Retrieve all connected clients."""
-        # TODO : use another logging method
-        print('nb clients:', len(cls.clients))
         return cls.clients
 
     @classmethod
-    def remove_client(cls, client):
+    def get_client(cls, client_id):
+        """Retrieve all connected clients."""
+        return cls.clients[client_id]
+
+    @classmethod
+    def remove_client(cls, client_id):
         """Remove client for connected client."""
-        # TODO : use another logging method
-        print('remove client', client)
+        del(cls.clients[client_id])
 
 
 class SocketEventListener:
@@ -161,8 +163,6 @@ class SocketEventListener:
     def _write(self):
         """Send message to the selfcheck client."""
         if self._send_buffer:
-            # TODO : use another logging method
-            print("sending", repr(self._send_buffer), "to", self.addr)
             try:
                 # Should be ready to write
                 sent = self.sock.send(self._send_buffer)
@@ -194,15 +194,25 @@ class SocketEventListener:
         """Read message from selfcheck client."""
         self._read()
         if self._recv_buffer:
+            message = 'request: {request} to {client}'.format(
+                request=self.request,
+                client=self.addr
+            )
+            # TODO : use another logging method
+            print(message)
             self.process_request()
 
     def write(self):
         """Send response to selfcheck client."""
         if self.request:
-            # TODO : use another logging method
-            print(self.request)
             if not self.response_created:
                 self.create_response()
+            message = 'send: {response} to {client}'.format(
+                response=self.response,
+                client=self.addr
+            )
+            # TODO : use another logging method
+            print(message)
             self._write()
 
     def close(self):
@@ -233,7 +243,7 @@ class SocketEventListener:
         """Processing of selfcheck message."""
         self.response = current_sip2.sip2.execute(
             Message(request=self.request),
-            client=self.addr
+            client=SocketServer.get_client(self.addr[1])
         )
         if not self.response:
             self.response = '96'
