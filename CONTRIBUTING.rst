@@ -26,7 +26,7 @@ Types of Contributions
 Report Bugs
 ~~~~~~~~~~~
 
-Report bugs at https://github.com/lauren-d/invenio-sip2/issues.
+Report bugs at https://github.com/inveniosoftware-contrib/invenio-sip2/issues.
 
 If you are reporting a bug, please include:
 
@@ -57,7 +57,7 @@ Submit Feedback
 ~~~~~~~~~~~~~~~
 
 The best way to send feedback is to file an issue at
-https://github.com/lauren-d/invenio-sip2/issues.
+https://github.com/inveniosoftware-contrib/invenio-sip2/issues.
 
 If you are proposing a feature:
 
@@ -71,7 +71,7 @@ Get Started!
 
 Ready to contribute? Here's how to set up `invenio-sip2` for local development.
 
-1. Fork the `lauren-d/invenio-sip2` repo on GitHub.
+1. Fork the `inveniosoftware-contrib/invenio-sip2` repo on GitHub.
 2. Clone your fork locally:
 
    .. code-block:: console
@@ -130,5 +130,5 @@ Before you submit a pull request, check that it meets these guidelines:
 2. If the pull request adds functionality, the docs should be updated. Put
    your new functionality into a function with a docstring.
 3. The pull request should work for Python 2.7, 3.5 and 3.6. Check
-   https://travis-ci.org/lauren-d/invenio-sip2/pull_requests
+   https://travis-ci.org/github/inveniosoftware-contrib/invenio-sip2/pull_requests
    and make sure that the tests pass for all supported Python versions.

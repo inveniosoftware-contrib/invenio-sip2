@@ -20,6 +20,8 @@ RED='\033[0;31m'
 GREEN='\033[0;0;32m'
 NC='\033[0m' # No Color
 
+SCRIPT_PATH=$(dirname "$0")
+
 display_error_message () {
 	echo -e "${RED}$1${NC}" 1>&2
 }
@@ -36,11 +38,10 @@ display_error_message_and_exit () {
 if [ $# -eq 0 ]
     then
         set -e
-        # pipenv check -i 36759
         display_success_message "Test pydocstyle:"
         pydocstyle invenio_sip2 tests docs
         display_success_message "Test isort:"
-        isort -rc -c -df
+        isort invenio_sip2 tests --check-only --diff
         echo -e ${GREEN}Test useless imports:${NC}
         autoflake --remove-all-unused-imports -c -r --ignore-init-module-imports . || display_error_message_and_exit "\nUse this command to check imports:\n\tautoflake --remove-all-unused-imports -r --ignore-init-module-imports .\n"
         display_success_message "Check-manifest:"

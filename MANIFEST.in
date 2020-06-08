@@ -35,7 +35,6 @@ include *.rst
 include *.sh
 include *.txt
 include LICENSE
-include Pipfile
 include babel.ini
 include pytest.ini
 recursive-include docs *.bat

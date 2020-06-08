@@ -57,11 +57,3 @@ def example_app():
 
     # Return to the original directory
     os.chdir(current_dir)
-
-
-def test_example_app_monitoring(example_app):
-    """Test example app."""
-
-    cmd = 'curl http://0.0.0.0:5000/sip2/monitoring'
-    output = subprocess.check_output(cmd, shell=True)
-    assert b'Welcome to Invenio-SIP2' in output

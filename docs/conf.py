@@ -115,14 +115,14 @@ todo_include_todos = False
 html_theme = 'alabaster'
 
 html_theme_options = {
-    'description': 'Invenio module that add SIP2 communication for self-check',
-    'github_user': 'inveniosoftware',
+    'description': 'Library Selfcheck SIP2 module for invenio',
+    'github_user': 'lauren-d',
     'github_repo': 'invenio-sip2',
     'github_button': False,
     'github_banner': True,
     'show_powered_by': False,
     'extra_nav_links': {
-        'invenio-sip2@GitHub': 'https://github.com/lauren-d/invenio-sip2',
+        'invenio-sip2@GitHub': 'https://github.com/inveniosoftware-contrib/invenio-sip2',
         'invenio-sip2@PyPI': 'https://pypi.python.org/pypi/invenio-sip2/',
     }
 }
@@ -295,7 +295,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     (master_doc, 'invenio-sip2', u'Invenio-SIP2 Documentation',
-     author, 'invenio-sip2', 'Invenio module that add SIP2 communication for self-check',
+     author, 'invenio-sip2', 'Library Selfcheck SIP2 module for invenio',
      'Miscellaneous'),
 ]
 

@@ -25,21 +25,35 @@ from __future__ import absolute_import, print_function
 
 import os
 import shutil
+import signal
+import socket
+import subprocess
+import sys
 import tempfile
+import time
+from subprocess import STDOUT
 
 import pytest
 from flask import Flask
+from flask.cli import ScriptInfo
 from flask_babelex import Babel
 from invenio_access import ActionRoles, authenticated_user, superuser_access
 from invenio_access.ext import InvenioAccess
 from invenio_accounts.ext import InvenioAccounts
 from invenio_accounts.models import Role
 from invenio_accounts.testutils import create_test_user
-from invenio_db import db
+# from invenio_db import db as db_
 from invenio_db.ext import InvenioDB
+from utils import remote_authorize_patron_handler, \
+    remote_enable_patron_handler, remote_handler, \
+    remote_login_failed_handler, remote_login_handler, \
+    remote_patron_account_handler, remote_validate_patron_handler
+
 from invenio_sip2 import InvenioSIP2
-from invenio_sip2.server import SocketServer
+from invenio_sip2.models import SelfcheckClient
 from invenio_sip2.views import blueprint
+
+sys.path.append(os.path.dirname(__file__))
 
 pytest_plugins = [
     'fixtures.messages',
@@ -55,12 +69,13 @@ def celery_config():
     return {}
 
 
-@pytest.fixture(scope='module')
+@pytest.yield_fixture()
 def app(request):
     """Flask application fixture."""
     instance_path = tempfile.mkdtemp()
-    app = Flask(__name__, instance_path=instance_path)
-    app.config.update(
+    _app = Flask('testapp', instance_path=instance_path)
+
+    _app.config.update(
         ACCOUNTS_USE_CELERY=False,
         CELERY_ALWAYS_EAGER=True,
         CELERY_CACHE_BACKEND="memory",
@@ -77,60 +92,86 @@ def app(request):
         SERVER_NAME='localhost:5000',
         TESTING=True,
         WTF_CSRF_ENABLED=False,
+        SIP2_REMOTE_ACTION_HANDLERS=dict(
+            test=dict(
+                login_handler=remote_login_handler,
+                logout_handler=remote_handler,
+                system_status_handler=remote_handler,
+                patron_handlers=dict(
+                    validate_patron=remote_validate_patron_handler,
+                    authorize_patron=remote_authorize_patron_handler,
+                    enable_patron=remote_enable_patron_handler,
+                    account=remote_patron_account_handler,
+                ),
+            ),
+            test_invalid=dict(
+                login_handler=remote_login_failed_handler,
+            ),
+        )
     )
-    Babel(app)
-    InvenioSIP2(app)
-    InvenioDB(app)
-    InvenioAccess(app)
-    InvenioAccounts(app)
-    app.register_blueprint(blueprint)
+    Babel(_app)
+    InvenioDB(_app)
+    InvenioAccess(_app)
+    InvenioAccounts(_app)
+    InvenioSIP2(_app)
 
-    with app.app_context():
-        db.create_all()
-        yield app
+    _app.register_blueprint(blueprint)
 
+    with _app.app_context():
+        yield _app
+
+    # Teardown instance path.
     shutil.rmtree(instance_path)
 
 
-@pytest.fixture(scope='module')
-def create_app(instance_path):
-    """Application factory fixture."""
-    def factory(**config):
-        app = Flask('testapp', instance_path=instance_path)
-        app.config.update(
-            ACCOUNTS_USE_CELERY=False,
-            CELERY_ALWAYS_EAGER=True,
-            CELERY_CACHE_BACKEND="memory",
-            CELERY_EAGER_PROPAGATES_EXCEPTIONS=True,
-            CELERY_RESULT_BACKEND="cache",
-            LOGIN_DISABLED=False,
-            MAIL_SUPPRESS_SEND=True,
-            SECRET_KEY="CHANGE_ME",
-            SECURITY_PASSWORD_SALT="CHANGE_ME_ALSO",
-            SECURITY_CONFIRM_EMAIL_WITHIN="2 seconds",
-            SECURITY_RESET_PASSWORD_WITHIN="2 seconds",
-            SQLALCHEMY_DATABASE_URI=os.environ.get(
-                'SQLALCHEMY_DATABASE_URI', 'sqlite:///test.db'),
-            SERVER_NAME='localhost:5000',
-            TESTING=True,
-            WTF_CSRF_ENABLED=False,
-        )
-        app.config.update(config or {})
-        Babel(app)
-        InvenioSIP2(app)
-        InvenioDB(app)
-        InvenioAccess(app)
-        InvenioAccounts(app)
-        app.register_blueprint(blueprint)
-        return app
-    return factory
-
-
-@pytest.fixture(scope='module')
+@pytest.yield_fixture()
 def dummy_socket_server(app):
     """Start server socket."""
-    dummy_server = SocketServer(host='127.0.0.1', port=3005)
-    yield dummy_server.run
+    with app.app_context():
+        # Start socket server
+        cmd = 'invenio selfcheck start -h 127.0.0.1 -p 3006 -r test'
+        dummy_server = subprocess.Popen(
+            cmd,
+            stdout=subprocess.PIPE, stderr=STDOUT, preexec_fn=os.setsid,
+            shell=True)
+        time.sleep(10)
+        yield dummy_server
+
+    # Stop server
+    os.killpg(dummy_server.pid, signal.SIGTERM)
+
+
+@pytest.yield_fixture()
+def selfcheck_client():
+    """Test socket server."""
+    # This is fake test client to attempt a connect and disconnect
+    fake_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    fake_client.settimeout(10)
+    fake_client.connect(('127.0.0.1', 3006))
+    yield fake_client
+
+    fake_client.close()
+
+
+@pytest.fixture(scope='module')
+def dummy_client():
+    """Dummy client."""
+    client1 = SelfcheckClient(('127.0.0.1', '65565'), 'test')
+    return client1
+
+
+@pytest.fixture(scope='module')
+def dummy_invalid_client():
+    """Dummy client."""
+    client2 = SelfcheckClient(('127.0.0.1', '65565'), 'test_invalid')
+    print('remote_app:', client2.remote_app)
+    return client2
+
+
+@pytest.fixture
+def script_info(app):
+    """Get ScriptInfo object for testing CLI."""
+    return ScriptInfo(create_app=lambda info: app)
 
 
 @pytest.fixture()

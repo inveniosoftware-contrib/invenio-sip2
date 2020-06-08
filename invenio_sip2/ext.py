@@ -25,11 +25,30 @@ from datetime import datetime, timezone
 from flask import current_app
 from werkzeug.utils import cached_property
 
-from . import config
+from . import config, handlers
 from .actions.actions import Action
 from .errors import SelfCheckActionError
 from .helpers import MessageTypeFixedField, MessageTypeVariableField
 from .utils import convert_bool_to_char
+
+
+def load_fixed_field(app):
+    """Load fixed field configuration."""
+    for name, field in app.config["SIP2_FIXED_FIELD_DEFINITION"].items():
+        setattr(MessageTypeFixedField, name, MessageTypeFixedField(
+            name=name,
+            field=field
+        ))
+
+
+def load_variable_field(app):
+    """Load variable field configuration."""
+    for name, field \
+            in app.config["SIP2_VARIABLE_FIELD_DEFINITION"].items():
+        setattr(MessageTypeVariableField, name, MessageTypeVariableField(
+            name=name,
+            field=field
+        ))
 
 
 class InvenioSIP2(object):
@@ -37,14 +56,17 @@ class InvenioSIP2(object):
 
     def __init__(self, app=None):
         """Extension initialization."""
+        # TODO Init and proxify SocketServer like current_sip2_server
         if app:
             self.init_app(app)
 
     def init_app(self, app):
         """Flask application initialization."""
+        # TODO: refactoring app init
         self.init_config(app)
-
+        self._state = _Sip2State(app)
         app.extensions['invenio-sip2'] = self
+        self.app = app
 
     def init_config(self, app):
         """Initialize configuration."""
@@ -59,27 +81,8 @@ class InvenioSIP2(object):
             if k.startswith('SIP2_'):
                 app.config.setdefault(k, getattr(config, k))
 
-        self.load_fixed_field(app)
-        self.load_variable_field(app)
-
-    def load_fixed_field(self, app):
-        """Load fixed field configuration."""
-        for name, field in app.config["SIP2_FIXED_FIELD_DEFINITION"].items():
-            setattr(MessageTypeFixedField, name, MessageTypeFixedField(
-                field_id=name,
-                length=field.get('length'),
-                label=field.get('label')
-            ))
-
-    def load_variable_field(self, app):
-        """Load variable field configuration."""
-        for name, field \
-                in app.config["SIP2_VARIABLE_FIELD_DEFINITION"].items():
-            setattr(MessageTypeVariableField, name, MessageTypeVariableField(
-                field_id=field.get('field_id'),
-                length=field.get('length', None),
-                label=field.get('label')
-            ))
+        load_fixed_field(app)
+        load_variable_field(app)
 
     @cached_property
     def sip2(self):
@@ -90,12 +93,18 @@ class InvenioSIP2(object):
             )
         )
 
+    # TODO: reorganize extension implementation
+    @cached_property
+    def sip2_handlers(self):
+        """Return the SIP2 handler machine."""
+        return self._state
+
     @cached_property
     def sip2_message_types(self):
         """Message type configuration."""
         return _Sip2MessageType(
             message_type_config=deepcopy(
-                current_app.config['SIP2_SELFCHECK_MESSAGE_TYPES']
+                current_app.config['SIP2_MESSAGE_TYPES']
             )
         )
 
@@ -202,7 +211,10 @@ class _Sip2MessageType(object):
             self.message_types[command] = _MessageType(command, **message_type)
 
     def get_by_command(self, command):
-        return self.message_types.get(command, None)
+        command = self.message_types.get(command)
+        if command:
+            return command
+        raise NotImplementedError
 
 
 class _MessageType(object):
@@ -218,3 +230,60 @@ class _MessageType(object):
 
         for key, value in kwargs.items():
             setattr(self, key, value)
+
+
+class _Sip2State(object):
+    """SIP2 state storing registered action handlers."""
+
+    def __init__(self, app):
+        """Initialize state."""
+        self.app = app
+        self.handlers = {}
+        self.login_handler = {}
+        self.system_status_handler = {}
+        self.patron_handlers = {}
+
+        # TODO: configure automatically which command is supported by ACS
+
+        # register api handlers
+        for remote, conf in app.config['SIP2_REMOTE_ACTION_HANDLERS'].items():
+            # register login handler
+            self.login_handler[remote] = handlers.make_api_handler(
+                conf.get('login_handler'),
+                with_data=True
+            )
+
+            self.system_status_handler[remote] = handlers.make_api_handler(
+                conf.get('system_status_handler'),
+                with_data=True
+            )
+
+            # register patron handlers
+            patron_handler = conf.get('patron_handlers', dict())
+
+            validate_patron_handler = handlers.make_api_handler(
+                patron_handler.get('validate_patron'),
+                with_data=True
+            )
+
+            authorize_patron_handler = handlers.make_api_handler(
+                patron_handler.get('authorize_patron'),
+                with_data=True
+            )
+
+            enable_patron_handler = handlers.make_api_handler(
+                patron_handler.get('enable_patron'),
+                with_data=True
+            )
+
+            account_handler = handlers.make_api_handler(
+                patron_handler.get('account'),
+                with_data=True
+            )
+
+            self.patron_handlers[remote] = dict(
+                validate=validate_patron_handler,
+                authorize=authorize_patron_handler,
+                enable=enable_patron_handler,
+                account=account_handler,
+            )

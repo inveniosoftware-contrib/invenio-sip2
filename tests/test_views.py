@@ -19,26 +19,10 @@
 
 from __future__ import absolute_import, print_function
 
-from flask import Flask
 
-from invenio_sip2 import InvenioSIP2
-
-
-def test_version():
-    """Test version import."""
-    from invenio_sip2 import __version__
-    assert __version__
-
-
-def test_init():
-    """Test extension initialization."""
-    app = Flask('testapp')
-    ext = InvenioSIP2(app)
-    assert 'invenio-sip2' in app.extensions
-    assert ext.app is app
-
-    app = Flask('testapp')
-    ext = InvenioSIP2()
-    assert 'invenio-sip2' not in app.extensions
-    ext.init_app(app)
-    assert 'invenio-sip2' in app.extensions
+def test_view_monitoring(app):
+    """Test view monitoring."""
+    with app.test_client() as client:
+        res = client.get("/sip2/monitoring")
+        assert res.status_code == 200
+        assert 'Automated circulation system monitoring' in str(res.data)

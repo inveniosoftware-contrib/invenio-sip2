@@ -29,10 +29,10 @@ class FieldMessage(object):
     def __init__(self, field=None, field_value=''):
         """Constructor."""
         self.field = field
-
-        if hasattr(field, 'length'):
-            self.field_value = '{value:<{width}}'.format(
+        if field.length and len(field_value) < field.length:
+            self.field_value = '{value:{fill}>{width}}'.format(
                 value=str(field_value)[0:field.length],
+                fill=self.field.fill,
                 width=self.field.length
             )
         else:
@@ -79,8 +79,8 @@ class Message(object):
         for fixed_field in self.fixed_fields:
             new_message = new_message + str(fixed_field)
 
-        for variable_fields in self.variable_fields:
-            new_message = new_message + str(variable_fields)
+        for variable_field in self.variable_fields:
+            new_message = new_message + str(variable_field)
 
         self.message_text = new_message
 
@@ -150,12 +150,18 @@ class Message(object):
 
     def add_variable_field(self, field_name, field_value):
         """Add variable field to message."""
-        self.variable_fields.append(
-            FieldMessage(
-                field=MessageTypeVariableField.get(field_name),
-                field_value=field_value
+        if field_value:
+            self.variable_fields.append(
+                FieldMessage(
+                    field=MessageTypeVariableField.get(field_name),
+                    field_value=field_value
+                )
             )
-        )
+
+    def add_variable_fields(self, field_name, field_values):
+        """Add variable fields to message."""
+        for field_value in field_values:
+            self.add_variable_field(field_name, field_value)
 
     def add_fixed_field(self, field, field_value):
         """Add fixed field to message."""
@@ -165,3 +171,13 @@ class Message(object):
                 field_value=field_value
             )
         )
+
+    def dumps(self):
+        """Dumps message as dict."""
+        data = {}
+        for fixed_field in self.fixed_fields:
+            data[fixed_field.field.field_id] = fixed_field.field_value
+
+        for variable_field in self.variable_fields:
+            data[variable_field.field.name] = variable_field.field_value
+        return data

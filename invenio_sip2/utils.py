@@ -19,6 +19,8 @@
 
 from __future__ import absolute_import, print_function
 
+from .models import SelfcheckLanguage
+
 
 def convert_bool_to_char(value=False):
     """Convert boolean to SIP2 char representation."""
@@ -28,3 +30,15 @@ def convert_bool_to_char(value=False):
 def decode_char_to_bool(value='N'):
     """Decode SIP2 char representation to boolean."""
     return value == 'Y'
+
+
+def get_language_code(language):
+    """Get mapped selfcheck language.
+
+    :param language: ISO 639-2 common language
+    :returns SIP2 mapped language code
+    """
+    try:
+        return SelfcheckLanguage[language].value
+    except KeyError:
+        return SelfcheckLanguage.UNKNOWN.value

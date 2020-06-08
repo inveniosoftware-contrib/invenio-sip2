@@ -15,30 +15,28 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-"""Module test."""
+"""Handlers for customizing sip2 api."""
 
 from __future__ import absolute_import, print_function
 
-from flask import Flask
+from functools import wraps
 
-from invenio_sip2 import InvenioSIP2
-
-
-def test_version():
-    """Test version import."""
-    from invenio_sip2 import __version__
-    assert __version__
+import six
+from werkzeug.utils import import_string
 
 
-def test_init():
-    """Test extension initialization."""
-    app = Flask('testapp')
-    ext = InvenioSIP2(app)
-    assert 'invenio-sip2' in app.extensions
-    assert ext.app is app
+def make_api_handler(func, with_data=True):
+    """Make a handler for api callbacks.
 
-    app = Flask('testapp')
-    ext = InvenioSIP2()
-    assert 'invenio-sip2' not in app.extensions
-    ext.init_app(app)
-    assert 'invenio-sip2' in app.extensions
+    :param func: Callable or an import path to a callable
+    """
+    if isinstance(func, six.string_types):
+        func = import_string(func)
+
+    @wraps(func)
+    def inner(*args, **kwargs):
+        if with_data:
+            return func(args[0], *args[1:], **kwargs)
+        else:
+            return func(*args, **kwargs)
+    return inner

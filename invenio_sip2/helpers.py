@@ -25,19 +25,21 @@ from .errors import UnknownFieldIdMessageError
 class MessageTypeFixedField(object):
     """SIP2 Message type fixed field helper class."""
 
-    def __init__(self, field_id, length, label):
+    def __init__(self, name, field):
         """Constructor."""
-        self.field_id = field_id
-        self.length = length
-        self.label = label
+        self.field_id = name
+        self.length = field.get('length')
+        self.fill = field.get('fill', ' ')
+        self.label = field.get('label')
 
     def __str__(self):
         """String representation of fixed field."""
         return 'MessageTypeVariableField() field_id={field_id} ' \
-               'length={length} label={label}' \
+               'length={length} fill={fill} label={label}' \
             .format(
                 field_id=self.field_id,
                 length=self.length,
+                fill=self.fill,
                 label=self.label)
 
     @classmethod
@@ -51,20 +53,24 @@ class MessageTypeVariableField(object):
 
     field_id_map = {}
 
-    def __init__(self, field_id, label, length=None):
+    def __init__(self, name, field):
         """Constructor."""
-        self.field_id = field_id
-        self.label = label
-        if length:
-            self.length = length
+        self.name = name
+        self.field_id = field.get('field_id')
+        self.label = field.get('label')
+        self.length = field.get('length')
+        self.fill = field.get('fill', ' ')
 
-        MessageTypeVariableField.field_id_map[field_id] = self
+        MessageTypeVariableField.field_id_map[self.field_id] = self
 
     def __str__(self):
         """String representation of variable field."""
-        return 'MessageTypeVariableField() field_id={field_id} label={label}'\
+        return 'MessageTypeVariableField() field_id={field_id} ' \
+               'length={length} fill={fill} label={label}'\
             .format(
                 field_id=self.field_id,
+                length=self.length,
+                fill=self.fill,
                 label=self.label
             )
 

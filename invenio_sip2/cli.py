@@ -20,6 +20,8 @@
 
 from __future__ import absolute_import, print_function
 
+import threading
+
 import click
 from flask.cli import with_appcontext
 
@@ -34,17 +36,22 @@ def selfcheck():
 @selfcheck.command('start')
 @click.option(
     '-h', '--host', 'host', default=None,
-    help='change file in place default=False'
+    help='Host address of the server.'
 )
 @click.option(
     '-p', '--port', 'port', type=click.INT, default=None,
-    help='change file in place default=False'
+    help='Port that the server listen.'
+)
+@click.option(
+    '-r', '--remote-app', 'remote',
+    help='remote ILS application name in your config'
 )
 @with_appcontext
-def start_socket_server(host, port):
+def start_socket_server(host, port, remote):
     """Start sockets server."""
     try:
-        server = SocketServer(port=port, host=host)
-        server.run()
+        server = SocketServer(port=port, host=host, remote=remote)
+        server_thread = threading.Thread(target=server.run)
+        server_thread.run()
     except Exception as e:
         raise e
