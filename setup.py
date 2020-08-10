@@ -138,7 +138,7 @@ setup(
     classifiers=[
         'Environment :: Web Environment',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: AGPL License',
+        'License :: OSI Approved :: GNU AFFERO GENERAL PUBLIC LICENSE V3',
         'Operating System :: OS Independent',
         'Programming Language :: Python',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
