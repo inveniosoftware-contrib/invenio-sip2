@@ -17,6 +17,13 @@
 Changes
 =======
 
-Version 0.1.0 (released TBD)
+Version 0.2.0 (released 2020-08-10)
+
+**Implemented enhancements:**
+
+- Implements Patron information action.
+- Adds Remote ILS handlers configuration.
+
+Version 0.1.0 (released 2020-05-25)
 
 - Base of automated circulation system.
