@@ -89,6 +89,7 @@ def app(request):
         SECURITY_RESET_PASSWORD_WITHIN="2 seconds",
         SQLALCHEMY_DATABASE_URI=os.environ.get(
             'SQLALCHEMY_DATABASE_URI', 'sqlite:///test.db'),
+        SQLALCHEMY_TRACK_MODIFICATIONS=False,
         SERVER_NAME='localhost:5000',
         TESTING=True,
         WTF_CSRF_ENABLED=False,
