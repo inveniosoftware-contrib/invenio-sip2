@@ -65,6 +65,7 @@ class InvenioSIP2(object):
         # TODO: refactoring app init
         self.init_config(app)
         self._state = _Sip2State(app)
+        self.server = SocketServer
         app.extensions['invenio-sip2'] = self
         self.app = app
 
