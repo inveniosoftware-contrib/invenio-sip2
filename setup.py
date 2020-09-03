@@ -35,7 +35,7 @@ tests_require = [
     'pytest-cache>=1.0',
     'pytest-cov>=2.7.1',
     'pytest-pep8>=1.0.6',
-    'pytest-invenio>=1.2.1',
+    'pytest-invenio>=1.2.1,<1.3.0'
 ]
 
 invenio_search_version = '1.2.1'
@@ -95,6 +95,7 @@ install_requires = [
     'SQLAlchemy-Utils>=0.33.1,<0.36',
     'invenio-base>=1.2.1',
     'invenio-access>=1.3.1',
+    'pycountry>=19.7.15',
 ]
 
 packages = find_packages()

@@ -78,7 +78,7 @@ def base_enable_patron_handler(remote, patron_identifier, **kwargs):
     return handlers['enable'](patron_identifier, **kwargs)
 
 
-def base_patron_handlers(remote, patron_identifier, **kwargs):
+def base_patron_handler(remote, patron_identifier, **kwargs):
     """Handle patron information functionality.
 
     :param remote: remote ils
@@ -87,3 +87,28 @@ def base_patron_handlers(remote, patron_identifier, **kwargs):
     """
     handlers = acs_system.sip2_handlers.patron_handlers[remote]
     return handlers['account'](patron_identifier, **kwargs)
+
+
+def base_item_handler(remote, patron_identifier, item_identifier,  **kwargs):
+    """Handle item information functionality.
+
+    :param remote: remote ils
+    :param item_identifier: Identifier of the item (e.g. id, barcode,...)
+    returns: Item information
+    """
+    handlers = acs_system.sip2_handlers.item_handlers[remote]
+    return handlers['item'](patron_identifier, item_identifier, **kwargs)
+
+
+def base_circulation_handlers(remote, handler, patron_identifier,
+                              item_identifier, **kwargs):
+    """Handle checkout functionality.
+
+    :param remote: remote ils
+    :param handler: circulation handler (e.g.: checkin, checkout,...)
+    :param patron_identifier: Identifier of the patron (e.g. id, barcode,...)
+    :param item_identifier: Identifier of the item (e.g. id, barcode,...)
+    returns: Circulation handler
+    """
+    handlers = acs_system.sip2_handlers.circulation_handlers[remote]
+    return handlers[handler](patron_identifier, item_identifier, **kwargs)

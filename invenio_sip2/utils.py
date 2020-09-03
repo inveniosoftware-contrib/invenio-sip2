@@ -19,7 +19,10 @@
 
 from __future__ import absolute_import, print_function
 
-from .models import SelfcheckLanguage
+from flask import current_app
+
+from .models import SelfcheckCirculationStatus, SelfcheckLanguage, \
+    SelfcheckMediaType, SelfcheckSecurityMarkerType
 
 
 def convert_bool_to_char(value=False):
@@ -42,3 +45,27 @@ def get_language_code(language):
         return SelfcheckLanguage[language].value
     except KeyError:
         return SelfcheckLanguage.UNKNOWN.value
+
+
+def get_security_marker_type(marker_type=None):
+    """Get mapped security marker type."""
+    try:
+        return getattr(SelfcheckSecurityMarkerType, marker_type)
+    except AttributeError:
+        return current_app.config.get('SIP2_DEFAULT_SECURITY_MARKER')
+
+
+def get_media_type(media_type=None):
+    """Get mapped circulation status."""
+    try:
+        return getattr(SelfcheckMediaType, media_type)
+    except AttributeError:
+        return SelfcheckMediaType.OTHER
+
+
+def get_circulation_status(status=None):
+    """Get mapped circulation status."""
+    try:
+        return getattr(SelfcheckCirculationStatus, status)
+    except AttributeError:
+        return SelfcheckCirculationStatus.OTHER

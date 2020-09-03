@@ -19,9 +19,10 @@
 
 from __future__ import absolute_import, print_function
 
-from .base import base_authorize_patron_handler, base_enable_patron_handler, \
-    base_patron_handlers, base_selfcheck_login_handler, \
-    base_system_status_handler, base_validate_patron_handler
+from .base import base_authorize_patron_handler, base_circulation_handlers, \
+    base_enable_patron_handler, base_item_handler, base_patron_handler, \
+    base_selfcheck_login_handler, base_system_status_handler, \
+    base_validate_patron_handler
 
 
 def selfcheck_login_handler(remote, login, password, **kwargs):
@@ -49,6 +50,35 @@ def enable_patron_handler(remote, patron_identifier, **kwargs):
     return base_enable_patron_handler(remote, patron_identifier, **kwargs)
 
 
-def patron_handlers(remote, patron_identifier, **kwargs):
+def patron_handler(remote, patron_identifier, **kwargs):
     """Handle patron information functionality."""
-    return base_patron_handlers(remote, patron_identifier, **kwargs)
+    return base_patron_handler(remote, patron_identifier, **kwargs)
+
+
+def item_handler(remote, patron_identifier, item_identifier, **kwargs):
+    """Handle item information functionality."""
+    return base_item_handler(remote, patron_identifier, item_identifier,
+                             **kwargs)
+
+
+def checkout_handler(remote, patron_identifier, item_identifier, **kwargs):
+    """Handle chekout an item functionality."""
+    return base_circulation_handlers(remote, 'checkout', patron_identifier,
+                                     item_identifier, **kwargs)
+
+
+def checkin_handler(remote, item_identifier, **kwargs):
+    """Handle checkin an item functionality."""
+    return base_circulation_handlers(remote, 'checkin', item_identifier,
+                                     **kwargs)
+
+
+def hold_handler(remote, item_identifier, **kwargs):
+    """Handle hold an item functionality."""
+    return base_circulation_handlers(remote, 'hold', item_identifier, **kwargs)
+
+
+def renew_handler(remote, item_identifier, **kwargs):
+    """Handle renew an item functionality."""
+    return base_circulation_handlers(remote, 'renew', item_identifier,
+                                     **kwargs)

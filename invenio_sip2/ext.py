@@ -221,12 +221,28 @@ class _MessageType(object):
 
     def __init__(self, command, **kwargs):
         self.command = command
+        self.required_fields = []
+        self.optional_fields = []
         self.fixed_fields = []
-        for fixed_field in kwargs.pop('fixed_fields', []):
-            field = MessageTypeFixedField.get(fixed_field)
-            self.fixed_fields.append(
-                field
-            )
+        self.variable_fields = []
+
+        required_fields = kwargs.pop('required_fields', [])
+        fixed_fields = kwargs.pop('fixed_fields', [])
+        variable_fields = kwargs.pop('variable_fields', [])
+
+        for required_field in required_fields:
+            if required_field in fixed_fields:
+                field = MessageTypeFixedField.get(required_field)
+                self.fixed_fields.append(field)
+            else:
+                field = MessageTypeVariableField.get(required_field)
+            self.required_fields.append(field)
+
+        for variable_field in variable_fields:
+            field = MessageTypeVariableField.get(variable_field)
+            self.variable_fields.append(field)
+            if variable_field not in required_fields:
+                self.optional_fields.append(field)
 
         for key, value in kwargs.items():
             setattr(self, key, value)
@@ -242,6 +258,8 @@ class _Sip2State(object):
         self.login_handler = {}
         self.system_status_handler = {}
         self.patron_handlers = {}
+        self.item_handlers = {}
+        self.circulation_handlers = {}
 
         # TODO: configure automatically which command is supported by ACS
 
@@ -259,31 +277,67 @@ class _Sip2State(object):
             )
 
             # register patron handlers
-            patron_handler = conf.get('patron_handlers', dict())
+            patron_handlers = conf.get('patron_handlers', dict())
 
             validate_patron_handler = handlers.make_api_handler(
-                patron_handler.get('validate_patron'),
+                patron_handlers.get('validate_patron'),
                 with_data=True
             )
 
             authorize_patron_handler = handlers.make_api_handler(
-                patron_handler.get('authorize_patron'),
+                patron_handlers.get('authorize_patron'),
                 with_data=True
             )
 
             enable_patron_handler = handlers.make_api_handler(
-                patron_handler.get('enable_patron'),
+                patron_handlers.get('enable_patron'),
                 with_data=True
             )
 
             account_handler = handlers.make_api_handler(
-                patron_handler.get('account'),
+                patron_handlers.get('account'),
                 with_data=True
             )
-
             self.patron_handlers[remote] = dict(
                 validate=validate_patron_handler,
                 authorize=authorize_patron_handler,
                 enable=enable_patron_handler,
                 account=account_handler,
+            )
+
+            # register item handlers
+            item_handlers = conf.get('item_handlers', dict())
+
+            item_handler = handlers.make_api_handler(
+                item_handlers.get('item'),
+                with_data=True
+            )
+            self.item_handlers[remote] = dict(
+                item=item_handler,
+            )
+
+            # register circulation handlers
+            circulation_handlers = conf.get('circulation_handlers', dict())
+
+            checkout_handler = handlers.make_api_handler(
+                circulation_handlers.get('checkout'),
+                with_data=True
+            )
+            checkin_handler = handlers.make_api_handler(
+                circulation_handlers.get('checkin'),
+                with_data=True
+            )
+            hold_handler = handlers.make_api_handler(
+                circulation_handlers.get('hold'),
+                with_data=True
+            )
+            renew_handler = handlers.make_api_handler(
+                circulation_handlers.get('renew'),
+                with_data=True
+            )
+            self.circulation_handlers[remote] = dict(
+                checkout=checkout_handler,
+                checkin=checkin_handler,
+                hold=hold_handler,
+                renew=renew_handler,
             )

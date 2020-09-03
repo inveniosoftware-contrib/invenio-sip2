@@ -42,12 +42,12 @@ from invenio_access.ext import InvenioAccess
 from invenio_accounts.ext import InvenioAccounts
 from invenio_accounts.models import Role
 from invenio_accounts.testutils import create_test_user
-# from invenio_db import db as db_
 from invenio_db.ext import InvenioDB
 from utils import remote_authorize_patron_handler, \
     remote_enable_patron_handler, remote_handler, \
-    remote_login_failed_handler, remote_login_handler, \
-    remote_patron_account_handler, remote_validate_patron_handler
+    remote_item_information_handler, remote_login_failed_handler, \
+    remote_login_handler, remote_patron_account_handler, \
+    remote_validate_patron_handler
 
 from invenio_sip2 import InvenioSIP2
 from invenio_sip2.models import SelfcheckClient
@@ -104,6 +104,15 @@ def app(request):
                     enable_patron=remote_enable_patron_handler,
                     account=remote_patron_account_handler,
                 ),
+                item_handlers=dict(
+                    item=remote_item_information_handler,
+                ),
+                circulation_handlers=dict(
+                    checkout=remote_handler,
+                    checkin=remote_handler,
+                    hold=remote_handler,
+                    renew=remote_handler,
+                )
             ),
             test_invalid=dict(
                 login_handler=remote_login_failed_handler,
