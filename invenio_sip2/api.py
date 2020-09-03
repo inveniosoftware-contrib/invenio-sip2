@@ -19,8 +19,28 @@
 
 from __future__ import absolute_import, print_function
 
+from functools import wraps
+
+from flask import current_app
+from pycountry import languages
+
 from .helpers import MessageTypeFixedField, MessageTypeVariableField
+from .models import SelfcheckLanguage
 from .proxies import current_sip2 as acs_system
+
+
+def preprocess_field_value(func):
+    """Decorator to preprocess field value."""
+
+    @wraps(func)
+    def inner(*args, **kwargs):
+        field = kwargs.get('field')
+        value = kwargs.get('field_value')
+        if value and field.callback:
+            return func(*args, field=field, field_value=field.callback(value))
+        return func(*args, **kwargs)
+
+    return inner
 
 
 class FieldMessage(object):
@@ -91,6 +111,21 @@ class Message(object):
         """Get command of the message type for SIP2 message."""
         return self.message_type.command
 
+    @property
+    def i18n_language(self):
+        """Shortcut for i18n language."""
+        try:
+            language = SelfcheckLanguage(self.language).name
+            return languages.get(name=language).alpha_2
+        except (ValueError, AttributeError):
+            # return default language
+            return current_app.config.get('BABEL_DEFAULT_LANGUAGE')
+
+    @property
+    def language(self):
+        """Shortcut for sip2 language code."""
+        return self.get_fixed_field_value('language')
+
     def _parse_request(self):
         """Parse the request sended by the selfcheck."""
         txt = self.message_text[2:]
@@ -113,10 +148,10 @@ class Message(object):
     def get_fixed_field_by_name(self, field_name):
         """Get the FixedFieldMessage object by field name."""
         for f in self.fixed_fields:
-            if f.field == MessageTypeFixedField.get(
+            if f.field.field_id == MessageTypeFixedField.get(
                 field_name
-            ).field:
-                yield f
+            ).field_id:
+                return f
 
     def get_variable_field_by_name(self, field_name):
         """Get the VariableFieldMessage object by field name."""
@@ -148,13 +183,25 @@ class Message(object):
         if fields:
             return [field.field_value for field in fields]
 
+    @preprocess_field_value
+    def add_field(self, field, field_value):
+        """Add field to message according field type."""
+        if field_value:
+            if isinstance(field, MessageTypeFixedField):
+                self.add_fixed_field(field, field_value)
+            else:
+                if field.is_multiple:
+                    self.add_variable_fields(field.name, field_value)
+                else:
+                    self.add_variable_field(field.name, field_value)
+
     def add_variable_field(self, field_name, field_value):
         """Add variable field to message."""
         if field_value:
             self.variable_fields.append(
                 FieldMessage(
                     field=MessageTypeVariableField.get(field_name),
-                    field_value=field_value
+                    field_value=str(field_value)
                 )
             )
 
@@ -168,7 +215,7 @@ class Message(object):
         self.fixed_fields.append(
             FixedFieldMessage(
                 field=field,
-                field_value=field_value
+                field_value=str(field_value)
             )
         )
 

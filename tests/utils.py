@@ -17,8 +17,9 @@
 
 """Pytest utils."""
 
-from invenio_sip2.models import SelfcheckPatronInformation, \
-    SelfcheckPatronStatus
+from invenio_sip2.models import SelfcheckCirculationStatus, SelfcheckFeeType, \
+    SelfcheckItemInformation, SelfcheckMediaType, SelfcheckPatronInformation, \
+    SelfcheckPatronStatus, SelfcheckSecurityMarkerType
 
 
 def str_to_bytes(string):
@@ -84,3 +85,20 @@ def remote_patron_account_handler(patron_identifier):
         currency_type='EUR'
     )
     return patron_account_information
+
+
+def remote_item_information_handler(barcode, item_pid, **kwargs):
+    """Dummy remote handler for system status."""
+    item_information = SelfcheckItemInformation(
+        item_id='item_id',
+        title_id='title_id',
+        circulation_status=SelfcheckCirculationStatus.OTHER,
+        fee_type=SelfcheckFeeType.OTHER,
+        security_marker=SelfcheckSecurityMarkerType.OTHER
+    )
+    item_information['media_type'] = SelfcheckMediaType.OTHER
+    item_information['hold_queue_length'] = 0
+    item_information['owner'] = 'owner'
+    item_information['permanent_location'] = 'permanent_location'
+    item_information['current_location'] = 'current_location'
+    return item_information

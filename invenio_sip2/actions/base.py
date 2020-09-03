@@ -46,11 +46,21 @@ class Action(object):
         self.response_type = acs_system.sip2_message_types.get_by_command(
             response
         )
-        self.validate_actions()
+        self.validate_action()
 
-    def validate_actions(self):
+    @property
+    def required_fields(self):
+        """Shortcut for optional fields."""
+        return self.response_type.optional_fields
+
+    @property
+    def optional_fields(self):
+        """Shortcut for optional fields."""
+        return self.response_type.optional_fields
+
+    def validate_action(self):
         """Ensure that type and action are valid."""
-        # TODO: write logic to validate actions
+        # TODO: write logic to validate action
         return
 
     def prepare_message_response(self, **kwargs):
@@ -58,13 +68,19 @@ class Action(object):
         message = Message(
             message_type=self.response_type
         )
-        for fixed_field in self.response_type.fixed_fields:
-            field_value = kwargs.pop(fixed_field.field_id, None)
-            message.add_fixed_field(
-                field=fixed_field,
-                field_value=str(field_value)
+        for required_field in self.response_type.required_fields:
+            field_value = kwargs.pop(required_field.name, None)
+            message.add_field(
+                field=required_field,
+                field_value=field_value
             )
-            # TODO: try to raise exception if fixed field does not exist
+        for optional_field in self.response_type.optional_fields:
+            field_value = kwargs.pop(optional_field.name, None)
+            message.add_field(
+                field=optional_field,
+                field_value=field_value
+            )
+        # TODO: try to raise exception if fixed field does not exist
         return message
 
     def execute(self, **kwargs):

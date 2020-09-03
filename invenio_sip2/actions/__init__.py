@@ -16,3 +16,29 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 """Invenio-SIP2 actions module."""
+
+from __future__ import absolute_import, print_function
+
+from .actions import AutomatedCirculationSystemStatus, BlockPatron, Checkin, \
+    Checkout, EndPatronSession, FeePaid, Hold, ItemInformation, \
+    ItemStatusUpdate, PatronEnable, PatronInformation, PatronStatus, Renew, \
+    RenewAll, RequestResend, SelfCheckLogin
+
+__all__ = (
+    AutomatedCirculationSystemStatus,
+    BlockPatron,
+    Checkin,
+    Checkout,
+    EndPatronSession,
+    FeePaid,
+    Hold,
+    ItemInformation,
+    ItemStatusUpdate,
+    PatronEnable,
+    PatronInformation,
+    PatronStatus,
+    Renew,
+    RenewAll,
+    RequestResend,
+    SelfCheckLogin,
+)

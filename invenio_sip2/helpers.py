@@ -28,13 +28,15 @@ class MessageTypeFixedField(object):
     def __init__(self, name, field):
         """Constructor."""
         self.field_id = name
-        self.length = field.get('length')
-        self.fill = field.get('fill', ' ')
+        self.name = name
         self.label = field.get('label')
+        self.length = field.get('length')
+        self.callback = field.get('callback')
+        self.fill = field.get('fill', ' ')
 
     def __str__(self):
         """String representation of fixed field."""
-        return 'MessageTypeVariableField() field_id={field_id} ' \
+        return 'MessageTypeFixedField() field_id={field_id} ' \
                'length={length} fill={fill} label={label}' \
             .format(
                 field_id=self.field_id,
@@ -55,10 +57,12 @@ class MessageTypeVariableField(object):
 
     def __init__(self, name, field):
         """Constructor."""
-        self.name = name
         self.field_id = field.get('field_id')
+        self.name = name
         self.label = field.get('label')
         self.length = field.get('length')
+        self.multiple = field.get('multiple', False)
+        self.callback = field.get('callback')
         self.fill = field.get('fill', ' ')
 
         MessageTypeVariableField.field_id_map[self.field_id] = self
@@ -71,8 +75,14 @@ class MessageTypeVariableField(object):
                 field_id=self.field_id,
                 length=self.length,
                 fill=self.fill,
+                multiple=self.multiple,
                 label=self.label
             )
+
+    @property
+    def is_multiple(self):
+        """Shorcut to check if variable field is multiple."""
+        return self.multiple
 
     @classmethod
     def get(cls, name):

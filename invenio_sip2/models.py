@@ -32,6 +32,7 @@ class SelfcheckClient(dict):
         self['socket_port'] = address[1]
         self['remote_app'] = remote_app
         self['authenticated'] = False
+        self['patron_session'] = {}
 
     def update(self, data):
         """Update instance with dictionary data.
@@ -59,6 +60,14 @@ class SelfcheckClient(dict):
     def library_name(self):
         """Shortcut to library name."""
         return self.get('library_name')
+
+    def get_current_patron_session(self):
+        """Shortcut to patron session."""
+        return self.get('patron_session')
+
+    def clear_patron_session(self):
+        """Shortcut to library name."""
+        self['patron_session'] = {}
 
     @classmethod
     def get_user_client_by_id(cls, client_id):
@@ -138,6 +147,7 @@ class SelfcheckPatronInformation(dict):
         self['fine_items'] = []
         self['recall_items'] = []
         self['unavailable_items'] = []
+        self['screen_messages'] = []
 
         # optional properties
         for key, value in kwargs.items():
@@ -178,6 +188,32 @@ class SelfcheckPatronInformation(dict):
     def unavailable_items_count(self):
         """Shortcut for unavailable items count."""
         return len(self.get('unavailable_items', []))
+
+
+class SelfcheckItemInformation(dict):
+    """Class representing item information."""
+
+    def __init__(self, item_id, title_id, circulation_status,
+                 fee_type, **kwargs):
+        """Constructor.
+
+        :param patron_id - patron identifier (e.g. id, barcode, ...)
+        :param patron_name - full name of the patron
+        :param institution_id - institution id (or code) of the patron
+        :param language - iso-639-2 language
+        :param kwargs - optional fields
+        """
+        # required properties
+        self['item_id'] = item_id
+        self['title_id'] = title_id
+        self['circulation_status'] = circulation_status
+        self['fee_type'] = fee_type
+        self['screen_messages'] = []
+
+        # optional properties
+        for key, value in kwargs.items():
+            if value:
+                self[key] = value
 
 
 class SelfcheckLanguage(Enum):
@@ -232,7 +268,67 @@ class SelfcheckLanguage(Enum):
     pol = POLISH
     gre = GREEK
     chi = CHINESE
+    zho = CHINESE
     kor = KOREAN
     tam = TAMIL
     may = MALAY
+    msa = MALAY
     ice = ICELANDIC
+    isl = ICELANDIC
+
+
+class SelfcheckSecurityMarkerType(object):
+    """lass to handle all available security marker type."""
+
+    OTHER = '00'
+    NONE = '01'
+    TATTLE_TAPE_SECURITY_STRIP = '02'
+    WHISPHER_TAPE = '03'
+
+
+class SelfcheckFeeType(object):
+    """Class to handle all available fee type."""
+
+    OTHER = '01'
+    ADMINISTRATIVE = '02'
+    DAMAGE = '03'
+    OVERDUE = '04'
+    PROCESSING = '05'
+    RENTAL = '06'
+    REPLACEMENT = '07'
+    COMPUTER_ACCESS_CHARGE = '08'
+    HOLD_FEE = '09'
+
+
+class SelfcheckMediaType(object):
+    """Class to handle all available media type."""
+
+    OTHER = '000'
+    BOOK = '001'
+    MAGAZINE = '002'
+    BOUND_JOURNAL = '003'
+    AUDIO = '004'
+    VIDEO = '005'
+    CD_OR_CDROM = '006'
+    DISKETTE = '007'
+    BOOK_WHIT_DISKETTE = '008'
+    BOOK_WHIT_CD = '009'
+    BOOK_WHIT_AUDIO_TAPE = '010'
+
+
+class SelfcheckCirculationStatus(object):
+    """Class to handle all available circulation status of an item."""
+
+    OTHER = '01'
+    ON_ORDER = '02'
+    AVAILABLE = '03'
+    CHARGED = '04'
+    CHARGED_RECALL = '05'  # not to be recalled until earliest recall date
+    IN_PROCESS = '06'
+    RECALLED = '07'
+    WAITING_ON_HOLD_SHELF = '08'
+    WAITING_TO_RESHELF = '09'
+    IN_TRANSIT = '10'
+    CLAIMED_RETURNED = '11'
+    LOST = '12'
+    MISSING = '13'

@@ -19,9 +19,10 @@
 
 from __future__ import absolute_import, print_function
 
-from .api_handlers import authorize_patron_handler, enable_patron_handler, \
-    patron_handlers, selfcheck_login_handler, system_status_handler, \
-    validate_patron_handler
+from .api_handlers import authorize_patron_handler, checkin_handler, \
+    checkout_handler, enable_patron_handler, hold_handler, item_handler, \
+    patron_handler, renew_handler, selfcheck_login_handler, \
+    system_status_handler, validate_patron_handler
 from .utils import make_api_handler
 
 __all__ = (
@@ -31,5 +32,10 @@ __all__ = (
     'validate_patron_handler',
     'authorize_patron_handler',
     'enable_patron_handler',
-    'patron_handlers',
+    'patron_handler',
+    'item_handler',
+    'checkout_handler',
+    'checkin_handler',
+    'hold_handler',
+    'renew_handler',
 )

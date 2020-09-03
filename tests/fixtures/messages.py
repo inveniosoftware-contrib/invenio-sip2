@@ -106,3 +106,15 @@ def end_patron_session_message():
 def selfckeck_end_patron_session_message(end_patron_session_message):
     """Selfcheck end patron session message."""
     return str_to_bytes(end_patron_session_message)
+
+
+@pytest.fixture(scope="module")
+def item_information_message():
+    """Item information message."""
+    return '1720201012    123755AOinstitution_id|ABitem_id|AY2AZF4D2'
+
+
+@pytest.fixture(scope="module")
+def selfckeck_item_information_message(item_information_message):
+    """Selfcheck validate item message."""
+    return str_to_bytes(item_information_message)
