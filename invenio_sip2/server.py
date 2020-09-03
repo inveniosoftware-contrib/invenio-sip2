@@ -180,6 +180,7 @@ class SocketEventListener:
             self.response += 'AZ'
             self.response += self.calculate_checksum(self.response)
 
+        self.response += self.line_terminator
         message = bytes(self.response, self.message_encoding)
         return message
 
