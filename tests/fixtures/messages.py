@@ -91,7 +91,7 @@ def patron_information_message():
 
 @pytest.fixture(scope="module")
 def selfckeck_patron_information_message(patron_information_message):
-    """Selfcheck validate patron message."""
+    """Selfcheck patron message."""
     return str_to_bytes(patron_information_message)
 
 
@@ -116,5 +116,83 @@ def item_information_message():
 
 @pytest.fixture(scope="module")
 def selfckeck_item_information_message(item_information_message):
-    """Selfcheck validate item message."""
+    """Selfcheck item message."""
     return str_to_bytes(item_information_message)
+
+
+@pytest.fixture(scope="module")
+def checkout_message():
+    """Checkout message."""
+    return '11YN20201013    09315820201013    093158AOinstitution_id|' \
+           'AApatron_id|ABitem_id|ACterminal_password|AY0AZEC96'
+
+
+@pytest.fixture(scope="module")
+def selfckeck_checkout_message(checkout_message):
+    """Selfcheck item message."""
+    return str_to_bytes(checkout_message)
+
+
+@pytest.fixture(scope="module")
+def checkin_message():
+    """Checkin message."""
+    return '09N20201013    09315820201013    093158APinstitution_id|' \
+           'AOinstitution_id|ABitem_id|ACterminal_password|AY0AZEC96'
+
+
+@pytest.fixture(scope="module")
+def selfckeck_checkin_message(checkin_message):
+    """Selfcheck item message."""
+    return str_to_bytes(checkout_message)
+
+
+@pytest.fixture(scope="module")
+def create_hold_message():
+    """Create hold message."""
+    return '15+20201013    093158|AOinstitution_id|AApatron_id|ABitem_id|' \
+           'ACterminal_password|AY0AZEC96'
+
+
+@pytest.fixture(scope="module")
+def selfckeck_create_hold_message(create_hold_message):
+    """Selfcheck create hold message."""
+    return str_to_bytes(create_hold_message)
+
+
+@pytest.fixture(scope="module")
+def delete_hold_message():
+    """Delete hold message."""
+    return '15-20201013    093158|AOinstitution_id|AApatron_id|ABitem_id|' \
+           'ACterminal_password|AY0AZEC96'
+
+
+@pytest.fixture(scope="module")
+def selfckeck_delete_hold_message(delete_hold_message):
+    """Selfcheck delete hold message."""
+    return str_to_bytes(delete_hold_message)
+
+
+@pytest.fixture(scope="module")
+def update_hold_message():
+    """Update hold message."""
+    return '15*20201013    093158|AOinstitution_id|AApatron_id|ABitem_id|' \
+           'ACterminal_password|AY0AZEC96'
+
+
+@pytest.fixture(scope="module")
+def selfckeck_update_hold_message(update_hold_message):
+    """Selfcheck create hold message."""
+    return str_to_bytes(update_hold_message)
+
+
+@pytest.fixture(scope="module")
+def renew_message():
+    """Renew message."""
+    return '29NN20201013    09315820201013    09315|AOinstitution_id|' \
+           'AApatron_id|ABitem_id|AY0AZEC96'
+
+
+@pytest.fixture(scope="module")
+def selfckeck_renew_message(renew_message):
+    """Selfcheck create hold message."""
+    return str_to_bytes(renew_message)
