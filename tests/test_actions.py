@@ -91,3 +91,43 @@ def test_item_information(app, dummy_client, item_information_message):
                 client=dummy_client
         )
         assert response.startswith('18')
+
+
+def test_checkout(app, dummy_client, checkout_message):
+    """Test invenio-sip2 checkout action."""
+    with app.app_context():
+        response = current_sip2.sip2.execute(
+                Message(request=checkout_message),
+                client=dummy_client
+        )
+        assert response.startswith('12')
+
+
+def test_checkin(app, dummy_client, checkin_message):
+    """Test invenio-sip2 checkin action."""
+    with app.app_context():
+        response = current_sip2.sip2.execute(
+                Message(request=checkin_message),
+                client=dummy_client
+        )
+        assert response.startswith('10')
+
+
+def test_hold(app, dummy_client, create_hold_message):
+    """Test invenio-sip2 hold action."""
+    with app.app_context():
+        response = current_sip2.sip2.execute(
+                Message(request=create_hold_message),
+                client=dummy_client
+        )
+        assert response.startswith('16')
+
+
+def test_renew(app, dummy_client, renew_message):
+    """Test invenio-sip2 renew action."""
+    with app.app_context():
+        response = current_sip2.sip2.execute(
+                Message(request=renew_message),
+                client=dummy_client
+        )
+        assert response.startswith('30')
