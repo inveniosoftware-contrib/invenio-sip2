@@ -18,6 +18,8 @@
 
 from enum import Enum
 
+from .proxies import current_sip2 as acs_system
+
 
 class SelfcheckClient(dict):
     """class for user client."""
@@ -32,6 +34,7 @@ class SelfcheckClient(dict):
         self['socket_port'] = address[1]
         self['remote_app'] = remote_app
         self['authenticated'] = False
+        self['user_id'] = None
         self['patron_session'] = {}
 
     def update(self, data):
@@ -50,6 +53,11 @@ class SelfcheckClient(dict):
     def remote_app(self):
         """Shortcut to remote application."""
         return self.get('remote_app')
+
+    @property
+    def user_id(self):
+        """Shortcut to user id."""
+        return self.get('user_id')
 
     @property
     def institution_id(self):
@@ -123,7 +131,7 @@ class SelfcheckPatronStatus(object):
 
 
 class SelfcheckPatronInformation(dict):
-    """Class representing patron information."""
+    """Class representing patron information handler response."""
 
     def __init__(self, patron_id, patron_name, institution_id,
                  language, **kwargs):
@@ -191,7 +199,7 @@ class SelfcheckPatronInformation(dict):
 
 
 class SelfcheckItemInformation(dict):
-    """Class representing item information."""
+    """Class representing item information handler response."""
 
     def __init__(self, item_id, title_id, circulation_status,
                  fee_type, **kwargs):
@@ -214,6 +222,183 @@ class SelfcheckItemInformation(dict):
         for key, value in kwargs.items():
             if value:
                 self[key] = value
+
+
+class SelfcheckCheckin(dict):
+    """Class representing checkin handler response."""
+
+    def __init__(self, permanent_location, checkin=False, alert=False,
+                 magnetic_media=False, resensitize=False,  **kwargs):
+        """Constructor.
+
+        :param permanent_location - permanent_location of the item
+        :param checkin - checkin operation is success or not
+        :param alert - indicate if the selcheck will generate sound alert
+        :param magnetic_media - indicate the presence of magnetic media
+        :param resensitize - resensitize an item ?
+        :param kwargs - optional fields
+        """
+        # required properties
+        self['checkin'] = checkin
+        self['alert'] = alert
+        self['magnetic_media'] = magnetic_media
+        self['resensitize'] = resensitize
+        self['permanent_location'] = permanent_location
+        self['screen_messages'] = []
+
+        # optional properties
+        for key, value in kwargs.items():
+            if value:
+                self[key] = value
+
+    @property
+    def is_success(self):
+        """Shortcut for checkin."""
+        return self.get('checkin')
+
+    @property
+    def resensitize(self):
+        """Shortcut for resensitize."""
+        return self.get('resensitize')
+
+    @property
+    def has_magnetic_media(self):
+        """Shortcut for desensitize."""
+        return self.get('magnetic_media')
+
+    @property
+    def sound_alert(self):
+        """Shortcut for alert."""
+        return self.get('alert')
+
+
+class SelfcheckCheckout(dict):
+    """Class representing checkout handler response."""
+
+    def __init__(self, title_id, checkout=False, renewal=False,
+                 magnetic_media=False, desensitize=False,  **kwargs):
+        """Constructor.
+
+        :param title_id - title_id (e.g. title, identifier, ...)
+        :param checkout - checkout operation is success or not
+        :param renewal - renewal operation is success or not
+        :param magnetic_media - indicate the presence of magnetic media
+        :param desensitize - desensitize an item ?
+        :param kwargs - optional fields
+        """
+        # required properties
+        self['checkout'] = checkout
+        self['renewal'] = renewal
+        self['magnetic_media'] = magnetic_media
+        self['desensitize'] = desensitize
+        self['title_id'] = title_id
+        self['due_date'] = acs_system.sip2_current_date
+        self['screen_messages'] = []
+
+        # optional properties
+        for key, value in kwargs.items():
+            if value:
+                self[key] = value
+
+    @property
+    def is_success(self):
+        """Shortcut for checkout ok."""
+        return self.get('checkout')
+
+    @property
+    def is_renewal(self):
+        """Shortcut for renewal ok."""
+        return self.get('renewal')
+
+    @property
+    def desensitize(self):
+        """Shortcut for desensitize."""
+        return self.get('desensitize')
+
+    @property
+    def has_magnetic_media(self):
+        """Shortcut for desensitize."""
+        return self.get('magnetic_media')
+
+
+class SelfcheckHold(dict):
+    """Class representing hold handler response."""
+
+    def __init__(self, hold=False, available=False, **kwargs):
+        """Constructor.
+
+        :param hold - hold operation is success or not
+        :param available - item available or not
+        :param kwargs - optional fields
+        """
+        # required properties
+        self['hold'] = hold
+        self['available'] = available
+        self['screen_messages'] = []
+
+        # optional properties
+        for key, value in kwargs.items():
+            if value:
+                self[key] = value
+
+    @property
+    def is_success(self):
+        """Shortcut for hold ok."""
+        return self.get('hold')
+
+    @property
+    def is_available(self):
+        """Shortcut for available."""
+        return self.get('available')
+
+
+class SelfcheckRenew(dict):
+    """Class representing renew handler response."""
+
+    def __init__(self, title_id, renew=False, renewal=False,
+                 magnetic_media=False, desensitize=False,  **kwargs):
+        """Constructor.
+
+        :param title_id - title_id (e.g. title, identifier, ...)
+        :param renew - renew operation is success or not
+        :param renewal - renewal operation is success or not
+        :param magnetic_media - indicate the presence of magnetic media
+        :param desensitize - desensitize an item ?
+        :param kwargs - optional fields
+        """
+        # required properties
+        self['renew'] = renew
+        self['renewal'] = renewal
+        self['magnetic_media'] = magnetic_media
+        self['desensitize'] = desensitize
+        self['title_id'] = title_id
+        self['due_date'] = acs_system.sip2_current_date
+        self['screen_messages'] = []
+
+        # optional properties
+        for key, value in kwargs.items():
+            if value:
+                self[key] = value
+
+    @property
+    def is_success(self):
+        """Shortcut for renew ok."""
+        return self.get('renew')
+
+    @property
+    def is_renewal(self):
+        """Shortcut for renewal ok."""
+        return self.get('renewal')
+
+    @property
+    def desensitize(self):
+        """Shortcut for desensitize."""
+        return self.get('desensitize')
+
+    @property
+    def has_magnetic_media(self):
+        """Shortcut for desensitize."""
+        return self.get('magnetic_media')
 
 
 class SelfcheckLanguage(Enum):

@@ -20,8 +20,9 @@
 from __future__ import absolute_import, print_function
 
 from ..actions.base import Action, check_selfcheck_authentication
-from ..handlers import authorize_patron_handler, enable_patron_handler, \
-    item_handler, patron_handler, selfcheck_login_handler, \
+from ..handlers import authorize_patron_handler, checkin_handler, \
+    checkout_handler, enable_patron_handler, hold_handler, item_handler, \
+    patron_handler, renew_handler, selfcheck_login_handler, \
     validate_patron_handler
 from ..proxies import current_sip2 as acs_system
 from ..utils import get_circulation_status, get_language_code, \
@@ -47,7 +48,7 @@ class SelfCheckLogin(Action):
             client.update(selfcheck_user)
 
         return str(self.prepare_message_response(
-            ok='1' if client.is_authenticated else '0'
+            ok=str(int(client.is_authenticated))
         ))
 
 
@@ -88,6 +89,7 @@ class RequestResend(Action):
     @check_selfcheck_authentication
     def execute(self, message, client):
         """Execute action."""
+        # TODO: implements action
         return
 
 
@@ -203,6 +205,8 @@ class PatronStatus(Action):
         institution_id = message.get_field_value('institution_id')
         patron_id = message.get_field_value('patron_id')
         selfcheck_language = message.i18n_language
+        # TODO: implements action
+        return
 
 
 class EndPatronSession(Action):
@@ -265,6 +269,7 @@ class BlockPatron(Action):
     @check_selfcheck_authentication
     def execute(self, message, client, **kwargs):
         """Execute action."""
+        # TODO: implements action
         return
 
 
@@ -273,16 +278,74 @@ class Checkin(Action):
 
     @check_selfcheck_authentication
     def execute(self, message, client, **kwargs):
-        """Execute action."""
-        return
+        """Execute checkin action."""
+        patron_session = client.get_current_patron_session()
+        item_id = message.get_field_value('item_id')
+        patron_id = message.get_field_value('patron_id')
+
+        checkin = checkin_handler(
+            client.remote_app, client.user_id, client.institution_id,
+            patron_id, item_id, language=patron_session.get('language')
+        )
+        # prepare message based on required fields
+        response_message = self.prepare_message_response(
+            ok=str(int(checkin.is_success)),
+            resensitize=checkin.resensitize,
+            magnetic_media=checkin.has_magnetic_media,
+            alert=checkin.sound_alert,
+            transaction_date=acs_system.sip2_current_date,
+            institution_id=client.institution_id,
+            item_id=item_id,
+            permanent_location=checkin.get('permanent_location'),
+        )
+
+        # add optional fields
+        for optional_field in self.optional_fields:
+            response_message.add_field(
+                field=optional_field,
+                field_value=checkin.get(optional_field.name)
+            )
+
+        return str(response_message)
 
 
 class Checkout(Action):
     """Action to checkout an item."""
 
+    @check_selfcheck_authentication
     def execute(self, message, client, **kwargs):
-        """Execute action."""
-        return
+        """Execute checkout action."""
+        patron_session = client.get_current_patron_session()
+        item_id = message.get_field_value('item_id')
+        patron_id = message.get_field_value('patron_id')
+
+        checkout = checkout_handler(
+            client.remote_app, client.user_id, client.institution_id,
+            patron_id, item_id, language=patron_session.get('language')
+        )
+
+        # prepare message based on required fields
+        response_message = self.prepare_message_response(
+            ok=str(int(checkout.is_success)),
+            renewal_ok=checkout.is_renewal,
+            magnetic_media=checkout.has_magnetic_media,
+            desensitize=checkout.desensitize,
+            transaction_date=acs_system.sip2_current_date,
+            institution_id=client.institution_id,
+            patron_id=patron_id,
+            item_id=item_id,
+            title_id=checkout.get('title_id'),
+            due_date=checkout.get('due_date'),
+        )
+
+        # add optional fields
+        for optional_field in self.optional_fields:
+            response_message.add_field(
+                field=optional_field,
+                field_value=checkout.get(optional_field.name)
+            )
+
+        return str(response_message)
 
 
 class FeePaid(Action):
@@ -291,6 +354,7 @@ class FeePaid(Action):
     @check_selfcheck_authentication
     def execute(self, message, client, **kwargs):
         """Execute action."""
+        # TODO: implements action
         return
 
 
@@ -299,8 +363,34 @@ class Hold(Action):
 
     @check_selfcheck_authentication
     def execute(self, message, client, **kwargs):
-        """Execute action."""
-        return
+        """Execute hold action."""
+        patron_session = client.get_current_patron_session()
+        item_id = message.get_field_value('item_id')
+        patron_id = message.get_field_value('patron_id')
+
+        hold = hold_handler(
+            client.remote_app, client.user_id, client.institution_id,
+            patron_id, item_id, language=patron_session.get('language')
+        )
+
+        # prepare message based on required fields
+        response_message = self.prepare_message_response(
+            ok=str(int(hold.is_success)),
+            available=hold.is_available,
+            transaction_date=acs_system.sip2_current_date,
+            institution_id=client.institution_id,
+            patron_id=patron_id,
+            item_id=item_id,
+        )
+
+        # add optional fields
+        for optional_field in self.optional_fields:
+            response_message.add_field(
+                field=optional_field,
+                field_value=hold.get(optional_field.name)
+            )
+
+        return str(response_message)
 
 
 class Renew(Action):
@@ -308,8 +398,38 @@ class Renew(Action):
 
     @check_selfcheck_authentication
     def execute(self, message, client, **kwargs):
-        """Execute action."""
-        return
+        """Execute checkout action."""
+        patron_session = client.get_current_patron_session()
+        item_id = message.get_field_value('item_id')
+        patron_id = message.get_field_value('patron_id')
+
+        renew = renew_handler(
+            client.remote_app, client.user_id, client.institution_id,
+            patron_id, item_id, language=patron_session.get('language')
+        )
+
+        # prepare message based on required fields
+        response_message = self.prepare_message_response(
+            ok=str(int(renew.is_success)),
+            renewal_ok=renew.is_renewal,
+            magnetic_media=renew.has_magnetic_media,
+            desensitize=renew.desensitize,
+            transaction_date=acs_system.sip2_current_date,
+            institution_id=client.institution_id,
+            patron_id=patron_id,
+            item_id=item_id,
+            title_id=renew.get('title_id'),
+            due_date=renew.get('due_date'),
+        )
+
+        # add optional fields
+        for optional_field in self.optional_fields:
+            response_message.add_field(
+                field=optional_field,
+                field_value=renew.get(optional_field.name)
+            )
+
+        return str(response_message)
 
 
 class RenewAll(Action):
@@ -318,6 +438,7 @@ class RenewAll(Action):
     @check_selfcheck_authentication
     def execute(self, message, client, **kwargs):
         """Execute action."""
+        # TODO: implements action
         return
 
 
@@ -327,4 +448,5 @@ class ItemStatusUpdate(Action):
     @check_selfcheck_authentication
     def execute(self, message, client, **kwargs):
         """Execute action."""
+        # TODO: implements action
         return
