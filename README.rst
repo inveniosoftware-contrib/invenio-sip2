@@ -21,6 +21,9 @@
 .. image:: https://img.shields.io/travis/inveniosoftware-contrib/invenio-sip2.svg
         :target: https://travis-ci.org/inveniosoftware-contrib/invenio-sip2
 
+.. image:: https://img.shields.io/coveralls/inveniosoftware-contrib/invenio-sip2.svg
+        :target: https://coveralls.io/github/inveniosoftware-contrib/invenio-sip2
+
 .. image:: https://img.shields.io/github/tag/inveniosoftware-contrib/invenio-sip2.svg
         :target: https://github.com/inveniosoftware-contrib/invenio-sip2/releases
 

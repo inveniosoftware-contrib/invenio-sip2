@@ -77,12 +77,6 @@ class SelfcheckClient(dict):
         """Shortcut to library name."""
         self['patron_session'] = {}
 
-    @classmethod
-    def get_user_client_by_id(cls, client_id):
-        """Get client by id."""
-        from .server import SocketServer
-        return SocketServer.get_client(client_id)
-
 
 class SelfcheckPatronStatusTypes(Enum):
     """Enum class to list all possible patron status types."""

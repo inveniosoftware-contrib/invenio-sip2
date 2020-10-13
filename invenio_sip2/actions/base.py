@@ -50,8 +50,8 @@ class Action(object):
 
     @property
     def required_fields(self):
-        """Shortcut for optional fields."""
-        return self.response_type.optional_fields
+        """Shortcut for required fields."""
+        return self.response_type.required_fields
 
     @property
     def optional_fields(self):
@@ -84,5 +84,5 @@ class Action(object):
         return message
 
     def execute(self, **kwargs):
-        """Execute before actions, action and after actions."""
+        """Execute actions."""
         raise NotImplementedError()
