@@ -17,6 +17,19 @@
 Changes
 =======
 
+Version 0.3.0 (released 2020-10-13)
+
+**Implemented enhancements:**
+
+- Adds Item information action.
+- Implements circulation actions
+- Adds base of patron session.
+- Uses pycountry for language management.
+
+**Fixed bugs:**
+
+- Missing line terminator to tell to client that all bytes are sent.
+
 Version 0.2.0 (released 2020-08-10)
 
 **Implemented enhancements:**
