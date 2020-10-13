@@ -30,9 +30,9 @@ def selfcheck_login_handler(remote, login, password, **kwargs):
     return base_selfcheck_login_handler(remote, login, password, **kwargs)
 
 
-def system_status_handler(remote, message, **kwargs):
+def system_status_handler(remote, login, **kwargs):
     """Handle  automatic circulation system status functionality."""
-    return base_system_status_handler(remote, message, **kwargs)
+    return base_system_status_handler(remote, login, **kwargs)
 
 
 def validate_patron_handler(remote, login, **kwargs):

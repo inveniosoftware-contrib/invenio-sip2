@@ -15,26 +15,23 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-"""CLI test."""
+"""Invenio-sip1 actions test."""
 
 from __future__ import absolute_import, print_function
 
-from click.testing import CliRunner
-
-from invenio_sip2.cli import selfcheck, start_socket_server
+from invenio_sip2.utils import decode_char_to_bool, get_language_code
 
 
-def test_basic_cli():
-    """Test version import."""
-    res = CliRunner().invoke(selfcheck)
-    assert res.exit_code == 0
+def test_decode_char_to_bool():
+    """test convert char to boolean."""
+    assert decode_char_to_bool('Y')
 
 
-def test_start_server_socker(app):
-    """Test start socket server."""
-    runner = app.test_cli_runner()
-
-    # test start server with wrong port
-    result = runner.invoke(start_socket_server, [
-        '--host', '0.0.0.0', '--port', 78495, '--remote-app', 'test'])
-    assert result.exit_code == 1
+def test_get_language_code():
+    """Test conversion of language to SIP2 code."""
+    # test by ISO 639-2 language
+    assert get_language_code('eng') == '001'
+    # test by enum name
+    assert get_language_code('FRENCH') == '002'
+    # test unknown value
+    assert get_language_code('inexisting_language') == '000'

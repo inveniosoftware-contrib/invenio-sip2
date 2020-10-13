@@ -23,7 +23,7 @@ from ..actions.base import Action, check_selfcheck_authentication
 from ..handlers import authorize_patron_handler, checkin_handler, \
     checkout_handler, enable_patron_handler, hold_handler, item_handler, \
     patron_handler, renew_handler, selfcheck_login_handler, \
-    validate_patron_handler
+    system_status_handler, validate_patron_handler
 from ..proxies import current_sip2 as acs_system
 from ..utils import get_circulation_status, get_language_code, \
     get_security_marker_type
@@ -58,6 +58,9 @@ class AutomatedCirculationSystemStatus(Action):
     @check_selfcheck_authentication
     def execute(self, message, client):
         """Execute action."""
+        # TODO : calculate system status from remote app
+        status = system_status_handler(client.remote_app, client.user_id)
+
         # prepare message based on required fields
         response_message = self.prepare_message_response(
             online_status=acs_system.support_online_status,

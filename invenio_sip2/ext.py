@@ -273,7 +273,7 @@ class _Sip2State(object):
 
             self.system_status_handler[remote] = handlers.make_api_handler(
                 conf.get('system_status_handler'),
-                with_data=True
+                with_data=False
             )
 
             # register patron handlers

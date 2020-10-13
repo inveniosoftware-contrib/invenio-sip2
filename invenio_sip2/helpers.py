@@ -47,7 +47,10 @@ class MessageTypeFixedField(object):
     @classmethod
     def get(cls, name):
         """Get fixed field by name."""
-        return getattr(cls, name)
+        try:
+            return getattr(cls, name)
+        except AttributeError:
+            raise UnknownFieldIdMessageError
 
 
 class MessageTypeVariableField(object):
@@ -87,7 +90,10 @@ class MessageTypeVariableField(object):
     @classmethod
     def get(cls, name):
         """Get variable field by name."""
-        return getattr(cls, name)
+        try:
+            return getattr(cls, name)
+        except AttributeError:
+            raise UnknownFieldIdMessageError
 
     @classmethod
     def find_by_field_id(cls, field_id):
@@ -96,5 +102,5 @@ class MessageTypeVariableField(object):
         if variable_field is None:
             msg = "field id '{field_id}' not in [{field_id_map}]" \
                 .format(field_id=field_id, field_id_map=cls.field_id_map)
-            raise UnknownFieldIdMessageError(description=msg)
+            raise UnknownFieldIdMessageError(message=msg)
         return variable_field

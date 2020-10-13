@@ -32,15 +32,15 @@ def base_selfcheck_login_handler(remote, login, password, *kwargs):
     return handler(login, password, *kwargs)
 
 
-def base_system_status_handler(remote, message, **kwargs):
+def base_system_status_handler(remote, login, **kwargs):
     """Handle automatic circulation system status functionality.
 
     :param remote: remote ils
-    :param message: The message object
+    :param login: The usename to login
     returns: login response
     """
     handler = acs_system.sip2_handlers.system_status_handler[remote]
-    return handler(message.dumps(), **kwargs)
+    return handler(login, **kwargs)
 
 
 def base_validate_patron_handler(remote, patron_identifier, **kwargs):

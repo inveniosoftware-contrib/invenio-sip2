@@ -15,26 +15,29 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-"""CLI test."""
+"""Server test."""
 
 from __future__ import absolute_import, print_function
 
-from click.testing import CliRunner
+import socket
+import threading
 
-from invenio_sip2.cli import selfcheck, start_socket_server
-
-
-def test_basic_cli():
-    """Test version import."""
-    res = CliRunner().invoke(selfcheck)
-    assert res.exit_code == 0
+from invenio_sip2.server import SocketServer
 
 
-def test_start_server_socker(app):
-    """Test start socket server."""
-    runner = app.test_cli_runner()
+def test_socket_server(selfckeck_login_message):
+    """Test socket server"""
+    # start socket server in a background thread
+    server = SocketServer(host='127.0.0.1', port=3005, remote='test')
+    server_thread = threading.Thread(target=server.run)
+    server_thread.start()
 
-    # test start server with wrong port
-    result = runner.invoke(start_socket_server, [
-        '--host', '0.0.0.0', '--port', 78495, '--remote-app', 'test'])
-    assert result.exit_code == 1
+    # test client connection
+    client = socket.socket()
+    client.connect(('127.0.0.1', 3005))
+    client.settimeout(1)
+    client.sendall(selfckeck_login_message)
+    client.close()
+
+    # Make sure server thread finishes
+    server_thread.join()

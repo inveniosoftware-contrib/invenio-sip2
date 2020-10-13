@@ -48,7 +48,7 @@ from utils import remote_authorize_patron_handler, remote_checkin_handler, \
     remote_hold_handler, remote_item_information_handler, \
     remote_login_failed_handler, remote_login_handler, \
     remote_patron_account_handler, remote_renew_handler, \
-    remote_validate_patron_handler
+    remote_system_status_handler, remote_validate_patron_handler
 
 from invenio_sip2 import InvenioSIP2
 from invenio_sip2.models import SelfcheckClient
@@ -98,7 +98,7 @@ def app(request):
             test=dict(
                 login_handler=remote_login_handler,
                 logout_handler=remote_handler,
-                system_status_handler=remote_handler,
+                system_status_handler=remote_system_status_handler,
                 patron_handlers=dict(
                     validate_patron=remote_validate_patron_handler,
                     authorize_patron=remote_authorize_patron_handler,
