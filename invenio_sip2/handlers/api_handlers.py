@@ -21,8 +21,8 @@ from __future__ import absolute_import, print_function
 
 from .base import base_authorize_patron_handler, base_circulation_handlers, \
     base_enable_patron_handler, base_item_handler, base_patron_handler, \
-    base_selfcheck_login_handler, base_system_status_handler, \
-    base_validate_patron_handler
+    base_patron_status_handler, base_selfcheck_login_handler, \
+    base_system_status_handler, base_validate_patron_handler
 
 
 def selfcheck_login_handler(remote, login, password, **kwargs):
@@ -53,6 +53,11 @@ def enable_patron_handler(remote, patron_identifier, **kwargs):
 def patron_handler(remote, patron_identifier, **kwargs):
     """Handle patron information functionality."""
     return base_patron_handler(remote, patron_identifier, **kwargs)
+
+
+def patron_status_handler(remote, patron_identifier, **kwargs):
+    """Handle patron status functionality."""
+    return base_patron_status_handler(remote, patron_identifier, **kwargs)
 
 
 def item_handler(remote, patron_identifier, item_identifier, **kwargs):

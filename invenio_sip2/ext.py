@@ -298,11 +298,17 @@ class _Sip2State(object):
                 patron_handlers.get('account'),
                 with_data=True
             )
+
+            patron_status_handler = handlers.make_api_handler(
+                patron_handlers.get('patron_status'),
+                with_data=True
+            )
             self.patron_handlers[remote] = dict(
                 validate=validate_patron_handler,
                 authorize=authorize_patron_handler,
                 enable=enable_patron_handler,
                 account=account_handler,
+                patron_status=patron_status_handler,
             )
 
             # register item handlers

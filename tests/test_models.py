@@ -21,121 +21,120 @@ from __future__ import absolute_import, print_function
 
 import pytest
 
-from invenio_sip2.models import SelfcheckPatronStatus, \
-    SelfcheckPatronStatusTypes
+from invenio_sip2.models import PatronStatus, PatronStatusTypes
 
 
 def test_selfcheck_patron_status():
     """Test SIP2 patron status."""
-    patron_status = SelfcheckPatronStatus()
+    patron_status = PatronStatus()
 
     # test charged privileges denied status
     patron_status.add_patron_status_type(
-        SelfcheckPatronStatusTypes.CHARGE_PRIVILEGES_DENIED
+        PatronStatusTypes.CHARGE_PRIVILEGES_DENIED
     )
     assert str(patron_status)[0] == 'Y'
     assert str(patron_status)[1] == ' '
 
     # test renewal privileges denied status
-    patron_status = SelfcheckPatronStatus()
+    patron_status = PatronStatus()
     patron_status.add_patron_status_type(
-        SelfcheckPatronStatusTypes.RENEWAL_PRIVILEGES_DENIED
+        PatronStatusTypes.RENEWAL_PRIVILEGES_DENIED
     )
     assert str(patron_status)[1] == 'Y'
     assert str(patron_status)[2] == ' '
 
     # test recall privileges denied status
-    patron_status = SelfcheckPatronStatus()
+    patron_status = PatronStatus()
     patron_status.add_patron_status_type(
-        SelfcheckPatronStatusTypes.RECALL_PRIVILEGES_DENIED
+        PatronStatusTypes.RECALL_PRIVILEGES_DENIED
     )
     assert str(patron_status)[2] == 'Y'
     assert str(patron_status)[3] == ' '
 
     # test hold privileges denied status
-    patron_status = SelfcheckPatronStatus()
+    patron_status = PatronStatus()
     patron_status.add_patron_status_type(
-        SelfcheckPatronStatusTypes.HOLD_PRIVILEGES_DENIED
+        PatronStatusTypes.HOLD_PRIVILEGES_DENIED
     )
     assert str(patron_status)[3] == 'Y'
     assert str(patron_status)[4] == ' '
 
     # test card lost status
-    patron_status = SelfcheckPatronStatus()
+    patron_status = PatronStatus()
     patron_status.add_patron_status_type(
-        SelfcheckPatronStatusTypes.CARD_REPORTED_LOST
+        PatronStatusTypes.CARD_REPORTED_LOST
     )
     assert str(patron_status)[4] == 'Y'
     assert str(patron_status)[5] == ' '
 
     # test too many items charged status
-    patron_status = SelfcheckPatronStatus()
+    patron_status = PatronStatus()
     patron_status.add_patron_status_type(
-        SelfcheckPatronStatusTypes.TOO_MANY_ITEMS_CHARGED
+        PatronStatusTypes.TOO_MANY_ITEMS_CHARGED
     )
     assert str(patron_status)[5] == 'Y'
     assert str(patron_status)[6] == ' '
 
     # test too many items overdue status
-    patron_status = SelfcheckPatronStatus()
+    patron_status = PatronStatus()
     patron_status.add_patron_status_type(
-        SelfcheckPatronStatusTypes.TOO_MANY_ITEMS_OVERDUE
+        PatronStatusTypes.TOO_MANY_ITEMS_OVERDUE
     )
     assert str(patron_status)[6] == 'Y'
     assert str(patron_status)[7] == ' '
 
     # test too many renewals status
-    patron_status = SelfcheckPatronStatus()
+    patron_status = PatronStatus()
     patron_status.add_patron_status_type(
-        SelfcheckPatronStatusTypes.TOO_MANY_RENEWALS
+        PatronStatusTypes.TOO_MANY_RENEWALS
     )
     assert str(patron_status)[7] == 'Y'
     assert str(patron_status)[8] == ' '
 
     # test too many claims status
-    patron_status = SelfcheckPatronStatus()
+    patron_status = PatronStatus()
     patron_status.add_patron_status_type(
-        SelfcheckPatronStatusTypes.TOO_MANY_CLAIMS_OF_ITEMS_RETURNED
+        PatronStatusTypes.TOO_MANY_CLAIMS_OF_ITEMS_RETURNED
     )
     assert str(patron_status)[8] == 'Y'
     assert str(patron_status)[9] == ' '
 
     # test too many items lost status
-    patron_status = SelfcheckPatronStatus()
+    patron_status = PatronStatus()
     patron_status.add_patron_status_type(
-        SelfcheckPatronStatusTypes.TOO_MANY_ITEMS_LOST
+        PatronStatusTypes.TOO_MANY_ITEMS_LOST
     )
     assert str(patron_status)[9] == 'Y'
     assert str(patron_status)[10] == ' '
 
     # test excessive outstanding fines status
-    patron_status = SelfcheckPatronStatus()
+    patron_status = PatronStatus()
     patron_status.add_patron_status_type(
-        SelfcheckPatronStatusTypes.EXCESSIVE_OUTSTANDING_FINES
+        PatronStatusTypes.EXCESSIVE_OUTSTANDING_FINES
     )
     assert str(patron_status)[10] == 'Y'
     assert str(patron_status)[11] == ' '
 
     # test excessive outstanding fees status
-    patron_status = SelfcheckPatronStatus()
+    patron_status = PatronStatus()
     patron_status.add_patron_status_type(
-        SelfcheckPatronStatusTypes.EXCESSIVE_OUTSTANDING_FEES
+        PatronStatusTypes.EXCESSIVE_OUTSTANDING_FEES
     )
     assert str(patron_status)[11] == 'Y'
     assert str(patron_status)[12] == ' '
 
     # test recall overdue status
-    patron_status = SelfcheckPatronStatus()
+    patron_status = PatronStatus()
     patron_status.add_patron_status_type(
-        SelfcheckPatronStatusTypes.RECALL_OVERDUE
+        PatronStatusTypes.RECALL_OVERDUE
     )
     assert str(patron_status)[12] == 'Y'
     assert str(patron_status)[13] == ' '
 
     # test too many items billed status
-    patron_status = SelfcheckPatronStatus()
+    patron_status = PatronStatus()
     patron_status.add_patron_status_type(
-        SelfcheckPatronStatusTypes.TOO_MANY_ITEMS_BILLED
+        PatronStatusTypes.TOO_MANY_ITEMS_BILLED
     )
     assert str(patron_status)[13] == 'Y'
 

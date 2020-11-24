@@ -89,6 +89,17 @@ def base_patron_handler(remote, patron_identifier, **kwargs):
     return handlers['account'](patron_identifier, **kwargs)
 
 
+def base_patron_status_handler(remote, patron_identifier, **kwargs):
+    """Handle patron status functionality.
+
+    :param remote: remote ils
+    :param patron_identifier: Identifier of the patron (e.g. id, barcode,...)
+    returns: Patron status
+    """
+    handlers = acs_system.sip2_handlers.patron_handlers[remote]
+    return handlers['patron_status'](patron_identifier, **kwargs)
+
+
 def base_item_handler(remote, patron_identifier, item_identifier,  **kwargs):
     """Handle item information functionality.
 

@@ -22,8 +22,8 @@ from __future__ import absolute_import, print_function
 from ..actions.base import Action, check_selfcheck_authentication
 from ..handlers import authorize_patron_handler, checkin_handler, \
     checkout_handler, enable_patron_handler, hold_handler, item_handler, \
-    patron_handler, renew_handler, selfcheck_login_handler, \
-    system_status_handler, validate_patron_handler
+    patron_handler, patron_status_handler, renew_handler, \
+    selfcheck_login_handler, system_status_handler, validate_patron_handler
 from ..proxies import current_sip2 as acs_system
 from ..utils import get_circulation_status, get_language_code, \
     get_security_marker_type
@@ -64,7 +64,7 @@ class AutomatedCirculationSystemStatus(Action):
         # prepare message based on required fields
         response_message = self.prepare_message_response(
             online_status=acs_system.support_online_status,
-            checkin_ok=acs_system.support_online_status,
+            checkin_ok=acs_system.support_checkin,
             checkout_ok=acs_system.support_checkout,
             acs_renewal_policy=acs_system.support_renewal_policy,
             status_update_ok=acs_system.support_status_update,
@@ -142,6 +142,33 @@ class PatronEnable(Action):
         return str(response_message)
 
 
+class PatronStatus(Action):
+    """Action to get patron status from automated circulation system."""
+
+    @check_selfcheck_authentication
+    def execute(self, message, client):
+        """Execute action."""
+        patron_id = message.get_field_value('patron_id')
+        patron_status = patron_status_handler(
+            client.remote_app, patron_id
+        )
+
+        response_message = self.prepare_message_response(
+            patron_status=str(patron_status.get('patron_status')),
+            language=message.language,
+            transaction_date=acs_system.sip2_current_date,
+        )
+
+        # add optional fields
+        for optional_field in self.optional_fields:
+            response_message.add_field(
+                field=optional_field,
+                field_value=patron_status.get(optional_field.name)
+            )
+
+        return str(response_message)
+
+
 class PatronInformation(Action):
     """Action to get patron information from automated circulation system."""
 
@@ -153,7 +180,6 @@ class PatronInformation(Action):
         patron_account = patron_handler(
             client.remote_app, patron_id
         )
-        language = get_language_code(patron_account.get('language'))
 
         # TODO: better way to begin session
         # Begin session
@@ -161,7 +187,6 @@ class PatronInformation(Action):
             'patron_id': patron_id,
             'language': message.i18n_language
         }
-
         # prepare message based on required fields
         response_message = self.prepare_message_response(
             patron_status=str(patron_account.get('patron_status')),
@@ -197,19 +222,6 @@ class PatronInformation(Action):
             )
 
         return str(response_message)
-
-
-class PatronStatus(Action):
-    """Action to get patron status from automated circulation system."""
-
-    @check_selfcheck_authentication
-    def execute(self, message, **kwargs):
-        """Execute action."""
-        institution_id = message.get_field_value('institution_id')
-        patron_id = message.get_field_value('patron_id')
-        selfcheck_language = message.i18n_language
-        # TODO: implements action
-        return
 
 
 class EndPatronSession(Action):
@@ -288,7 +300,8 @@ class Checkin(Action):
 
         checkin = checkin_handler(
             client.remote_app, client.user_id, client.institution_id,
-            patron_id, item_id, language=patron_session.get('language')
+            patron_session.get('patron_id'), item_id,
+            language=patron_session.get('language')
         )
         # prepare message based on required fields
         response_message = self.prepare_message_response(
@@ -338,7 +351,7 @@ class Checkout(Action):
             patron_id=patron_id,
             item_id=item_id,
             title_id=checkout.get('title_id'),
-            due_date=checkout.get('due_date'),
+            due_date=checkout.due_date,
         )
 
         # add optional fields

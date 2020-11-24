@@ -73,7 +73,20 @@ def selfckeck_system_status_message(system_status_message):
 def enable_patron_message():
     """Enable patron message."""
     return '2520200717    190253AOinstitution_id|AApatron_identifier|' \
+           'AC|ADpatron_pwd'
+
+
+@pytest.fixture(scope="module")
+def patron_status_message():
+    """Patron status message."""
+    return '2300220201124    162421AOinstitution_id|AApatron_identifier|' \
            'ADpatron_pwd'
+
+
+@pytest.fixture(scope="module")
+def selfckeck_patron_status_message(system_status_message):
+    """Selfcheck patron status message."""
+    return str_to_bytes(patron_status_message)
 
 
 @pytest.fixture(scope="module")

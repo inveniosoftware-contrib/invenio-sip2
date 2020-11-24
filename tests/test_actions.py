@@ -63,6 +63,16 @@ def test_patron_enable(app, dummy_client, enable_patron_message):
         assert response.startswith('26')
 
 
+def test_patron_status(app, dummy_client, patron_status_message):
+    """Test invenio-sip2 patron enable action."""
+    with app.app_context():
+        response = current_sip2.sip2.execute(
+                Message(request=patron_status_message),
+                client=dummy_client
+        )
+        assert response.startswith('24')
+
+
 def test_patron_information(app, dummy_client, patron_information_message):
     """Test invenio-sip2 patron enable action."""
     with app.app_context():
