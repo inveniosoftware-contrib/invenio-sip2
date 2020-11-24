@@ -31,6 +31,7 @@ def check_selfcheck_authentication(func):
     @wraps(func)
     def inner(*args, **kwargs):
         client = kwargs.pop('client')
+        # TODO: maybe we can always call remote api to authenticate client
         if client and client.is_authenticated:
             return func(*args, client)
 

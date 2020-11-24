@@ -17,10 +17,11 @@
 
 """Pytest utils."""
 
-from invenio_sip2.models import SelfcheckCheckin, SelfcheckCheckout, \
-    SelfcheckCirculationStatus, SelfcheckFeeType, SelfcheckHold, \
-    SelfcheckItemInformation, SelfcheckMediaType, SelfcheckPatronInformation, \
-    SelfcheckPatronStatus, SelfcheckRenew, SelfcheckSecurityMarkerType
+from invenio_sip2.models import PatronStatus, SelfcheckCheckin, \
+    SelfcheckCheckout, SelfcheckCirculationStatus, SelfcheckFeeType, \
+    SelfcheckHold, SelfcheckItemInformation, SelfcheckMediaType, \
+    SelfcheckPatronInformation, SelfcheckPatronStatus, SelfcheckRenew, \
+    SelfcheckSecurityMarkerType
 
 
 def str_to_bytes(string):
@@ -66,7 +67,7 @@ def remote_validate_patron_handler(patron_id):
 def remote_enable_patron_handler(patron_id):
     """Dummy remote handler for enable patron."""
     return {
-        'patron_status': SelfcheckPatronStatus(),
+        'patron_status': PatronStatus(),
         'language': 'und',
         'institution_id': 'selfcheck_location',
         'patron_id': 'patron_id',
@@ -74,9 +75,19 @@ def remote_enable_patron_handler(patron_id):
     }
 
 
+def remote_patron_status_handler(patron_id):
+    """Dummy remote handler for patron information."""
+    response = SelfcheckPatronStatus(
+        patron_status=PatronStatus(),
+        language='und',
+    )
+    return response
+
+
 def remote_patron_account_handler(patron_id):
     """Dummy remote handler for patron information."""
     response = SelfcheckPatronInformation(
+        patron_status=PatronStatus(),
         patron_id=patron_id,
         patron_name='formatted_patron_name',
         patron_email='patron_email',

@@ -60,6 +60,7 @@ keys:
     - ``validate_patron`` - Import path to validate patron callback handler.
     - ``authorize_patron`` - Import path to authorize patron  callback handler.
     - ``enable_patron`` - Import path to enable patron callback handler.
+    - ``patron_status`` - Import path to patron status callback handler.
     - ``account`` - Import path to retrieve patron account callback handler.
 
 - ``item_handlers`` - A dictionary of import path to item callback handler.
@@ -83,6 +84,7 @@ keys:
                 validate_patron="...",
                 authorize_patron="...",
                 enable_patron="...",
+                patron_status="...",
                 account="...",
             ),
             item_handlers=dict(
@@ -164,8 +166,8 @@ SIP2_DEFAULT_SECURITY_MARKER = SelfcheckSecurityMarkerType.OTHER
 # Define message action.
 SIP2_MESSAGE_ACTIONS = {
     '01': dict(response='24', action=BlockPatron),
-    '09': dict(response='10', action=Checkin),
-    '11': dict(response='12', action=Checkout),
+    '09': dict(message="checkin", response='10', action=Checkin),
+    '11': dict(message="checkout", response='12', action=Checkout),
     '15': dict(response='16', action=Hold),
     '17': dict(message="item_information", response='18',
                action=ItemInformation),

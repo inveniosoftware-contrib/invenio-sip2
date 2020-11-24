@@ -78,7 +78,7 @@ class SelfcheckClient(dict):
         self['patron_session'] = {}
 
 
-class SelfcheckPatronStatusTypes(Enum):
+class PatronStatusTypes(Enum):
     """Enum class to list all possible patron status types."""
 
     CHARGE_PRIVILEGES_DENIED = 'charge_privileges_denied'
@@ -97,15 +97,17 @@ class SelfcheckPatronStatusTypes(Enum):
     TOO_MANY_ITEMS_BILLED = 'too_many_items_billed'
 
 
-class SelfcheckPatronStatus(object):
+class PatronStatus(object):
     """Class to define patron status."""
 
-    patron_status_types = {}
+    def __init__(self):
+        """Constructor."""
+        self.patron_status_types = {}
 
     def __str__(self):
         """Sip2 string representation."""
         patron_status_text = ''
-        for status_type in SelfcheckPatronStatusTypes:
+        for status_type in PatronStatusTypes:
             patron_status_text += 'Y' \
                 if self.patron_status_types.get(status_type) else ' '
         return patron_status_text
@@ -118,16 +120,39 @@ class SelfcheckPatronStatus(object):
         Add ``patron_status_type`` indicates that the condition is true.
         raise exception if patron status type does not exist.
         """
-        if patron_status_type not in SelfcheckPatronStatusTypes:
+        if patron_status_type not in PatronStatusTypes:
             raise Exception(msg='patron status type does not exist')
 
         self.patron_status_types[patron_status_type] = True
 
 
+class SelfcheckPatronStatus(dict):
+    """Class representing patron information handler response."""
+
+    def __init__(self, patron_status, language, **kwargs):
+        """Constructor.
+
+        :param patron_id - patron identifier (e.g. id, barcode, ...)
+        :param patron_name - full name of the patron
+        :param institution_id - institution id (or code) of the patron
+        :param language - iso-639-2 language
+        :param kwargs - optional fields
+        """
+        # required properties
+        self['patron_status'] = patron_status
+        self['language'] = language
+        self['screen_messages'] = []
+
+        # optional properties
+        for key, value in kwargs.items():
+            if value:
+                self[key] = value
+
+
 class SelfcheckPatronInformation(dict):
     """Class representing patron information handler response."""
 
-    def __init__(self, patron_id, patron_name, institution_id,
+    def __init__(self, patron_id, patron_name, patron_status, institution_id,
                  language, **kwargs):
         """Constructor.
 
@@ -140,7 +165,7 @@ class SelfcheckPatronInformation(dict):
         # required properties
         self['patron_id'] = patron_id
         self['patron_name'] = patron_name
-        self['patron_status'] = SelfcheckPatronStatus()
+        self['patron_status'] = patron_status
         self['institution_id'] = institution_id
         self['language'] = language
         self['hold_items'] = []
@@ -286,7 +311,6 @@ class SelfcheckCheckout(dict):
         self['magnetic_media'] = magnetic_media
         self['desensitize'] = desensitize
         self['title_id'] = title_id
-        self['due_date'] = acs_system.sip2_current_date
         self['screen_messages'] = []
 
         # optional properties
@@ -303,6 +327,11 @@ class SelfcheckCheckout(dict):
     def is_renewal(self):
         """Shortcut for renewal ok."""
         return self.get('renewal')
+
+    @property
+    def due_date(self):
+        """Shortcut for renewal ok."""
+        return self.get('due_date', '')
 
     @property
     def desensitize(self):
