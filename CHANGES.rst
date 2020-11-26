@@ -16,6 +16,16 @@
 
 Changes
 =======
+Version 0.4.0 (released 2020-11-26)
+
+**Implemented enhancements:**
+
+- Implements Patron status action.
+- Moves to github action for continuous Integration.
+
+**Fixed bugs:**
+
+- Increase code coverage
 
 Version 0.3.0 (released 2020-10-13)
 
