@@ -45,7 +45,7 @@ if [ $# -eq 0 ]
         echo -e ${GREEN}Test useless imports:${NC}
         autoflake --remove-all-unused-imports -c -r --ignore-init-module-imports . || display_error_message_and_exit "\nUse this command to check imports:\n\tautoflake --remove-all-unused-imports -r --ignore-init-module-imports .\n"
         display_success_message "Check-manifest:"
-        check-manifest --ignore ".travis-*,docs/_build*"
+        check-manifest --ignore ".*-requirements.txt"
         display_success_message "Sphinx-build:"
         sphinx-build -qnNW docs docs/_build/html
         display_success_message "Tests:"

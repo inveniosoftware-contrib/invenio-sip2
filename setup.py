@@ -29,13 +29,13 @@ tests_require = [
     'coverage>=4.5.3',
     'invenio-app>=1.2.3',
     'autoflake>=1.3.1',
-    'isort>=5.0.0',
-    'pydocstyle>=3.0.0',
+    'isort>=5.1.0',
+    'pydocstyle>=5.0.0',
     'pytest>=4.6.4,<6.0.0',
     'pytest-cache>=1.0',
     'pytest-cov>=2.7.1',
     'pytest-pep8>=1.0.6',
-    'pytest-invenio>=1.2.1,<1.3.0'
+    'pytest-invenio>=1.2.2,<1.3.0'
 ]
 
 invenio_search_version = '1.2.1'
@@ -52,7 +52,7 @@ extras_require = {
         'invenio-search[elasticsearch7]>={}'.format(invenio_search_version),
     ],
     'docs': [
-        'Sphinx>=1.5.1',
+        'Sphinx>=2.4,<=3.1.1',
     ],
     'mysql': [
         'invenio-db[versioning,mysql]>={}'.format(invenio_db_version),
@@ -87,13 +87,13 @@ setup_requires = [
 
 install_requires = [
     'cryptography>=2.1.4',
-    'Flask-BabelEx>=0.9.3',
+    'Flask-BabelEx>=0.9.4',
     'Flask-Security>=3.0.0',
     'Flask-Login>=0.4.0,<0.5.0',
     'email-validator>=1.0.5',
     'six>=1.12.0',
     'SQLAlchemy-Utils>=0.33.1,<0.36',
-    'invenio-base>=1.2.1',
+    'invenio-base>=1.2.2',
     'invenio-access>=1.3.1',
     'pycountry>=19.7.15',
 ]
