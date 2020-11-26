@@ -15,21 +15,9 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-# TODO: Generate this manifest file by running the following commands:
-# (please sort the lines in this file after running below commands)
-#
-#  git init
-#  git add -A
-#  pip install -e .[all]
-#  check-manifest -u
-
 include .dockerignore
 include .editorconfig
 include .tx/config
-prune docs/_build
-recursive-include invenio_sip2/translations *.po *.pot *.mo
-
-# added by check_manifest.py
 include *.lock
 include *.rst
 include *.sh
@@ -37,6 +25,8 @@ include *.txt
 include LICENSE
 include babel.ini
 include pytest.ini
+prune docs/_build
+recursive-include .github/workflows *.yml
 recursive-include docs *.bat
 recursive-include docs *.py
 recursive-include docs *.rst
@@ -45,4 +35,6 @@ recursive-include docs Makefile
 recursive-include examples *.py
 recursive-include examples *.sh
 recursive-include invenio_sip2 *.html
+recursive-include invenio_sip2 *.html
+recursive-include invenio_sip2/translations *.po *.pot *.mo
 recursive-include tests *.py
