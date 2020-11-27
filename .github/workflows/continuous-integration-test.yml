@@ -15,11 +15,29 @@ on:
 jobs:
   python-tests:
     runs-on: ubuntu-latest
+
+    # Service containers to run with `container-job`
+    services:
+      # Label used to access the service container
+      redis:
+        # Docker Hub image
+        image: redis
+        # Set health checks to wait until redis has started
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          # Maps port 6379 on service container to the host
+          - 6379:6379
+
     strategy:
       matrix:
           python-version: [3.6]
           # You can add more combinations e.g. dev requirements or MySQL by adding
           # a new item to this list. Add its corresponding definition below.
+          cache-service: [redis]
           services: [release, lowest, devel]
           include:
           - services: release
@@ -42,6 +60,7 @@ jobs:
             REQUIREMENTS_LEVEL: "dev"
 
     env:
+      CACHE: ${{ matrix.cache-service }}
       SQLALCHEMY_DATABASE_URI: ${{matrix.SQLALCHEMY_DATABASE_URI}}
       POSTGRESQL_VERSION: ${{matrix.POSTGRESQL_VERSION}}
       ES_VERSION: ${{matrix.ES_VERSION}}
@@ -74,6 +93,8 @@ jobs:
           pip install -e .[all]
           pip install --upgrade coveralls
           pip freeze
+          docker --version
+          docker-compose --version
       - name: Run tests
         run: |
           ./run-tests.sh
@@ -82,6 +103,7 @@ jobs:
         if: ${{ matrix.services == 'release' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COVERALLS_SERVICE_NAME: github
           COVERALLS_FLAG_NAME: test-${{ matrix.services }}
           COVERALLS_PARALLEL: true
         run: coveralls

@@ -36,5 +36,6 @@ def test_start_server_socker(app):
 
     # test start server with wrong port
     result = runner.invoke(start_socket_server, [
-        '--host', '0.0.0.0', '--port', 78495, '--remote-app', 'test'])
+        'test_server', '--host', '0.0.0.0', '--port', 78495, '--remote-app',
+        'test'])
     assert result.exit_code == 1

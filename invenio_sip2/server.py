@@ -19,6 +19,7 @@
 
 import re
 import selectors
+import signal
 import socket
 import traceback
 
@@ -26,35 +27,41 @@ from flask import current_app
 
 from .api import Message
 from .errors import InvalidSelfCheckMessageError
-from .models import SelfcheckClient
 from .proxies import current_sip2
+from .records.record import Client, Server
 
 
 class SocketServer:
     """Socket server."""
 
     selector = selectors.DefaultSelector()
-    clients = {}
 
-    def __init__(self, host='0.0.0.0', port=3004, **kwargs):
+    def __init__(self, name, host='0.0.0.0', port=3004, **kwargs):
         """Constructor."""
+        self.server_name = name
         self.host = host
         self.port = port
         self.remote_app = kwargs.pop('remote')
-        lsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.server = Server.create(data=vars(self))
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         # Avoid bind() exception: OSError: [Errno 48] Address already in use
-        lsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        lsock.bind((self.host, self.port))
-        lsock.listen()
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        sock.bind((self.host, self.port))
+        sock.listen()
         # TODO : use another logging method
         print("listening on", (self.host, self.port))
-        lsock.setblocking(False)
+        signal.signal(signal.SIGINT, self.handler_stop_signals)
+        signal.signal(signal.SIGTERM, self.handler_stop_signals)
+        sock.setblocking(False)
         self.selector.register(
-            lsock, selectors.EVENT_READ | selectors.EVENT_WRITE, data=None)
+            sock, selectors.EVENT_READ | selectors.EVENT_WRITE, data=None)
 
     def run(self):
         """Run socket server."""
         try:
+            # TODO: add class for server state?
+            self.server['status'] = 'running'
+            self.server.update(self.server)
             while True:
                 events = self.selector.select(timeout=None)
                 for key, mask in events:
@@ -74,7 +81,8 @@ class SocketServer:
             # TODO : use another logging method
             print("caught keyboard interrupt, exiting")
         finally:
-            self.selector.close()
+            self.close()
+            raise RuntimeError("Server closed.")
 
     def accept_wrapper(self, sock):
         """Accept connection wrapper."""
@@ -83,24 +91,22 @@ class SocketServer:
         print("accepted connection from", address)
         connection.setblocking(False)
 
-        message = SocketEventListener(self.selector, connection, address)
-        self.clients[address[1]] = SelfcheckClient(address, self.remote_app)
+        message = SocketEventListener(
+            self.server, self.selector, connection, address)
         self.selector.register(connection, selectors.EVENT_READ, data=message)
 
-    @classmethod
-    def get_clients(cls):
-        """Retrieve all connected clients."""
-        return cls.clients
+    def close(self):
+        """Close socket server."""
+        try:
+            self.selector.close()
+        except:
+            pass
+        self.server['status'] = 'down'
+        self.server.update(self.server)
 
-    @classmethod
-    def get_client(cls, client_id):
-        """Retrieve all connected clients."""
-        return cls.clients[client_id]
-
-    @classmethod
-    def remove_client(cls, client_id):
-        """Remove client for connected client."""
-        del(cls.clients[client_id])
+    def handler_stop_signals(self, signum, frame):
+        """Handle stop signals."""
+        self.close()
 
 
 class SocketEventListener:
@@ -108,8 +114,9 @@ class SocketEventListener:
 
     sock = None
 
-    def __init__(self, selector, sock, addr):
+    def __init__(self, server, selector, sock, addr):
         """Constructor."""
+        self.server = server
         self.selector = selector
         self.sock = sock
         self.addr = addr
@@ -117,10 +124,27 @@ class SocketEventListener:
         self._send_buffer = b''
         self.request = None
         self.response = None
+        self.message = None
         self.response_created = False
         self.with_checksum = current_app.config.get('SIP2_CHECKSUM_CONTROL')
         self.line_terminator = current_app.config.get('SIP2_LINE_TERMINATOR')
         self.message_encoding = current_app.config.get('SIP2_TEXT_ENCODING')
+        self.client = Client.create(data=self.dumps())
+
+    def dumps(self):
+        """Dumps record."""
+        data = {
+            'server': {
+                'id': self.server.id
+            },
+            'ip_address': self.addr[0],
+            'socket': self.addr[1],
+        }
+        if self.request:
+            data['last_request'] = self.request.dumps()
+        if self.response:
+            data['last_response'] = self.response.dumps()
+        return data
 
     def _set_selector_events_mask(self, mode):
         """Set selector to listen for events: mode is 'r', 'w', or 'rw'."""
@@ -147,14 +171,15 @@ class SocketEventListener:
             if data:
                 request = data.decode(encoding=self.message_encoding)
                 # strip the line separator
-                self.request = \
+                request = \
                     request[:len(request) - len(self.line_terminator)]
-                if self.verify_checksum(self.request):
+                self.request = Message(request=request)
+                if self.verify_checksum(request):
                     self._recv_buffer += data
                 else:
                     raise InvalidSelfCheckMessageError(
                         'invalid checksum for {message}'.format(
-                            message=self.request
+                            message=self.request.dumps()
                         ))
                     self.close()
             else:
@@ -176,13 +201,13 @@ class SocketEventListener:
 
     def _create_message(self):
         """Create response message that will be send to selfcheck client."""
+        response_text = str(self.response)
         if self.with_checksum:
-            self.response += 'AZ'
-            self.response += self.calculate_checksum(self.response)
+            response_text += 'AZ'
+            response_text += self.calculate_checksum(response_text)
 
-        self.response += self.line_terminator
-        message = bytes(self.response, self.message_encoding)
-        return message
+        response_text += self.line_terminator
+        return bytes(response_text, self.message_encoding)
 
     def process_events(self, mask):
         """Process events with the selfcheck client."""
@@ -196,8 +221,8 @@ class SocketEventListener:
         self._read()
         if self._recv_buffer:
             message = 'request: {request} to {client}'.format(
-                request=self.request,
-                client=self.addr
+                request=str(self.request),
+                client=self.client
             )
             # TODO : use another logging method
             print(message)
@@ -209,8 +234,8 @@ class SocketEventListener:
             if not self.response_created:
                 self.create_response()
             message = 'send: {response} to {client}'.format(
-                response=self.response,
-                client=self.addr
+                response=str(self.response),
+                client=self.client
             )
             # TODO : use another logging method
             print(message)
@@ -239,15 +264,18 @@ class SocketEventListener:
         finally:
             # Delete reference to socket object for garbage collection
             self.sock = None
+            self.client.delete()
 
     def process_request(self):
         """Processing of selfcheck message."""
+        # request_message = Message(request=self.request)
         self.response = current_sip2.sip2.execute(
-            Message(request=self.request),
-            client=SocketServer.get_client(self.addr[1])
+            self.request,
+            client=self.client
         )
         if not self.response:
             self.response = '96'
+        self.client.update(self.dumps())
         # Set selector to listen for write events, we're done reading.
         self._set_selector_events_mask("w")
 

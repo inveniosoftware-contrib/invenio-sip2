@@ -21,11 +21,8 @@ from __future__ import absolute_import, print_function
 
 from flask import Blueprint, render_template
 from flask_babelex import gettext as _
-from werkzeug.local import LocalProxy
 
-from .server import SocketServer
-
-clients = LocalProxy(lambda: SocketServer.clients)
+from .records.record import Server
 
 blueprint = Blueprint(
     'invenio_sip2',
@@ -38,8 +35,10 @@ blueprint = Blueprint(
 @blueprint.route("/sip2/monitoring")
 def monitoring():
     """Render a basic view."""
-    # TODO: build socket clients api and use url_for(client_api)
+    for server in list(Server.get_all_records()):
+        print('dumps:', server)
+
     return render_template(
         "invenio_sip2/monitoring.html",
         module_name=_('Invenio-SIP2'),
-        clients=clients)
+        servers=list(Server.get_all_records()))

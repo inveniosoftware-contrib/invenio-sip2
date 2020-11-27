@@ -15,16 +15,23 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-"""Invenio module that add SIP2 communication for self-check."""
+"""Invenio-sip2 datastore test."""
 
 from __future__ import absolute_import, print_function
 
-from werkzeug.local import LocalProxy
+from invenio_sip2.datastore import Sip2RedisDatastore
+from invenio_sip2.records.record import Server
 
-from .ext import InvenioSIP2
-from .proxies import current_sip2
-from .version import __version__
 
-datastore = LocalProxy(lambda: current_sip2.datastore)
-
-__all__ = ('__version__', 'InvenioSIP2', 'datastore')
+def test_redis_datastore(app, server_data):
+    """Redis datastore tests"""
+    with app.app_context():
+        datastore = Sip2RedisDatastore(app)
+        # clear datastore
+        datastore.flush()
+        server = Server(server_data)
+        datastore.add(server, 'key_1')
+        data = datastore.get(server.id, 'server')
+        assert data
+        datastore.flush()
+        assert not datastore.get(server.id)

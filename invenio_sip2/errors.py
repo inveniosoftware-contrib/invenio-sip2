@@ -54,3 +54,12 @@ class UnknownFieldIdMessageError(Exception):
         """Initialize exception."""
         self.description = "Unknown field id message '{}'".format(message)
         super().__init__(**kwargs)
+
+
+# Server
+class ServerMessageError(Exception):
+    """Server message error."""
+
+
+class ServerAlreadyRunning(Exception):
+    """Server already running."""

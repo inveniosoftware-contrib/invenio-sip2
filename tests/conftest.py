@@ -24,7 +24,6 @@ fixtures are available.
 from __future__ import absolute_import, print_function
 
 import os
-import shutil
 import signal
 import socket
 import subprocess
@@ -59,6 +58,7 @@ sys.path.append(os.path.dirname(__file__))
 
 pytest_plugins = [
     'fixtures.messages',
+    'fixtures.servers',
 ]
 
 
@@ -71,13 +71,12 @@ def celery_config():
     return {}
 
 
-@pytest.yield_fixture()
-def app(request):
+def _app_factory(config=None):
     """Flask application fixture."""
     instance_path = tempfile.mkdtemp()
-    _app = Flask('testapp', instance_path=instance_path)
+    app = Flask('testapp', instance_path=instance_path)
 
-    _app.config.update(
+    app.config.update(
         ACCOUNTS_USE_CELERY=False,
         CELERY_ALWAYS_EAGER=True,
         CELERY_CACHE_BACKEND="memory",
@@ -95,6 +94,9 @@ def app(request):
         SERVER_NAME='localhost:5000',
         TESTING=True,
         WTF_CSRF_ENABLED=False,
+        CACHE_REDIS_URL='redis://localhost:6379/0',
+        SIP2_DATASTORE_HANDLER='invenio_sip2.datastore:Sip2RedisDatastore',
+        SIP2_DATASTORE_REDIS_URL='redis://localhost:6379/1',
         SIP2_REMOTE_ACTION_HANDLERS=dict(
             test=dict(
                 login_handler=remote_login_handler,
@@ -122,19 +124,23 @@ def app(request):
             ),
         )
     )
-    Babel(_app)
-    InvenioDB(_app)
-    InvenioAccess(_app)
-    InvenioAccounts(_app)
-    InvenioSIP2(_app)
+    Babel(app)
+    InvenioDB(app)
+    InvenioAccess(app)
+    InvenioAccounts(app)
 
-    _app.register_blueprint(blueprint)
+    return app
 
-    with _app.app_context():
-        yield _app
 
-    # Teardown instance path.
-    shutil.rmtree(instance_path)
+@pytest.fixture()
+def app(request):
+    """Flask application fixture with Invenio SIP2."""
+    app = _app_factory()
+    InvenioSIP2(app)
+
+    app.register_blueprint(blueprint)
+
+    yield app
 
 
 @pytest.yield_fixture()
@@ -142,7 +148,7 @@ def dummy_socket_server(app):
     """Start server socket."""
     with app.app_context():
         # Start socket server
-        cmd = 'invenio selfcheck start -h 127.0.0.1 -p 3006 -r test'
+        cmd = 'invenio selfcheck start test_server -h 0.0.0.0 -p 3006 -r test'
         dummy_server = subprocess.Popen(
             cmd,
             stdout=subprocess.PIPE, stderr=STDOUT, preexec_fn=os.setsid,
