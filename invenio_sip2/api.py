@@ -221,10 +221,15 @@ class Message(object):
 
     def dumps(self):
         """Dumps message as dict."""
+        # TODO: anonymize user and patron login & password
         data = {}
+        data['message_type'] = self.message_type.label
         for fixed_field in self.fixed_fields:
             data[fixed_field.field.field_id] = fixed_field.field_value
 
         for variable_field in self.variable_fields:
-            data[variable_field.field.name] = variable_field.field_value
+            if variable_field.field.name not in ['login_uid',
+                                                 'login_pwd',
+                                                 'patron_pwd']:
+                data[variable_field.field.name] = variable_field.field_value
         return data

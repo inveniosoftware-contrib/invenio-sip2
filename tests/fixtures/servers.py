@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # INVENIO-SIP2
-# Copyright (C) 2020 UCLouvain
+# Copyright (C) 2021 UCLouvain
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -15,16 +15,28 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-"""Invenio module that add SIP2 communication for self-check."""
+"""Common pytest fixtures and plugins."""
 
-from __future__ import absolute_import, print_function
+import pytest
 
-from werkzeug.local import LocalProxy
+from invenio_sip2.records.record import Server
 
-from .ext import InvenioSIP2
-from .proxies import current_sip2
-from .version import __version__
 
-datastore = LocalProxy(lambda: current_sip2.datastore)
+@pytest.fixture(scope="module")
+def server_data():
+    """Server data."""
+    return {
+        'id': 'key_1',
+        'host': '0.0.0.0',
+        'port': 3006,
+        'remote_app': 'test_ils',
+        'server_name': 'server_sip2',
+    }
 
-__all__ = ('__version__', 'InvenioSIP2', 'datastore')
+
+@pytest.fixture(scope="module")
+def server(app, server_data):
+    """Load server record."""
+    server = Server.create(
+        server_data)
+    return server

@@ -86,6 +86,7 @@ setup_requires = [
 ]
 
 install_requires = [
+    'cachelib>=0.1',
     'cryptography>=2.1.4',
     'Flask-BabelEx>=0.9.4',
     'Flask-Security>=3.0.0',
@@ -96,6 +97,8 @@ install_requires = [
     'invenio-base>=1.2.2',
     'invenio-access>=1.3.1',
     'pycountry>=19.7.15',
+    'jsonpickle>=1.2',
+    'psutil>=5.8.0',
 ]
 
 packages = find_packages()
@@ -125,8 +128,14 @@ setup(
         'invenio_base.apps': [
             'invenio_sip2 = invenio_sip2:InvenioSIP2',
         ],
+        'invenio_base.api_apps': [
+            'invenio_sip2 = invenio_sip2:InvenioSIP2',
+        ],
         'invenio_base.blueprints': [
             'invenio_sip2 = invenio_sip2.views:blueprint',
+        ],
+        'invenio_base.api_blueprints': [
+            'invenio_sip2 = invenio_sip2.api_views:api_blueprint',
         ],
         'flask.commands': [
             'selfcheck = invenio_sip2.cli:selfcheck'

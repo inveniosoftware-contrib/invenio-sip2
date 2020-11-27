@@ -23,6 +23,7 @@ from copy import deepcopy
 from datetime import datetime, timezone
 
 from flask import current_app
+from invenio_base.utils import obj_or_import_string
 from werkzeug.utils import cached_property
 
 from . import config, handlers
@@ -57,6 +58,7 @@ class InvenioSIP2(object):
     def __init__(self, app=None):
         """Extension initialization."""
         # TODO Init and proxify SocketServer like current_sip2_server
+        self.datastore = None
         if app:
             self.init_app(app)
 
@@ -65,6 +67,13 @@ class InvenioSIP2(object):
         # TODO: refactoring app init
         self.init_config(app)
         self._state = _Sip2State(app)
+
+        # Set SIP2 datastore
+        if not self.datastore:
+            datastore_factory = obj_or_import_string(
+                app.config['SIP2_DATASTORE_HANDLER'])
+            self.datastore = datastore_factory(app)
+
         app.extensions['invenio-sip2'] = self
         self.app = app
 
@@ -225,6 +234,7 @@ class _MessageType(object):
         self.optional_fields = []
         self.fixed_fields = []
         self.variable_fields = []
+        self.label = kwargs.pop('label'),
 
         required_fields = kwargs.pop('required_fields', [])
         fixed_fields = kwargs.pop('fixed_fields', [])

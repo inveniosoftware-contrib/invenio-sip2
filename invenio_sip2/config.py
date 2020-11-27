@@ -18,6 +18,10 @@
 """Invenio module that add SIP2 communication for self-check.
 
 ================================ ==============================================
+`SIP2_DATASTORE_HANDLER`         datastore handler, default: `SIP2SimpleDatastore`
+`SIP2_DATASTORE_REDIS_PREFIX`    Prefix for redis keys, default `sip2`
+`SIP2_DATASTORE_REDIS_URL`       Redis Datastore URL
+
 `SIP2_MESSAGE_ACTIONS`           Dictionary of all selfcheck actions.
 `SIP2_REMOTE_ACTION_HANDLERS`    Dictionary of remote action handlers. See example
                                  below.
@@ -26,6 +30,12 @@
 `SIP2_FIXED_FIELD_DEFINITION`    All fixed field available.
 `SIP2_VARIABLE_FIELD_DEFINITION` All variable field available.
 ================================ ==============================================
+
+.. py:data:: SIP2_DATASTORE_HANDLER
+    Add the preferred datastore adaptor.
+    Provided adaptor by invenio-sip2 are:
+    .. seealso:: :py:class:`~invenio_sip2.datastore.datastore.SIP2SimpleDatastore`
+    .. seealso:: :py:class:`~invenio_sip2.datastore.redis.RedisSip2Datastore`
 
 Each custom handler actions must be defined in the ``SIP2_ACTIONS_HANDLERS``
 dictionary, where the keys are the application names and the values the
@@ -114,6 +124,10 @@ from .utils import convert_bool_to_char, get_media_type
 # ====
 #: Default language
 BABEL_DEFAULT_LANGUAGE = 'en'
+
+SIP2_DATASTORE_HANDLER = 'invenio_sip2.datastore:Sip2RedisDatastore'
+SIP2_DATASTORE_REDIS_PREFIX = 'sip2'
+SIP2_DATASTORE_REDIS_URL = 'redis://localhost:16379/0'
 
 SIP2_REMOTE_ACTION_HANDLERS = {}
 """Configuration of remote handlers."""
@@ -866,6 +880,7 @@ SIP2_MESSAGE_TYPES = {
         ],
     ),
     '94': dict(
+        label='Login response',
         required_fields=[
             'ok'
         ],

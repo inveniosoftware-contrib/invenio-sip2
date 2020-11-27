@@ -30,7 +30,7 @@ def test_sip2_login(app, dummy_client, login_message):
             Message(request=login_message),
             client=dummy_client
         )
-        assert response == '941'
+        assert str(response) == '941'
 
 
 def test_sip2_login_failed(app, dummy_invalid_client, failed_login_message):
@@ -40,7 +40,7 @@ def test_sip2_login_failed(app, dummy_invalid_client, failed_login_message):
                 Message(request=failed_login_message),
                 client=dummy_invalid_client
         )
-        assert response == '940'
+        assert str(response) == '940'
 
 
 def test_sip2_system_status(app, dummy_client, system_status_message):
@@ -50,7 +50,7 @@ def test_sip2_system_status(app, dummy_client, system_status_message):
                 Message(request=system_status_message),
                 client=dummy_client
         )
-        assert response.startswith('98')
+        assert str(response).startswith('98')
 
 
 def test_patron_enable(app, dummy_client, enable_patron_message):
@@ -60,7 +60,7 @@ def test_patron_enable(app, dummy_client, enable_patron_message):
                 Message(request=enable_patron_message),
                 client=dummy_client
         )
-        assert response.startswith('26')
+        assert str(response).startswith('26')
 
 
 def test_patron_status(app, dummy_client, patron_status_message):
@@ -70,7 +70,7 @@ def test_patron_status(app, dummy_client, patron_status_message):
                 Message(request=patron_status_message),
                 client=dummy_client
         )
-        assert response.startswith('24')
+        assert str(response).startswith('24')
 
 
 def test_patron_information(app, dummy_client, patron_information_message):
@@ -80,7 +80,7 @@ def test_patron_information(app, dummy_client, patron_information_message):
                 Message(request=patron_information_message),
                 client=dummy_client
         )
-        assert response.startswith('64')
+        assert str(response).startswith('64')
 
 
 def test_end_patron_session(app, dummy_client, end_patron_session_message):
@@ -90,7 +90,7 @@ def test_end_patron_session(app, dummy_client, end_patron_session_message):
                 Message(request=end_patron_session_message),
                 client=dummy_client
         )
-        assert response.startswith('36')
+        assert str(response).startswith('36')
 
 
 def test_item_information(app, dummy_client, item_information_message):
@@ -100,7 +100,7 @@ def test_item_information(app, dummy_client, item_information_message):
                 Message(request=item_information_message),
                 client=dummy_client
         )
-        assert response.startswith('18')
+        assert str(response).startswith('18')
 
 
 def test_checkout(app, dummy_client, checkout_message):
@@ -110,7 +110,7 @@ def test_checkout(app, dummy_client, checkout_message):
                 Message(request=checkout_message),
                 client=dummy_client
         )
-        assert response.startswith('12')
+        assert str(response).startswith('12')
 
 
 def test_checkin(app, dummy_client, checkin_message):
@@ -120,7 +120,7 @@ def test_checkin(app, dummy_client, checkin_message):
                 Message(request=checkin_message),
                 client=dummy_client
         )
-        assert response.startswith('10')
+        assert str(response).startswith('10')
 
 
 def test_hold(app, dummy_client, create_hold_message):
@@ -130,7 +130,7 @@ def test_hold(app, dummy_client, create_hold_message):
                 Message(request=create_hold_message),
                 client=dummy_client
         )
-        assert response.startswith('16')
+        assert str(response).startswith('16')
 
 
 def test_renew(app, dummy_client, renew_message):
@@ -140,4 +140,4 @@ def test_renew(app, dummy_client, renew_message):
                 Message(request=renew_message),
                 client=dummy_client
         )
-        assert response.startswith('30')
+        assert str(response).startswith('30')
