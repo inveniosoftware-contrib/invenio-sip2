@@ -15,17 +15,24 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-"""Invenio module that add SIP2 communication for self-check."""
+"""Invenio-sip2 datastore test."""
 
-from __future__ import absolute_import, print_function
+from invenio_sip2.storage.datastore import SIP2SimpleDatastore
 
-from werkzeug.local import LocalProxy
 
-from .ext import InvenioSIP2
-from .version import __version__
+def test_simple_datastore(app):
+    """Simple datastore tests"""
 
-from .proxies import current_sip2
+    datastore = SIP2SimpleDatastore(app)
 
-datastore = LocalProxy(lambda: current_sip2.datastore)
+    datastore.put('key1', 'value1')
+    datastore.put('key2', 'value2')
 
-__all__ = ('__version__', 'InvenioSIP2', 'datastore')
+    assert 'value1' == datastore.get('key1')
+    assert not datastore.get('dummy_key')
+
+    datastore.delete('key1')
+    assert not datastore.get('key1')
+
+    datastore.flush()
+    assert not datastore.get('key2')

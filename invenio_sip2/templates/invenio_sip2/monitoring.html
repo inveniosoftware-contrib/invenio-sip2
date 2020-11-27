@@ -13,15 +13,31 @@
     <h2>{{ _('Automated circulation system monitoring') }}</h2>
   </div>
   <div>
-    {{ test }}
-  </div>
-  <div>
-      <h4>Connected clients:</h4>
-      {{ clients }}
-      {% for item in clients %}
+      <h4>Running servers:</h4>
+      {% for server in servers %}
+        {% set clients = server.get_clients() %}
           <div class="card">
             <div class="card-body">
-              {{ item }}
+              <h4 class="card-title">{{ server.name }}</h4>
+              <dl class="row">
+                <dt class="col-sm-2">host</dt>
+                <dd class="col-sm-9">{{ server.host }}</dd>
+                <dt class="col-sm-2">port</dt>
+                <dd class="col-sm-9">{{ server.port }}</dd>
+                <dt class="col-sm-2">state</dt>
+                <dd class="col-sm-9">{{ 'running' if server.running else 'down' }}</dd>
+                <dt class="col-sm-2">remote application</dt>
+                <dd class="col-sm-9">{{ server.remote_app }}</dd>
+                <dt class="col-sm-2">clients</dt>
+                <dd class="col-sm-9">{{ clients | length }}</dd>
+              </dl>
+              {% if clients %}
+              <ul>
+                {% for client in clients %}
+                <li>{{ client}}</li>
+                {% endfor %}
+              </ul>
+              {% endif %}
             </div>
           </div>
       {% endfor %}

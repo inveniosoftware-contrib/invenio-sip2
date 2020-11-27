@@ -15,17 +15,4 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-"""Invenio module that add SIP2 communication for self-check."""
-
-from __future__ import absolute_import, print_function
-
-from werkzeug.local import LocalProxy
-
-from .ext import InvenioSIP2
-from .version import __version__
-
-from .proxies import current_sip2
-
-datastore = LocalProxy(lambda: current_sip2.datastore)
-
-__all__ = ('__version__', 'InvenioSIP2', 'datastore')
+"""Invenio-SIP2 storage implementation."""

@@ -33,7 +33,13 @@ def selfcheck():
     """Automated Circulation System server management commands."""
 
 
+# TODO: create CLI to manage database
+
 @selfcheck.command('start')
+@click.option(
+    '-n', '--name', 'name',
+    help='server name'
+)
 @click.option(
     '-h', '--host', 'host', default=None,
     help='Host address of the server.'
@@ -47,10 +53,10 @@ def selfcheck():
     help='remote ILS application name in your config'
 )
 @with_appcontext
-def start_socket_server(host, port, remote):
+def start_socket_server(name, host, port, remote):
     """Start sockets server."""
     try:
-        server = SocketServer(port=port, host=host, remote=remote)
+        server = SocketServer(name=name, port=port, host=host, remote=remote)
         server_thread = threading.Thread(target=server.run)
         server_thread.run()
     except Exception as e:

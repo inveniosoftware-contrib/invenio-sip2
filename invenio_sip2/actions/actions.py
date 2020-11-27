@@ -43,13 +43,12 @@ class SelfCheckLogin(Action):
         )
 
         if selfcheck_user:
-            # TODO: try to find other way to store authenticated client
-            # maybe we can use redis cache to store session ?
             client.update(selfcheck_user)
 
-        return str(self.prepare_message_response(
+        response_message = self.prepare_message_response(
             ok=str(int(client.is_authenticated))
-        ))
+        )
+        return response_message
 
 
 class AutomatedCirculationSystemStatus(Action):
@@ -60,7 +59,7 @@ class AutomatedCirculationSystemStatus(Action):
         """Execute action."""
         # TODO : calculate system status from remote app
         status = system_status_handler(client.remote_app, client.user_id)
-
+        client['status'] = status
         # prepare message based on required fields
         response_message = self.prepare_message_response(
             online_status=acs_system.support_online_status,
@@ -83,7 +82,7 @@ class AutomatedCirculationSystemStatus(Action):
                 field_name='library_name',
                 field_value=client.library_name
             )
-        return str(response_message)
+        return response_message
 
 
 class RequestResend(Action):
@@ -139,7 +138,7 @@ class PatronEnable(Action):
                 field_value='Y' if is_authenticated else 'N'
             )
 
-        return str(response_message)
+        return response_message
 
 
 class PatronStatus(Action):
@@ -166,7 +165,7 @@ class PatronStatus(Action):
                 field_value=patron_status.get(optional_field.name)
             )
 
-        return str(response_message)
+        return response_message
 
 
 class PatronInformation(Action):
@@ -221,7 +220,7 @@ class PatronInformation(Action):
                 field_value='Y' if is_authenticated else 'N'
             )
 
-        return str(response_message)
+        return response_message
 
 
 class EndPatronSession(Action):
@@ -240,7 +239,7 @@ class EndPatronSession(Action):
 
         # TODO: add optional fields
         client.clear_patron_session()
-        return str(response_message)
+        return response_message
 
 
 class ItemInformation(Action):
@@ -275,7 +274,7 @@ class ItemInformation(Action):
                 field_value=item_information.get(optional_field.name)
             )
 
-        return str(response_message)
+        return response_message
 
 
 class BlockPatron(Action):
@@ -322,7 +321,7 @@ class Checkin(Action):
                 field_value=checkin.get(optional_field.name)
             )
 
-        return str(response_message)
+        return response_message
 
 
 class Checkout(Action):
@@ -361,7 +360,7 @@ class Checkout(Action):
                 field_value=checkout.get(optional_field.name)
             )
 
-        return str(response_message)
+        return response_message
 
 
 class FeePaid(Action):
@@ -406,7 +405,7 @@ class Hold(Action):
                 field_value=hold.get(optional_field.name)
             )
 
-        return str(response_message)
+        return response_message
 
 
 class Renew(Action):
@@ -445,7 +444,7 @@ class Renew(Action):
                 field_value=renew.get(optional_field.name)
             )
 
-        return str(response_message)
+        return response_message
 
 
 class RenewAll(Action):
