@@ -45,13 +45,11 @@ from invenio_db.ext import InvenioDB
 from utils import remote_authorize_patron_handler, remote_checkin_handler, \
     remote_checkout_handler, remote_enable_patron_handler, remote_handler, \
     remote_hold_handler, remote_item_information_handler, \
-    remote_login_failed_handler, remote_login_handler, \
-    remote_patron_account_handler, remote_patron_status_handler, \
-    remote_renew_handler, remote_system_status_handler, \
-    remote_validate_patron_handler
+    remote_login_handler, remote_patron_account_handler, \
+    remote_patron_status_handler, remote_renew_handler, \
+    remote_system_status_handler, remote_validate_patron_handler
 
 from invenio_sip2 import InvenioSIP2
-from invenio_sip2.models import SelfcheckClient
 from invenio_sip2.views import blueprint
 
 sys.path.append(os.path.dirname(__file__))
@@ -71,11 +69,11 @@ def celery_config():
     return {}
 
 
-def _app_factory(config=None):
+@pytest.fixture(scope='module')
+def base_app(request):
     """Flask application fixture."""
     instance_path = tempfile.mkdtemp()
     app = Flask('testapp', instance_path=instance_path)
-
     app.config.update(
         ACCOUNTS_USE_CELERY=False,
         CELERY_ALWAYS_EAGER=True,
@@ -98,7 +96,7 @@ def _app_factory(config=None):
         SIP2_DATASTORE_HANDLER='invenio_sip2.datastore:Sip2RedisDatastore',
         SIP2_DATASTORE_REDIS_URL='redis://localhost:6379/1',
         SIP2_REMOTE_ACTION_HANDLERS=dict(
-            test=dict(
+            test_ils=dict(
                 login_handler=remote_login_handler,
                 logout_handler=remote_handler,
                 system_status_handler=remote_system_status_handler,
@@ -118,10 +116,7 @@ def _app_factory(config=None):
                     hold=remote_hold_handler,
                     renew=remote_renew_handler,
                 )
-            ),
-            test_invalid=dict(
-                login_handler=remote_login_failed_handler,
-            ),
+            )
         )
     )
     Babel(app)
@@ -129,21 +124,24 @@ def _app_factory(config=None):
     InvenioAccess(app)
     InvenioAccounts(app)
 
+    app.test_request_context().push()
     return app
 
 
-@pytest.fixture()
-def app(request):
-    """Flask application fixture with Invenio SIP2."""
-    app = _app_factory()
-    InvenioSIP2(app)
-
-    app.register_blueprint(blueprint)
-
-    yield app
+def _init_app(app_):
+    """Init Invenio-sip2 app."""
+    InvenioSIP2(app_)
+    app_.register_blueprint(blueprint)
+    return app_
 
 
-@pytest.yield_fixture()
+@pytest.fixture(scope='module')
+def app(base_app):
+    """Flask application fixture."""
+    return _init_app(base_app)
+
+
+@pytest.fixture(scope='module')
 def dummy_socket_server(app):
     """Start server socket."""
     with app.app_context():
@@ -160,7 +158,7 @@ def dummy_socket_server(app):
     os.killpg(dummy_server.pid, signal.SIGTERM)
 
 
-@pytest.yield_fixture()
+@pytest.fixture(scope='module')
 def selfcheck_client():
     """Test socket server."""
     # This is fake test client to attempt a connect and disconnect
@@ -172,28 +170,13 @@ def selfcheck_client():
     fake_client.close()
 
 
-@pytest.fixture(scope='module')
-def dummy_client():
-    """Dummy client."""
-    client1 = SelfcheckClient(('127.0.0.1', '65565'), 'test')
-    return client1
-
-
-@pytest.fixture(scope='module')
-def dummy_invalid_client():
-    """Dummy client."""
-    client2 = SelfcheckClient(('127.0.0.1', '65565'), 'test_invalid')
-    print('remote_app:', client2.remote_app)
-    return client2
-
-
 @pytest.fixture
 def script_info(app):
     """Get ScriptInfo object for testing CLI."""
     return ScriptInfo(create_app=lambda info: app)
 
 
-@pytest.fixture()
+@pytest.fixture
 def users(db, app):
     """Create users."""
     # create users

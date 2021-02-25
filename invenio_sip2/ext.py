@@ -19,8 +19,10 @@
 
 from __future__ import absolute_import, print_function
 
+import logging
 from copy import deepcopy
 from datetime import datetime, timezone
+from logging.handlers import RotatingFileHandler
 
 from flask import current_app
 from invenio_base.utils import obj_or_import_string
@@ -31,6 +33,8 @@ from .actions.actions import Action
 from .errors import SelfCheckActionError
 from .helpers import MessageTypeFixedField, MessageTypeVariableField
 from .utils import convert_bool_to_char
+
+logger = logging.getLogger('invenio-sip2')
 
 
 def load_fixed_field(app):
@@ -57,7 +61,6 @@ class InvenioSIP2(object):
 
     def __init__(self, app=None):
         """Extension initialization."""
-        # TODO Init and proxify SocketServer like current_sip2_server
         self.datastore = None
         if app:
             self.init_app(app)
@@ -73,9 +76,33 @@ class InvenioSIP2(object):
             datastore_factory = obj_or_import_string(
                 app.config['SIP2_DATASTORE_HANDLER'])
             self.datastore = datastore_factory(app)
+        # Initialize logging
+        if app.config['SIP2_LOGGING_CONSOLE']:
+            self.add_console_handler(app)
+
+        if app.config['SIP2_LOGGING_FS_LOGFILE']:
+            self.add_fs_handler(app)
 
         app.extensions['invenio-sip2'] = self
         self.app = app
+
+    def add_console_handler(self, app):
+        """Add console handler to logger."""
+        handler = logging.StreamHandler()
+        handler.setFormatter(self.get_logging_formatter())
+        self._add_logger_handler(handler,
+                                 app.config['SIP2_LOGGING_CONSOLE_LEVEL'])
+
+    def add_fs_handler(self, app):
+        """Add file handler to logger."""
+        handler = RotatingFileHandler(
+            app.config['SIP2_LOGGING_FS_LOGFILE'],
+            backupCount=app.config['SIP2_LOGGING_FS_BACKUPCOUNT'],
+            maxBytes=app.config['SIP2_LOGGING_FS_MAXBYTES'],
+            delay=True,
+        )
+        handler.setFormatter(self.get_logging_formatter())
+        self._add_logger_handler(handler, app.config['SIP2_LOGGING_FS_LEVEL'])
 
     def init_config(self, app):
         """Initialize configuration."""
@@ -92,6 +119,20 @@ class InvenioSIP2(object):
 
         load_fixed_field(app)
         load_variable_field(app)
+
+    def _add_logger_handler(self, handler, level):
+        """Add handler to logger."""
+        for h in logger.handlers:
+            if isinstance(h, handler.__class__):
+                return
+        logger.setLevel(level)
+        logger.addHandler(handler)
+
+    @classmethod
+    def get_logging_formatter(cls):
+        """Return logging formatter."""
+        return logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
     @cached_property
     def sip2(self):

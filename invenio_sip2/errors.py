@@ -17,6 +17,8 @@
 
 """Invenio-SIP2 exceptions."""
 
+from __future__ import absolute_import, print_function
+
 
 # Actions
 class InvalidSelfCheckActionError(Exception):
@@ -33,8 +35,17 @@ class SelfCheckActionError(Exception):
 
     def __init__(self, action=None, **kwargs):
         """Initialize exception."""
-        self.description = "selfcheck action error'{}'".format(action)
+        self.description = "SelfCheckActionError '{}'".format(action)
         super().__init__(**kwargs)
+
+
+class SelfcheckCirculationError(Exception):
+    """Selfcheck Circulation error."""
+
+    def __init__(self, error, data, **kwargs):
+        """Initialize exception."""
+        self.data = data
+        super().__init__(error, **kwargs)
 
 
 # Message
@@ -43,7 +54,7 @@ class InvalidSelfCheckMessageError(Exception):
 
     def __init__(self, message=None, **kwargs):
         """Initialize exception."""
-        self.description = "Invalid selfcheck message '{}'".format(message)
+        self.description = "InvalidSelfCheckMessageError '{}'".format(message)
         super().__init__(**kwargs)
 
 

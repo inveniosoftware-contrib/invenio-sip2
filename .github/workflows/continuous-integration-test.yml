@@ -34,7 +34,7 @@ jobs:
 
     strategy:
       matrix:
-          python-version: [3.6]
+          python-version: [3.6, 3.7, 3.8, 3.9]
           # You can add more combinations e.g. dev requirements or MySQL by adding
           # a new item to this list. Add its corresponding definition below.
           cache-service: [redis]

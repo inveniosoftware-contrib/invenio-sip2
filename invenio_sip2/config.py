@@ -118,6 +118,7 @@ from .actions import AutomatedCirculationSystemStatus, BlockPatron, Checkin, \
     ItemStatusUpdate, PatronEnable, PatronInformation, PatronStatus, Renew, \
     RenewAll, RequestResend, SelfCheckLogin
 from .models import SelfcheckSecurityMarkerType
+from .permissions import default_permission_factory
 from .utils import convert_bool_to_char, get_media_type
 
 # I18N
@@ -125,9 +126,47 @@ from .utils import convert_bool_to_char, get_media_type
 #: Default language
 BABEL_DEFAULT_LANGUAGE = 'en'
 
+# DATASTORE
+# =========
 SIP2_DATASTORE_HANDLER = 'invenio_sip2.datastore:Sip2RedisDatastore'
 SIP2_DATASTORE_REDIS_PREFIX = 'sip2'
 SIP2_DATASTORE_REDIS_URL = 'redis://localhost:16379/0'
+
+# LOGGING
+# =======
+
+# CONSOLE
+SIP2_LOGGING_CONSOLE = True
+"""Enable logging to the console."""
+
+SIP2_LOGGING_CONSOLE_LEVEL = "INFO"
+"""Console logging level.
+
+All requests and responses will be written to the console if the level is on 
+info mode. Otherwise, they will not logged.
+"""
+
+# FILESYSTEM
+SIP2_LOGGING_FS_LOGFILE = None
+"""Enable logging to the filesystem.
+
+A valid filesystem path is required to enable logging.
+"""
+
+SIP2_LOGGING_FS_LEVEL = "INFO"
+"""Console logging level.
+
+Defaults to write all requests and responses.
+"""
+
+SIP2_LOGGING_FS_BACKUPCOUNT = 5
+"""Number of rotated log files to keep."""
+
+SIP2_LOGGING_FS_MAXBYTES = 100 * 1024 * 1024
+"""Maximum size of logging file. Default: 100MB."""
+
+SIP2_PERMISSIONS_FACTORY = default_permission_factory
+"""Define factory permissions."""
 
 SIP2_REMOTE_ACTION_HANDLERS = {}
 """Configuration of remote handlers."""

@@ -25,6 +25,8 @@ import threading
 import click
 from flask.cli import with_appcontext
 
+from .errors import ServerAlreadyRunning
+from .records.record import Server
 from .server import SocketServer
 
 
@@ -54,10 +56,15 @@ def selfcheck():
 def start_socket_server(name, host, port, remote):
     """Start sockets server with unique name."""
     try:
-        # TODO: check if server already exist and running
+        server = Server.find_server(server_name=name)
+        if server and server.is_running:
+            raise ServerAlreadyRunning(
+                f'server [{name}] already running on {port}'
+            )
         server = SocketServer(name=name, port=port, host=host, remote=remote)
         server_thread = threading.Thread(target=server.run)
         server_thread.run()
+
     except Exception as e:
         # TODO: log error
         raise e

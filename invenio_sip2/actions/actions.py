@@ -19,7 +19,10 @@
 
 from __future__ import absolute_import, print_function
 
+from flask import current_app
+
 from ..actions.base import Action, check_selfcheck_authentication
+from ..errors import SelfcheckCirculationError
 from ..handlers import authorize_patron_handler, checkin_handler, \
     checkout_handler, enable_patron_handler, hold_handler, item_handler, \
     patron_handler, patron_status_handler, renew_handler, \
@@ -39,7 +42,8 @@ class SelfCheckLogin(Action):
         client = kwargs.pop('client')
 
         selfcheck_user = selfcheck_login_handler(
-            client.remote_app, selfcheck_login, selfcheck_password
+            client.remote_app, selfcheck_login, selfcheck_password,
+            terminal_ip=client.get('ip_address')
         )
 
         if selfcheck_user:
@@ -58,7 +62,8 @@ class AutomatedCirculationSystemStatus(Action):
     def execute(self, message, client):
         """Execute action."""
         # TODO : calculate system status from remote app
-        status = system_status_handler(client.remote_app, client.user_id)
+        status = system_status_handler(client.remote_app,
+                                       client.terminal)
         client['status'] = status
         # prepare message based on required fields
         response_message = self.prepare_message_response(
@@ -229,6 +234,8 @@ class EndPatronSession(Action):
     @check_selfcheck_authentication
     def execute(self, message, client):
         """Execute action."""
+        client.clear_patron_session()
+
         # prepare message based on required fields
         response_message = self.prepare_message_response(
             end_session=True,
@@ -238,7 +245,7 @@ class EndPatronSession(Action):
         )
 
         # TODO: add optional fields
-        client.clear_patron_session()
+
         return response_message
 
 
@@ -252,7 +259,8 @@ class ItemInformation(Action):
         item_identifier = message.get_field_value('item_id')
         item_information = item_handler(
             client.remote_app, patron_session.get('patron_id'),
-            item_identifier, language=patron_session.get('language')
+            item_identifier, terminal=client.terminal,
+            language=patron_session.get('language')
         )
 
         # prepare message based on required fields
@@ -295,13 +303,21 @@ class Checkin(Action):
         """Execute checkin action."""
         patron_session = client.get_current_patron_session()
         item_id = message.get_field_value('item_id')
-        patron_id = message.get_field_value('patron_id')
 
-        checkin = checkin_handler(
-            client.remote_app, client.user_id, client.institution_id,
-            patron_session.get('patron_id'), item_id,
-            language=patron_session.get('language')
-        )
+        try:
+            # TODO: give the client to reduce the number of parameters.
+            checkin = checkin_handler(
+                client.remote_app, client.transaction_user_id,
+                client.institution_id, patron_session.get('patron_id'),
+                item_id, terminal=client.terminal,
+                language=patron_session.get('language')
+            )
+        except SelfcheckCirculationError as error:
+            checkin = error.data
+            current_app.logger.error('[{terminal}] {message}'.format(
+                terminal=client.terminal,
+                message=error), exc_info=True)
+
         # prepare message based on required fields
         response_message = self.prepare_message_response(
             ok=str(int(checkin.is_success)),
@@ -334,10 +350,17 @@ class Checkout(Action):
         item_id = message.get_field_value('item_id')
         patron_id = message.get_field_value('patron_id')
 
-        checkout = checkout_handler(
-            client.remote_app, client.user_id, client.institution_id,
-            patron_id, item_id, language=patron_session.get('language')
-        )
+        try:
+            checkout = checkout_handler(
+                client.remote_app, client.transaction_user_id,
+                client.institution_id, patron_id, item_id,
+                terminal=client.terminal,
+                language=patron_session.get('language')
+            )
+        except SelfcheckCirculationError as error:
+            checkout = error.data
+            current_app.logger.error('{message}'.format(
+                message=error), exc_info=True)
 
         # prepare message based on required fields
         response_message = self.prepare_message_response(
@@ -383,10 +406,17 @@ class Hold(Action):
         item_id = message.get_field_value('item_id')
         patron_id = message.get_field_value('patron_id')
 
-        hold = hold_handler(
-            client.remote_app, client.user_id, client.institution_id,
-            patron_id, item_id, language=patron_session.get('language')
-        )
+        try:
+            hold = hold_handler(
+                client.remote_app, client.transaction_user_id,
+                client.institution_id, patron_id, item_id,
+                language=patron_session.get('language')
+            )
+        except SelfcheckCirculationError as error:
+            hold = error.data
+            current_app.logger.error('[{terminal}] {message}'.format(
+                terminal=client.terminal,
+                message=error), exc_info=True)
 
         # prepare message based on required fields
         response_message = self.prepare_message_response(
@@ -418,10 +448,17 @@ class Renew(Action):
         item_id = message.get_field_value('item_id')
         patron_id = message.get_field_value('patron_id')
 
-        renew = renew_handler(
-            client.remote_app, client.user_id, client.institution_id,
-            patron_id, item_id, language=patron_session.get('language')
-        )
+        try:
+            renew = renew_handler(
+                client.remote_app, client.transaction_user_id,
+                client.institution_id, patron_id, item_id,
+                language=patron_session.get('language')
+            )
+        except SelfcheckCirculationError as error:
+            renew = error.data
+            current_app.logger.error('[{terminal}] {message}'.format(
+                terminal=client.terminal,
+                message=error), exc_info=True)
 
         # prepare message based on required fields
         response_message = self.prepare_message_response(

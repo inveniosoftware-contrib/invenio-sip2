@@ -21,6 +21,7 @@ from __future__ import absolute_import, print_function
 
 from flask import Blueprint, jsonify
 
+from .decorators import need_permission
 from .records.record import Client, Server
 
 api_blueprint = Blueprint(
@@ -31,12 +32,14 @@ api_blueprint = Blueprint(
 
 
 @api_blueprint.route('/status')
+@need_permission('api-monitoring')
 def status():
     """Displa status for all SIP2 server."""
     return jsonify(Monitoring.status())
 
 
 @api_blueprint.route('/servers')
+@need_permission('api-monitoring')
 def get_servers():
     """Display all running SIP2 servers."""
     try:
@@ -46,11 +49,12 @@ def get_servers():
 
 
 @api_blueprint.route('/servers/<string:server_id>')
+@need_permission('api-monitoring')
 def get_server(server_id):
     """Display all running SIP2 servers."""
     try:
         server = Server.get_record_by_id(server_id)
-        server['clients'] = Monitoring.get_list_of_clients_by_server(server_id)
+        server['clients'] = Monitoring.get_clients_by_server_id(server_id)
         return jsonify({
             'id': server.id,
             'metadata': server,
@@ -60,6 +64,7 @@ def get_server(server_id):
 
 
 @api_blueprint.route('/clients')
+@need_permission('api-monitoring')
 def get_clients():
     """Display all connected clients to server."""
     try:
@@ -75,7 +80,7 @@ class Monitoring:
     def status(cls):
         """Check status for all servers."""
         result = {}
-        servers = cls.get_list_of_servers()
+        servers = cls.get_servers()
         result['servers'] = len(servers)
         result['clients'] = Client.count()
         result['status'] = 'green'
@@ -98,13 +103,13 @@ class Monitoring:
         return server.number_of_clients
 
     @classmethod
-    def get_list_of_servers(cls):
+    def get_servers(cls):
         """Get list of servers."""
         servers = Server.get_all_records()
         return servers
 
     @classmethod
-    def get_list_of_clients_by_server_id(cls, server_id):
+    def get_clients_by_server_id(cls, server_id):
         """Get list of clients by server id."""
         server = Server.get_record_by_id(server_id)
         if server:
