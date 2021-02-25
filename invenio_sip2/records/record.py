@@ -107,7 +107,7 @@ class Sip2RecordMetadata(dict):
 
 
 class Server(Sip2RecordMetadata):
-    """class forSIP2 server."""
+    """class for SIP2 server."""
 
     record_type = 'server'
 
@@ -150,7 +150,7 @@ class Server(Sip2RecordMetadata):
             # check if server running
             if server.is_running:
                 raise ServerAlreadyRunning(
-                    'ServerAlreadyRunning {id}'.format(id=server.id)
+                    'server already running {id}'.format(id=server.id)
                 )
             return server
 
@@ -198,9 +198,14 @@ class Client(Sip2RecordMetadata):
         return self.get('authenticated', False)
 
     @property
-    def user_id(self):
+    def terminal(self):
+        """Shortcut to terminal."""
+        return self.get('terminal', self.get('ip_address'))
+
+    @property
+    def transaction_user_id(self):
         """Shortcut to user id."""
-        return self.get('user_id')
+        return self.get('transaction_user_id')
 
     @property
     def institution_id(self):

@@ -21,12 +21,12 @@ import re
 import selectors
 import signal
 import socket
-import traceback
 
 from flask import current_app
 
 from .api import Message
 from .errors import InvalidSelfCheckMessageError
+from .ext import logger
 from .proxies import current_sip2
 from .records.record import Client, Server
 
@@ -48,8 +48,10 @@ class SocketServer:
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         sock.bind((self.host, self.port))
         sock.listen()
-        # TODO : use another logging method
-        print("listening on", (self.host, self.port))
+        logger.info('listening on {host}, {port}'.format(
+            port=self.port,
+            host=self.host
+        ))
         signal.signal(signal.SIGINT, self.handler_stop_signals)
         signal.signal(signal.SIGTERM, self.handler_stop_signals)
         sock.setblocking(False)
@@ -72,23 +74,26 @@ class SocketServer:
                         try:
                             message.process_events(mask)
                         except Exception:
-                            print(
-                                "main: error: exception for",
-                                f"{message.addr}:\n{traceback.format_exc()}",
+                            current_app.logger.error(
+                                'message cannot be processed',
+                                exc_info=True
                             )
                             message.close()
-        except KeyboardInterrupt:
-            # TODO : use another logging method
-            print("caught keyboard interrupt, exiting")
+        except Exception as e:
+            raise RuntimeError(
+                'SIP2 Server closed prematurely ({host}, {port})'.format(
+                    port=self.port,
+                    host=self.host,
+                ))
         finally:
             self.close()
-            raise RuntimeError("Server closed.")
 
     def accept_wrapper(self, sock):
         """Accept connection wrapper."""
         connection, address = sock.accept()  # Should be ready to read
-        # TODO : use another logging method
-        print("accepted connection from", address)
+        logger.info('accepted connection from {address}'.format(
+            address=address
+        ))
         connection.setblocking(False)
 
         message = SocketEventListener(
@@ -220,12 +225,14 @@ class SocketEventListener:
         """Read message from selfcheck client."""
         self._read()
         if self._recv_buffer:
-            message = 'request: {request} to {client}'.format(
-                request=str(self.request),
-                client=self.client
+            message = 'request from {terminal} ({ip}) : {request}'.format(
+                terminal=self.client.terminal,
+                ip=self.client.get('ip_address'),
+                request=self.request.dumps(),
             )
-            # TODO : use another logging method
-            print(message)
+            logger.info('{message}'.format(
+                message=message
+            ))
             self.process_request()
 
     def write(self):
@@ -233,33 +240,42 @@ class SocketEventListener:
         if self.request:
             if not self.response_created:
                 self.create_response()
-            message = 'send: {response} to {client}'.format(
-                response=str(self.response),
-                client=self.client
+            message = 'send to {terminal} ({ip}): {response}'.format(
+                terminal=self.client.terminal,
+                ip=self.client.get('ip_address'),
+                response=self.response.dumps()
             )
-            # TODO : use another logging method
-            print(message)
+            logger.info('{message}'.format(
+                message=message
+            ))
             self._write()
 
     def close(self):
         """Close the connection with selfcheck client."""
-        # TODO : use another logging method
-        print("closing connection to", self.addr)
+        logger.info('closing connection to {address}'.format(
+            address=self.addr
+        ))
         try:
             self.selector.unregister(self.sock)
         except Exception as e:
-            print(
-                f"error: selector.unregister() exception for",
-                f"{self.addr}: {repr(e)}",
+            current_app.logger.error(
+                'error: selector unregistered for {terminal}:{terminal_ip} '
+                'on {server}'.format(
+                    terminal=self.client.terminal,
+                    terminal_ip=self.client.get('ip_address'),
+                    server=self.server.get('server_name')
+                ), e
             )
-
         try:
             self.sock.close()
         except OSError as e:
-            # TODO : use another logging method
-            print(
-                f"error: socket.close() exception for",
-                f"{self.addr}: {repr(e)}",
+            current_app.logger.error(
+                'error: socket closing exception for {terminal}:{terminal_ip} '
+                'on {server}'.format(
+                    terminal=self.client.terminal,
+                    terminal_ip=self.client.get('ip_address'),
+                    server=self.server.get('server_name')
+                )
             )
         finally:
             # Delete reference to socket object for garbage collection

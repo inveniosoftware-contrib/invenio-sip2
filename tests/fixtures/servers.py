@@ -19,12 +19,12 @@
 
 import pytest
 
-from invenio_sip2.records.record import Server
+from invenio_sip2.records.record import Client, Server
 
 
 @pytest.fixture(scope="module")
 def server_data():
-    """Server data."""
+    """Load server data."""
     return {
         'id': 'key_1',
         'host': '0.0.0.0',
@@ -37,6 +37,24 @@ def server_data():
 @pytest.fixture(scope="module")
 def server(app, server_data):
     """Load server record."""
-    server = Server.create(
-        server_data)
+    server = Server.create(server_data, id_='key_1')
     return server
+
+
+@pytest.fixture(scope='module')
+def dummy_client_data():
+    """Load client data."""
+    return {
+        'server': {
+            'id': 'key_1'
+        },
+        'ip_address': '127.0.0.1',
+        'socket': 65565,
+    }
+
+
+@pytest.fixture(scope='module')
+def dummy_client(app, server, dummy_client_data):
+    """Load and create client."""
+    client = Client.create(data=dummy_client_data)
+    return client

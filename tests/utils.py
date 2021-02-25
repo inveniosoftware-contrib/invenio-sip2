@@ -34,37 +34,33 @@ def remote_handler():
     return lambda *args, **kwargs: 'TEST'
 
 
-def remote_login_failed_handler(login, password):
-    """Dummy remote handler for invalid login."""
-    return {'authenticated': False}
-
-
-def remote_login_handler(login, password):
+def remote_login_handler(login, password, **kwargs):
     """Dummy remote handler for login."""
     return {
         'authenticated': True,
-        'user_id': 'user_id',
+        'terminal': 'terminal_1',
+        'transaction_user_id': 'user_id',
         'institution_id': 'selfcheck_location',
         'library_name': 'Name of the library'
     }
 
 
-def remote_system_status_handler(login):
+def remote_system_status_handler(login, **kwargs):
     """Dummy remote handler for system status."""
     return {'institution_id': 'selfcheck_location'}
 
 
-def remote_authorize_patron_handler(patron_id, patron_password):
+def remote_authorize_patron_handler(patron_id, patron_password, **kwargs):
     """Dummy remote handler for authorize patron."""
     return True
 
 
-def remote_validate_patron_handler(patron_id):
+def remote_validate_patron_handler(patron_id, **kwargs):
     """Dummy remote handler for validate patron."""
     return True
 
 
-def remote_enable_patron_handler(patron_id):
+def remote_enable_patron_handler(patron_id, **kwargs):
     """Dummy remote handler for enable patron."""
     return {
         'patron_status': PatronStatus(),
@@ -75,7 +71,7 @@ def remote_enable_patron_handler(patron_id):
     }
 
 
-def remote_patron_status_handler(patron_id):
+def remote_patron_status_handler(patron_id, **kwargs):
     """Dummy remote handler for patron information."""
     response = SelfcheckPatronStatus(
         patron_status=PatronStatus(),
@@ -84,7 +80,7 @@ def remote_patron_status_handler(patron_id):
     return response
 
 
-def remote_patron_account_handler(patron_id):
+def remote_patron_account_handler(patron_id, **kwargs):
     """Dummy remote handler for patron information."""
     response = SelfcheckPatronInformation(
         patron_status=PatronStatus(),

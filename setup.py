@@ -42,9 +42,6 @@ invenio_search_version = '1.2.1'
 invenio_db_version = '1.0.4'
 
 extras_require = {
-    'elasticsearch5': [
-        'invenio-search[elasticsearch5]>={}'.format(invenio_search_version),
-    ],
     'elasticsearch6': [
         'invenio-search[elasticsearch6]>={}'.format(invenio_search_version),
     ],
@@ -52,7 +49,7 @@ extras_require = {
         'invenio-search[elasticsearch7]>={}'.format(invenio_search_version),
     ],
     'docs': [
-        'Sphinx>=2.4,<=3.1.1',
+        'Sphinx>=3',
     ],
     'mysql': [
         'invenio-db[versioning,mysql]>={}'.format(invenio_db_version),
@@ -73,7 +70,6 @@ for name, reqs in extras_require.items():
         'mysql',
         'postgresql',
         'sqlite',
-        'elasticsearch5',
         'elasticsearch6',
         'elasticsearch7',
     ):
@@ -93,8 +89,9 @@ install_requires = [
     'Flask-Login>=0.4.0,<0.5.0',
     'email-validator>=1.0.5',
     'six>=1.12.0',
+    'SQLAlchemy>=1.2.18,<1.4.0',
     'SQLAlchemy-Utils>=0.33.1,<0.36',
-    'invenio-base>=1.2.2',
+    'invenio-base>=1.2.3',
     'invenio-access>=1.3.1',
     'pycountry>=19.7.15',
     'jsonpickle>=1.2',

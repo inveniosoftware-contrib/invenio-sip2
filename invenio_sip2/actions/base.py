@@ -81,7 +81,7 @@ class Action(object):
                 field=optional_field,
                 field_value=field_value
             )
-        # TODO: try to raise exception if fixed field does not exist
+        # TODO: try to raise exception if required field does not exist
         return message
 
     def execute(self, **kwargs):

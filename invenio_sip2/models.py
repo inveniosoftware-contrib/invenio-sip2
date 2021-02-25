@@ -21,63 +21,6 @@ from enum import Enum
 from .proxies import current_sip2 as acs_system
 
 
-class SelfcheckClient(dict):
-    """class for user client."""
-
-    def __init__(self, address, remote_app):
-        """Constructor.
-
-        :param address: 2-tuple (host, port)
-        :param remote_app: remote app)
-        """
-        self['ip_address'] = address[0]
-        self['socket_port'] = address[1]
-        self['remote_app'] = remote_app
-        self['authenticated'] = False
-        self['user_id'] = None
-        self['patron_session'] = {}
-
-    def update(self, data):
-        """Update instance with dictionary data.
-
-        :param data: Dict with user metadata.
-        """
-        super(SelfcheckClient, self).update(data)
-
-    @property
-    def is_authenticated(self):
-        """Shortcut to check if the selfcheck client is authenticated."""
-        return self.get('authenticated')
-
-    @property
-    def remote_app(self):
-        """Shortcut to remote application."""
-        return self.get('remote_app')
-
-    @property
-    def user_id(self):
-        """Shortcut to user id."""
-        return self.get('user_id')
-
-    @property
-    def institution_id(self):
-        """Shortcut to institution id."""
-        return self.get('institution_id')
-
-    @property
-    def library_name(self):
-        """Shortcut to library name."""
-        return self.get('library_name')
-
-    def get_current_patron_session(self):
-        """Shortcut to patron session."""
-        return self.get('patron_session')
-
-    def clear_patron_session(self):
-        """Shortcut to library name."""
-        self['patron_session'] = {}
-
-
 class PatronStatusTypes(Enum):
     """Enum class to list all possible patron status types."""
 

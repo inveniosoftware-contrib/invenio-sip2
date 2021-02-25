@@ -20,7 +20,7 @@
 from ..proxies import current_sip2 as acs_system
 
 
-def base_selfcheck_login_handler(remote, login, password, *kwargs):
+def base_selfcheck_login_handler(remote, login, password, **kwargs):
     """Handle selfcheck login functionality.
 
     :param remote: remote ils
@@ -29,7 +29,7 @@ def base_selfcheck_login_handler(remote, login, password, *kwargs):
     returns: login response
     """
     handler = acs_system.sip2_handlers.login_handler[remote]
-    return handler(login, password, *kwargs)
+    return handler(login, password, **kwargs)
 
 
 def base_system_status_handler(remote, login, **kwargs):

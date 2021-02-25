@@ -19,125 +19,121 @@
 
 from __future__ import absolute_import, print_function
 
+import mock
+
 from invenio_sip2.api import Message
 from invenio_sip2.proxies import current_sip2
 
 
+@mock.patch('invenio_sip2.actions.actions.selfcheck_login_handler',
+            mock.MagicMock(return_value={'authenticated': False}))
+def test_sip2_login_failed(app, dummy_client, failed_login_message):
+    """Test invenio-sip2 login action failed."""
+
+    response = current_sip2.sip2.execute(
+            Message(request=failed_login_message),
+            client=dummy_client
+    )
+    assert str(response) == '940'
+
+
 def test_sip2_login(app, dummy_client, login_message):
     """Test invenio-sip2 login action."""
-    with app.app_context():
-        response = current_sip2.sip2.execute(
-            Message(request=login_message),
-            client=dummy_client
-        )
-        assert str(response) == '941'
-
-
-def test_sip2_login_failed(app, dummy_invalid_client, failed_login_message):
-    """Test invenio-sip2 login action failed."""
-    with app.app_context():
-        response = current_sip2.sip2.execute(
-                Message(request=failed_login_message),
-                client=dummy_invalid_client
-        )
-        assert str(response) == '940'
+    response = current_sip2.sip2.execute(
+        Message(request=login_message),
+        client=dummy_client
+    )
+    assert str(response) == '941'
 
 
 def test_sip2_system_status(app, dummy_client, system_status_message):
     """Test invenio-sip2 system status action."""
-    with app.app_context():
-        response = current_sip2.sip2.execute(
-                Message(request=system_status_message),
-                client=dummy_client
-        )
-        assert str(response).startswith('98')
+    response = current_sip2.sip2.execute(
+            Message(request=system_status_message),
+            client=dummy_client
+    )
+    assert str(response).startswith('98')
 
 
 def test_patron_enable(app, dummy_client, enable_patron_message):
     """Test invenio-sip2 patron enable action."""
-    with app.app_context():
-        response = current_sip2.sip2.execute(
-                Message(request=enable_patron_message),
-                client=dummy_client
-        )
-        assert str(response).startswith('26')
+    response = current_sip2.sip2.execute(
+            Message(request=enable_patron_message),
+            client=dummy_client
+    )
+    assert str(response).startswith('26')
 
 
 def test_patron_status(app, dummy_client, patron_status_message):
     """Test invenio-sip2 patron enable action."""
-    with app.app_context():
-        response = current_sip2.sip2.execute(
-                Message(request=patron_status_message),
-                client=dummy_client
-        )
-        assert str(response).startswith('24')
+    response = current_sip2.sip2.execute(
+            Message(request=patron_status_message),
+            client=dummy_client
+    )
+    assert str(response).startswith('24')
 
 
 def test_patron_information(app, dummy_client, patron_information_message):
     """Test invenio-sip2 patron enable action."""
-    with app.app_context():
-        response = current_sip2.sip2.execute(
-                Message(request=patron_information_message),
-                client=dummy_client
-        )
-        assert str(response).startswith('64')
-
-
-def test_end_patron_session(app, dummy_client, end_patron_session_message):
-    """Test invenio-sip2 patron enable action."""
-    with app.app_context():
-        response = current_sip2.sip2.execute(
-                Message(request=end_patron_session_message),
-                client=dummy_client
-        )
-        assert str(response).startswith('36')
+    response = current_sip2.sip2.execute(
+            Message(request=patron_information_message),
+            client=dummy_client
+    )
+    assert str(response).startswith('64')
 
 
 def test_item_information(app, dummy_client, item_information_message):
     """Test invenio-sip2 patron enable action."""
-    with app.app_context():
-        response = current_sip2.sip2.execute(
-                Message(request=item_information_message),
-                client=dummy_client
-        )
-        assert str(response).startswith('18')
+    response = current_sip2.sip2.execute(
+            Message(request=item_information_message),
+            client=dummy_client
+    )
+    assert str(response).startswith('18')
 
 
 def test_checkout(app, dummy_client, checkout_message):
     """Test invenio-sip2 checkout action."""
-    with app.app_context():
-        response = current_sip2.sip2.execute(
-                Message(request=checkout_message),
-                client=dummy_client
-        )
-        assert str(response).startswith('12')
+    response = current_sip2.sip2.execute(
+            Message(request=checkout_message),
+            client=dummy_client
+    )
+    assert str(response).startswith('12')
 
 
 def test_checkin(app, dummy_client, checkin_message):
     """Test invenio-sip2 checkin action."""
-    with app.app_context():
-        response = current_sip2.sip2.execute(
-                Message(request=checkin_message),
-                client=dummy_client
-        )
-        assert str(response).startswith('10')
+    response = current_sip2.sip2.execute(
+            Message(request=checkin_message),
+            client=dummy_client
+    )
+    assert str(response).startswith('10')
 
 
 def test_hold(app, dummy_client, create_hold_message):
     """Test invenio-sip2 hold action."""
-    with app.app_context():
-        response = current_sip2.sip2.execute(
-                Message(request=create_hold_message),
-                client=dummy_client
-        )
-        assert str(response).startswith('16')
+    response = current_sip2.sip2.execute(
+            Message(request=create_hold_message),
+            client=dummy_client
+    )
+    assert str(response).startswith('16')
 
 
 def test_renew(app, dummy_client, renew_message):
     """Test invenio-sip2 renew action."""
-    with app.app_context():
-        response = current_sip2.sip2.execute(
-                Message(request=renew_message),
-                client=dummy_client
-        )
-        assert str(response).startswith('30')
+    response = current_sip2.sip2.execute(
+            Message(request=renew_message),
+            client=dummy_client
+    )
+    assert str(response).startswith('30')
+
+
+def test_end_patron_session(app, dummy_client, end_patron_session_message):
+    """Test invenio-sip2 patron enable action."""
+    # IMPORTANT NOTE:
+    # this test needs to be run last, because during this test,
+    # the patron session is deleted
+    response = current_sip2.sip2.execute(
+            Message(request=end_patron_session_message),
+            client=dummy_client
+    )
+    assert str(response).startswith('36')

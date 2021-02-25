@@ -35,9 +35,6 @@ blueprint = Blueprint(
 @blueprint.route("/sip2/monitoring")
 def monitoring():
     """Render a basic view."""
-    for server in list(Server.get_all_records()):
-        print('dumps:', server)
-
     return render_template(
         "invenio_sip2/monitoring.html",
         module_name=_('Invenio-SIP2'),
