@@ -76,6 +76,7 @@ def remote_patron_status_handler(patron_id, **kwargs):
     response = SelfcheckPatronStatus(
         patron_status=PatronStatus(),
         language='und',
+        print_line='message on one line'
     )
     return response
 
@@ -113,7 +114,7 @@ def remote_item_information_handler(patron_id, item_id, **kwargs):
     return response
 
 
-def remote_checkout_handler(user_id, institution_id, patron_id, item_id,
+def remote_checkout_handler(user_id, item_id, patron_id,
                             **kwargs):
     """Dummy remote handler for checkout."""
     response = SelfcheckCheckout(
@@ -131,7 +132,7 @@ def remote_checkout_handler(user_id, institution_id, patron_id, item_id,
     return response
 
 
-def remote_checkin_handler(user_id, institution_id, patron_id, item_id,
+def remote_checkin_handler(user_id, item_id,
                            **kwargs):
     """Dummy remote handler for checkin."""
     response = SelfcheckCheckin(
@@ -150,7 +151,7 @@ def remote_checkin_handler(user_id, institution_id, patron_id, item_id,
     return response
 
 
-def remote_hold_handler(user_id, institution_id, patron_id, item_id, **kwargs):
+def remote_hold_handler(user_id, item_id, **kwargs):
     """Dummy remote handler for hold."""
     response = SelfcheckHold(
         item_id=item_id,
@@ -167,7 +168,7 @@ def remote_hold_handler(user_id, institution_id, patron_id, item_id, **kwargs):
     return response
 
 
-def remote_renew_handler(user_id, institution_id, patron_id, item_id,
+def remote_renew_handler(user_id, item_id,
                          **kwargs):
     """Dummy remote handler for renew."""
     response = SelfcheckRenew(

@@ -104,6 +104,7 @@ def base_item_handler(remote, patron_identifier, item_identifier,  **kwargs):
     """Handle item information functionality.
 
     :param remote: remote ils
+    :param patron_identifier: Identifier of the patron (e.g. id, barcode,...)
     :param item_identifier: Identifier of the item (e.g. id, barcode,...)
     returns: Item information
     """
@@ -111,18 +112,16 @@ def base_item_handler(remote, patron_identifier, item_identifier,  **kwargs):
     return handlers['item'](patron_identifier, item_identifier, **kwargs)
 
 
-def base_circulation_handlers(remote, handler, user_id, institution_id,
-                              patron_identifier, item_identifier, **kwargs):
+def base_circulation_handlers(remote, handler, user_id, item_identifier,
+                              *args, **kwargs):
     """Handle checkout functionality.
 
     :param remote: remote ils
     :param handler: circulation handler (e.g.: checkin, checkout,...)
-    :param patron_identifier: Identifier of the patron (e.g. id, barcode,...)
-    :param item_identifier: Identifier of the item (e.g. id, barcode,...)
-    :param institution_id: Identifier of the location or library
     :param user_id: Identifier of selfcheck client user
+    :param item_identifier: Identifier of the item (e.g. id, barcode,...)
+    :param patron_identifier: Identifier of the patron (e.g. id, barcode,...)
     returns: Circulation handler
     """
     handlers = acs_system.sip2_handlers.circulation_handlers[remote]
-    return handlers[handler](user_id, institution_id, patron_identifier,
-                             item_identifier, **kwargs)
+    return handlers[handler](user_id, item_identifier, *args, **kwargs)

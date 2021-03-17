@@ -19,8 +19,6 @@
 
 from __future__ import absolute_import, print_function
 
-import socket
-
 from flask import current_app
 
 from .models import SelfcheckCirculationStatus, SelfcheckLanguage, \
@@ -71,9 +69,3 @@ def get_circulation_status(status=None):
         return getattr(SelfcheckCirculationStatus, status)
     except AttributeError:
         return SelfcheckCirculationStatus.OTHER
-
-
-def check_server_running(server):
-    """Check if server is running."""
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        return s.connect_ex((server.get('host'), server.get('port'))) == 0
