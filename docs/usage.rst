@@ -22,6 +22,6 @@ Start SIP2 server with CLI example:
 
 .. code-block:: console
 
-    $ invenio selfcheck start -h 127.0.0.1 -p 3004 -r your-remote-app
+    $ invenio selfcheck start <server_name> -h 127.0.0.1 -p 3004 -r your-remote-app
 
 

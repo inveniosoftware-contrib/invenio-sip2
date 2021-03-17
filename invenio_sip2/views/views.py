@@ -22,13 +22,13 @@ from __future__ import absolute_import, print_function
 from flask import Blueprint, render_template
 from flask_babelex import gettext as _
 
-from .records.record import Server
+from invenio_sip2.records.record import Server
 
 blueprint = Blueprint(
     'invenio_sip2',
     __name__,
-    template_folder='templates',
-    static_folder='static',
+    template_folder='../templates',
+    static_folder='../static',
 )
 
 

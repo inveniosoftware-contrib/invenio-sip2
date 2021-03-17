@@ -20,9 +20,38 @@ API Docs
 
 .. automodule:: invenio_sip2.ext
    :members:
+   :undoc-members:
+
+Actions
+-------
+
+.. automodule:: invenio_sip2.actions.actions
+   :members:
+   :undoc-members:
+
+Records API
+-----------
+
+.. automodule:: invenio_sip2.records.record
+   :members:
+
+Models
+------
+
+.. automodule:: invenio_sip2.models
+   :members:
+   :undoc-members:
+
+Rest API
+--------
+
+.. automodule:: invenio_sip2.views.rest
+   :members:
+   :undoc-members:
 
 Views
 -----
 
-.. automodule:: invenio_sip2.views
+.. automodule:: invenio_sip2.views.views
    :members:
+   :undoc-members:
