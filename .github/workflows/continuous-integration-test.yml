@@ -38,31 +38,23 @@ jobs:
           # You can add more combinations e.g. dev requirements or MySQL by adding
           # a new item to this list. Add its corresponding definition below.
           cache-service: [redis]
-          services: [release, lowest, devel]
+          services: [release, devel]
           include:
           - services: release
-            SQLALCHEMY_DATABASE_URI: "postgresql+psycopg2://invenio:invenio@localhost:5432/invenio"
-            POSTGRESQL_VERSION: POSTGRESQL_12_LATEST
-            EXTRAS: "all,postgresql"
+            EXTRAS: "all"
             REQUIREMENTS: "release"
             REQUIREMENTS_LEVEL: "pypi"
-          - services: lowest
-            SQLALCHEMY_DATABASE_URI: "postgresql+psycopg2://invenio:invenio@localhost:5432/invenio"
-            POSTGRESQL_VERSION: POSTGRESQL_9_LATEST
-            EXTRAS: "all,postgresql"
-            REQUIREMENTS: "lowest"
-            REQUIREMENTS_LEVEL: "min"
+#          - services: lowest
+#            EXTRAS: "all"
+#            REQUIREMENTS: "lowest"
+#            REQUIREMENTS_LEVEL: "min"
           - services: devel
-            SQLALCHEMY_DATABASE_URI: "postgresql+psycopg2://invenio:invenio@localhost:5432/invenio"
-            POSTGRESQL_VERSION: POSTGRESQL_12_LATEST
-            EXTRAS: "all,postgresql"
+            EXTRAS: "all"
             REQUIREMENTS: "devel"
             REQUIREMENTS_LEVEL: "dev"
 
     env:
       CACHE: ${{ matrix.cache-service }}
-      SQLALCHEMY_DATABASE_URI: ${{matrix.SQLALCHEMY_DATABASE_URI}}
-      POSTGRESQL_VERSION: ${{matrix.POSTGRESQL_VERSION}}
       ES_VERSION: ${{matrix.ES_VERSION}}
 
     steps:

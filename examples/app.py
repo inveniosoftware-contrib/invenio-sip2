@@ -60,7 +60,7 @@ from flask_babelex import Babel
 from invenio_db.ext import InvenioDB
 
 from invenio_sip2 import InvenioSIP2
-from invenio_sip2.views import blueprint
+from invenio_sip2.views.views import blueprint
 
 # Create Flask application
 app = Flask(__name__)

@@ -20,9 +20,18 @@
 from __future__ import absolute_import, print_function
 
 import mock
+import pytest
 
+from invenio_sip2.actions.base import Action
 from invenio_sip2.api import Message
 from invenio_sip2.proxies import current_sip2
+
+
+def test_sip2_actions_interface(app):
+    """Test base action interface."""
+    action = Action(command='93', response='94')
+    with pytest.raises(NotImplementedError):
+        action.execute()
 
 
 @mock.patch('invenio_sip2.actions.actions.selfcheck_login_handler',

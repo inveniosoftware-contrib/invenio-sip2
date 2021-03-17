@@ -24,6 +24,7 @@ fixtures are available.
 from __future__ import absolute_import, print_function
 
 import os
+# import shutil
 import signal
 import socket
 import subprocess
@@ -41,7 +42,10 @@ from invenio_access.ext import InvenioAccess
 from invenio_accounts.ext import InvenioAccounts
 from invenio_accounts.models import Role
 from invenio_accounts.testutils import create_test_user
-from invenio_db.ext import InvenioDB
+from invenio_db.ext import InvenioDB  # , db
+# from simplekv.memory.redisstore import RedisStore
+# from sqlalchemy_utils.functions import create_database, database_exists, \
+#     drop_database
 from utils import remote_authorize_patron_handler, remote_checkin_handler, \
     remote_checkout_handler, remote_enable_patron_handler, remote_handler, \
     remote_hold_handler, remote_item_information_handler, \
@@ -50,7 +54,8 @@ from utils import remote_authorize_patron_handler, remote_checkin_handler, \
     remote_system_status_handler, remote_validate_patron_handler
 
 from invenio_sip2 import InvenioSIP2
-from invenio_sip2.views import blueprint
+from invenio_sip2.views.rest import api_blueprint
+from invenio_sip2.views.views import blueprint
 
 sys.path.append(os.path.dirname(__file__))
 
@@ -86,8 +91,10 @@ def base_app(request):
         SECURITY_PASSWORD_SALT="CHANGE_ME_ALSO",
         SECURITY_CONFIRM_EMAIL_WITHIN="2 seconds",
         SECURITY_RESET_PASSWORD_WITHIN="2 seconds",
-        SQLALCHEMY_DATABASE_URI=os.environ.get(
-            'SQLALCHEMY_DATABASE_URI', 'sqlite:///test.db'),
+        DB_VERSIONING=False,
+        DB_VERSIONING_USER_MODEL=None,
+        SQLALCHEMY_DATABASE_URI=os.environ.get('SQLALCHEMY_DATABASE_URI',
+                                               'sqlite:///test.db'),
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
         SERVER_NAME='localhost:5000',
         TESTING=True,
@@ -116,6 +123,9 @@ def base_app(request):
                     hold=remote_hold_handler,
                     renew=remote_renew_handler,
                 )
+            ),
+            test_invalid=dict(
+                login_handler='utils.remote_login_handler',
             )
         )
     )
@@ -123,15 +133,38 @@ def base_app(request):
     InvenioDB(app)
     InvenioAccess(app)
     InvenioAccounts(app)
-
+    # _database_setup(app, request)
     app.test_request_context().push()
     return app
+
+
+# def _database_setup(app, request):
+#     """Set up the database."""
+#     with app.app_context():
+#         if not database_exists(str(db.engine.url)):
+#             create_database(str(db.engine.url))
+#         db.create_all()
+#
+#     def teardown():
+#         with app.app_context():
+#             if database_exists(str(db.engine.url)):
+#                 drop_database(str(db.engine.url))
+#             # Delete sessions in kvsession store
+#             if hasattr(app, 'kvsession_store') and \
+#                     isinstance(app.kvsession_store, RedisStore):
+#                 app.kvsession_store.redis.flushall()
+#         shutil.rmtree(app.instance_path)
+#
+#     request.addfinalizer(teardown)
+#     return app
 
 
 def _init_app(app_):
     """Init Invenio-sip2 app."""
     InvenioSIP2(app_)
     app_.register_blueprint(blueprint)
+    app_.register_blueprint(api_blueprint)
+
     return app_
 
 

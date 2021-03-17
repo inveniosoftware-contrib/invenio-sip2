@@ -63,7 +63,8 @@ class AutomatedCirculationSystemStatus(Action):
         """Execute action."""
         # TODO : calculate system status from remote app
         status = system_status_handler(client.remote_app,
-                                       client.terminal)
+                                       client.terminal,
+                                       institution_id=client.institution_id)
         client['status'] = status
         # prepare message based on required fields
         response_message = self.prepare_message_response(
@@ -109,11 +110,11 @@ class PatronEnable(Action):
         patron_id = message.get_field_value('patron_id')
 
         is_valid_patron = validate_patron_handler(
-            client.remote_app, patron_id
+            client.remote_app, patron_id, institution_id=client.institution_id
         )
 
         enabled_patron = enable_patron_handler(
-            client.remote_app, patron_id
+            client.remote_app, patron_id, institution_id=client.institution_id
         )
 
         # prepare message based on required fields
@@ -135,7 +136,8 @@ class PatronEnable(Action):
         patron_password = message.get_field_value('patron_pwd')
         if patron_password:
             is_authenticated = authorize_patron_handler(
-                client.remote_app, patron_id, patron_password
+                client.remote_app, patron_id, patron_password,
+                institution_id=client.institution_id
             )
 
             response_message.add_variable_field(
@@ -154,7 +156,7 @@ class PatronStatus(Action):
         """Execute action."""
         patron_id = message.get_field_value('patron_id')
         patron_status = patron_status_handler(
-            client.remote_app, patron_id
+            client.remote_app, patron_id, institution_id=client.institution_id
         )
 
         response_message = self.prepare_message_response(
@@ -182,7 +184,7 @@ class PatronInformation(Action):
         # TODO: implements summary functionality
         patron_id = message.get_field_value('patron_id')
         patron_account = patron_handler(
-            client.remote_app, patron_id
+            client.remote_app, patron_id, institution_id=client.institution_id
         )
 
         # TODO: better way to begin session
@@ -218,7 +220,8 @@ class PatronInformation(Action):
         patron_password = message.get_field_value('patron_pwd')
         if patron_password:
             is_authenticated = authorize_patron_handler(
-                client.remote_app, patron_account.patron_id, patron_password
+                client.remote_app, patron_account.patron_id, patron_password,
+                institution_id=client.institution_id
             )
             response_message.add_variable_field(
                 field_name='valid_patron_pwd',
@@ -260,7 +263,8 @@ class ItemInformation(Action):
         item_information = item_handler(
             client.remote_app, patron_session.get('patron_id'),
             item_identifier, terminal=client.terminal,
-            language=patron_session.get('language')
+            language=patron_session.get('language'),
+            institution_id=client.institution_id
         )
 
         # prepare message based on required fields
@@ -307,9 +311,10 @@ class Checkin(Action):
         try:
             # TODO: give the client to reduce the number of parameters.
             checkin = checkin_handler(
-                client.remote_app, client.transaction_user_id,
-                client.institution_id, patron_session.get('patron_id'),
-                item_id, terminal=client.terminal,
+                client.remote_app, client.transaction_user_id, item_id,
+                patron_id=patron_session.get('patron_id'),
+                institution_id=client.institution_id,
+                terminal=client.terminal,
                 language=patron_session.get('language')
             )
         except SelfcheckCirculationError as error:
@@ -352,8 +357,9 @@ class Checkout(Action):
 
         try:
             checkout = checkout_handler(
-                client.remote_app, client.transaction_user_id,
-                client.institution_id, patron_id, item_id,
+                client.remote_app, client.transaction_user_id, item_id,
+                patron_id,
+                institution_id=client.institution_id,
                 terminal=client.terminal,
                 language=patron_session.get('language')
             )
@@ -408,9 +414,11 @@ class Hold(Action):
 
         try:
             hold = hold_handler(
-                client.remote_app, client.transaction_user_id,
-                client.institution_id, patron_id, item_id,
-                language=patron_session.get('language')
+                client.remote_app, client.transaction_user_id, item_id,
+                patron_id=patron_id,
+                institution_id=client.institution_id,
+                terminal=client.terminal,
+                language=patron_session.get('language'),
             )
         except SelfcheckCirculationError as error:
             hold = error.data
@@ -450,9 +458,11 @@ class Renew(Action):
 
         try:
             renew = renew_handler(
-                client.remote_app, client.transaction_user_id,
-                client.institution_id, patron_id, item_id,
-                language=patron_session.get('language')
+                client.remote_app, client.transaction_user_id, item_id,
+                patron_id=patron_id,
+                intitution_id=client.institution_id,
+                terminal=client.terminal,
+                language=patron_session.get('language'),
             )
         except SelfcheckCirculationError as error:
             renew = error.data

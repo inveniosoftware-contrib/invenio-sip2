@@ -99,7 +99,7 @@ class Sip2RecordMetadata(dict):
     @classmethod
     def count(cls):
         """Return number of all records based on record type."""
-        return len(datastore.all(cls.record_type))
+        return len(list(datastore.all(cls.record_type)))
 
     def dumps(self, **kwargs):
         """Return pure Python dictionary with record metadata."""

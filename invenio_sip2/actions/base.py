@@ -69,13 +69,13 @@ class Action(object):
         message = Message(
             message_type=self.response_type
         )
-        for required_field in self.response_type.required_fields:
+        for required_field in self.required_fields:
             field_value = kwargs.pop(required_field.name, None)
             message.add_field(
                 field=required_field,
                 field_value=field_value
             )
-        for optional_field in self.response_type.optional_fields:
+        for optional_field in self.optional_fields:
             field_value = kwargs.pop(optional_field.name, None)
             message.add_field(
                 field=optional_field,

@@ -116,7 +116,7 @@ html_theme = 'alabaster'
 
 html_theme_options = {
     'description': 'Library Selfcheck SIP2 module for invenio',
-    'github_user': 'lauren-d',
+    'github_user': 'inveniosoftware-contrib',
     'github_repo': 'invenio-sip2',
     'github_button': False,
     'github_banner': True,

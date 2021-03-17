@@ -66,33 +66,29 @@ def item_handler(remote, patron_identifier, item_identifier, **kwargs):
                              **kwargs)
 
 
-def checkout_handler(remote, user_id, institution_id, patron_identifier,
-                     item_identifier, **kwargs):
+def checkout_handler(remote, user_id, item_identifier, patron_identifier,
+                     *args, **kwargs):
     """Handle chekout an item functionality."""
     return base_circulation_handlers(remote, 'checkout', user_id,
-                                     institution_id, patron_identifier,
-                                     item_identifier, **kwargs)
+                                     item_identifier, patron_identifier,
+                                     *args, **kwargs)
 
 
-def checkin_handler(remote, user_id, institution_id, patron_identifier,
-                    item_identifier, **kwargs):
+def checkin_handler(remote, user_id, item_identifier, *args, **kwargs):
     """Handle checkin an item functionality."""
     return base_circulation_handlers(remote, 'checkin', user_id,
-                                     institution_id, patron_identifier,
-                                     item_identifier, **kwargs)
+                                     item_identifier, *args, **kwargs)
 
 
-def hold_handler(remote, user_id, institution_id, patron_identifier,
-                 item_identifier, **kwargs):
+def hold_handler(remote, user_id, item_identifier,
+                 *args, **kwargs):
     """Handle hold an item functionality."""
-    return base_circulation_handlers(remote, 'hold', user_id, institution_id,
-                                     patron_identifier, item_identifier,
-                                     **kwargs)
+    return base_circulation_handlers(remote, 'hold', user_id,
+                                     item_identifier, *args, **kwargs)
 
 
-def renew_handler(remote, user_id, institution_id, patron_identifier,
-                  item_identifier, **kwargs):
+def renew_handler(remote, user_id, item_identifier,
+                  *args, **kwargs):
     """Handle renew an item functionality."""
-    return base_circulation_handlers(remote, 'renew', user_id, institution_id,
-                                     patron_identifier, item_identifier,
-                                     **kwargs)
+    return base_circulation_handlers(remote, 'renew', user_id,
+                                     item_identifier, *args, **kwargs)

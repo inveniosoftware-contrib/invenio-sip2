@@ -15,14 +15,14 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-"""Blueprint for Invenio-SIP2."""
+"""API blueprint for Invenio-SIP2."""
 
 from __future__ import absolute_import, print_function
 
 from flask import Blueprint, jsonify
 
-from .decorators import need_permission
-from .records.record import Client, Server
+from invenio_sip2.decorators import need_permission
+from invenio_sip2.records.record import Client, Server
 
 api_blueprint = Blueprint(
     'api_sip2',
@@ -34,7 +34,7 @@ api_blueprint = Blueprint(
 @api_blueprint.route('/status')
 @need_permission('api-monitoring')
 def status():
-    """Displa status for all SIP2 server."""
+    """Display status for all SIP2 server."""
     return jsonify(Monitoring.status())
 
 
@@ -82,9 +82,9 @@ class Monitoring:
         result = {}
         servers = cls.get_servers()
         result['servers'] = len(servers)
-        result['clients'] = Client.count()
+        result['clients'] = len(Client.get_all_records())
         result['status'] = 'green'
-        if result['servers'] > 0:
+        if result['servers']:
             info = {}
             for server in servers:
                 info[server.id] = {}

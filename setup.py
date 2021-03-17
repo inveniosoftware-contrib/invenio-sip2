@@ -25,9 +25,12 @@ readme = open('README.rst').read()
 history = open('CHANGES.rst').read()
 
 tests_require = [
+    "mock>=2.0.0",
+    "pytest-mock>=1.6.0",
     'check-manifest>=0.35',
     'coverage>=4.5.3',
     'invenio-app>=1.2.3',
+    'invenio-db>=1.0.4',
     'autoflake>=1.3.1',
     'isort>=5.1.0',
     'pydocstyle>=5.0.0',
@@ -35,7 +38,7 @@ tests_require = [
     'pytest-cache>=1.0',
     'pytest-cov>=2.7.1',
     'pytest-pep8>=1.0.6',
-    'pytest-invenio>=1.2.2,<1.3.0'
+    'pytest-invenio>=1.2.2,<1.4.0'
 ]
 
 invenio_search_version = '1.2.1'
@@ -128,10 +131,10 @@ setup(
             'invenio_sip2 = invenio_sip2:InvenioSIP2',
         ],
         'invenio_base.blueprints': [
-            'invenio_sip2 = invenio_sip2.views:blueprint',
+            'invenio_sip2 = invenio_sip2.views.views:blueprint',
         ],
         'invenio_base.api_blueprints': [
-            'invenio_sip2 = invenio_sip2.api_views:api_blueprint',
+            'invenio_sip2 = invenio_sip2.views.rest:api_blueprint',
         ],
         'flask.commands': [
             'selfcheck = invenio_sip2.cli:selfcheck'
@@ -151,6 +154,7 @@ setup(
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
         'Development Status :: 3 - Alpha',
     ],
 )
