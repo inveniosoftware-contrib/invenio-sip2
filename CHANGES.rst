@@ -16,6 +16,15 @@
 
 Changes
 =======
+Version 0.5.0 (released 2021-03-25)
+
+**Implemented enhancements:**
+
+- Adds datastore to save clients and servers state.
+- Adds record metadata management.
+- Adds APIs to monitor servers and clients.
+- Implements specific logger to log selfcheck requests and server responses.
+
 Version 0.4.0 (released 2020-11-26)
 
 **Implemented enhancements:**
