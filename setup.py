@@ -95,7 +95,6 @@ install_requires = [
     'invenio-access>=1.3.1',
     'pycountry>=19.7.15',
     'jsonpickle>=1.2',
-    'psutil>=5.8.0',
 ]
 
 packages = find_packages()
