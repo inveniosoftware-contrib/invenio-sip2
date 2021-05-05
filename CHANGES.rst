@@ -16,6 +16,14 @@
 
 Changes
 =======
+Version 0.5.1 (released 2021-05-06)
+
+**Minor changes:**
+
+- Increase code coverage.
+- Updates documentation.
+- Cleans and rewrites code.
+
 Version 0.5.0 (released 2021-03-25)
 
 **Implemented enhancements:**
