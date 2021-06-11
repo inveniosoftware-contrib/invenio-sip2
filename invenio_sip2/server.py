@@ -17,7 +17,6 @@
 
 """Invenio-SIP2 socket server management."""
 
-import re
 import selectors
 import signal
 import socket
@@ -42,7 +41,9 @@ class SocketServer:
         self.host = host
         self.port = port
         self.remote_app = kwargs.pop('remote')
+        self.process_id = kwargs.pop('process_id')
         self.server = Server.create(data=vars(self))
+        self.server['process_id'] = self.process_id
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         # Avoid bind() exception: OSError: [Errno 48] Address already in use
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -61,9 +62,7 @@ class SocketServer:
     def run(self):
         """Run socket server."""
         try:
-            # TODO: add class for server state?
-            self.server['status'] = 'running'
-            self.server.update(self.server)
+            self.server.up()
             while True:
                 events = self.selector.select(timeout=None)
                 for key, mask in events:
@@ -106,8 +105,7 @@ class SocketServer:
             self.selector.close()
         except:
             pass
-        self.server['status'] = 'down'
-        self.server.update(self.server)
+        self.server.down()
 
     def handler_stop_signals(self, signum, frame):
         """Handle stop signals."""
@@ -131,7 +129,7 @@ class SocketEventListener:
         self.response = None
         self.message = None
         self.response_created = False
-        self.with_checksum = current_app.config.get('SIP2_CHECKSUM_CONTROL')
+        self.error_detection = current_app.config.get('SIP2_ERROR_DETECTION')
         self.line_terminator = current_app.config.get('SIP2_LINE_TERMINATOR')
         self.message_encoding = current_app.config.get('SIP2_TEXT_ENCODING')
         self.client = Client.create(data=self.dumps())
@@ -179,7 +177,7 @@ class SocketEventListener:
                 request = \
                     request[:len(request) - len(self.line_terminator)]
                 self.request = Message(request=request)
-                if self.verify_checksum(request):
+                if self.validate_message(request):
                     self._recv_buffer += data
                 else:
                     raise InvalidSelfCheckMessageError(
@@ -207,11 +205,19 @@ class SocketEventListener:
     def _create_message(self):
         """Create response message that will be send to selfcheck client."""
         response_text = str(self.response)
-        if self.with_checksum:
+        if self.error_detection:
+            # if the current request is a request resend message, we don't
+            # return the sequence number
+            if self.request.command != '97':
+                response_text += 'AY'
+                response_text += self.request.sequence_number
             response_text += 'AZ'
             response_text += self.calculate_checksum(response_text)
-
+        else:
+            # remove last character `|` if exist
+            response_text.rstrip("|")
         response_text += self.line_terminator
+
         return bytes(response_text, self.message_encoding)
 
     def process_events(self, mask):
@@ -284,14 +290,15 @@ class SocketEventListener:
 
     def process_request(self):
         """Processing of selfcheck message."""
-        # request_message = Message(request=self.request)
         self.response = current_sip2.sip2.execute(
             self.request,
             client=self.client
         )
         if not self.response:
             self.response = '96'
-        self.client.update(self.dumps())
+        if self.request.command is not '97':
+            self.client.update(self.dumps())
+
         # Set selector to listen for write events, we're done reading.
         self._set_selector_events_mask("w")
 
@@ -311,16 +318,35 @@ class SocketEventListener:
         crc = format((-checksum & 0xFFFF), 'X')
         return crc
 
-    def verify_checksum(self, message):
-        """Verify the integrity of SIP2 messages containing checksum."""
+    def validate_message(self, request):
+        """Validate sequence number and checksum."""
         # check for enabled crc
-        if not self.with_checksum:
+        if not self.error_detection:
             return True
 
-        # test the received message's CRC by generating our own CRC
-        test = re.split('(.{4})', message.strip())
+        return self.verify_sequence_number(request) and \
+            self.verify_checksum(request)
 
+    def verify_checksum(self, message):
+        """Verify the integrity of SIP2 messages containing checksum."""
+        # get four last characters
+        test = message[-4:]
         # check validity
         return len(test) > 1 and \
             (self.calculate_checksum(test[0]) > test[1] and
                 self.calculate_checksum(test[0]) < test[1]) == 0
+
+    def verify_sequence_number(self, message):
+        """Check sequence number increment."""
+        if not self.client.last_request_message \
+                or self.request.command is '97':
+            return True
+
+        # get current sequence from tag AY
+        sequence = message[-7:-6]
+        # get sequence number from last request message
+        last_sequence_number = self.client.get_last_sequence_number
+
+        return last_sequence_number and \
+            (int(sequence)-1 == int(last_sequence_number) or
+                (int(last_sequence_number) == 9 and int(sequence) == 0))

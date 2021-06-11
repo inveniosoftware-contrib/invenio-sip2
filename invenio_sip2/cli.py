@@ -20,12 +20,13 @@
 
 from __future__ import absolute_import, print_function
 
+import os
 import threading
 
 import click
+import psutil
 from flask.cli import with_appcontext
 
-from .errors import ServerAlreadyRunning
 from .records.record import Server
 from .server import SocketServer
 
@@ -56,15 +57,38 @@ def selfcheck():
 def start_socket_server(name, host, port, remote):
     """Start sockets server with unique name."""
     try:
-        server = Server.find_server(server_name=name)
-        if server and server.is_running:
-            raise ServerAlreadyRunning(
-                f'server [{name}] already running on {port}'
-            )
-        server = SocketServer(name=name, port=port, host=host, remote=remote)
+        server = SocketServer(name=name, port=port, host=host, remote=remote,
+                              process_id=os.getpid())
         server_thread = threading.Thread(target=server.run)
         server_thread.run()
 
+    except Exception as e:
+        # TODO: log error
+        raise e
+
+
+@selfcheck.command('stop')
+@click.argument('name')
+@click.option('-d', '--delete', 'delete', is_flag=True, default=False)
+@with_appcontext
+def stop_server(name, delete):
+    """Stop sip2 server by unique name.
+
+    This command only works on the same server or container.
+    """
+    try:
+        server = Server.find_server(server_name=name)
+        if server:
+            if server.is_running:
+                pid = server.get('process_id')
+                click.echo(f"stop {server.get('name')} (pid:{pid})")
+                p = psutil.Process(server.get('process_id'))
+                p.terminate()
+            else:
+                click.echo('server already stopped')
+
+            if delete:
+                server.delete()
     except Exception as e:
         # TODO: log error
         raise e
