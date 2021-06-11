@@ -16,6 +16,14 @@
 
 Changes
 =======
+Version 0.6.0 (released 2021-06-11)
+
+**Implemented enhancements:**
+
+- Implements request resend action.
+- Adds CLI to stop the server.
+- Implements sequence number error detection.
+
 Version 0.5.1 (released 2021-05-06)
 
 **Minor changes:**
