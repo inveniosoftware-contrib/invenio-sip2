@@ -103,7 +103,6 @@ class Message(object):
             new_message = new_message + str(variable_field)
 
         self.message_text = new_message
-
         return self.message_text
 
     @property
@@ -126,9 +125,27 @@ class Message(object):
         """Shortcut for sip2 language code."""
         return self.get_fixed_field_value('language')
 
+    @property
+    def sequence_number(self):
+        """Get the sequence number."""
+        return self.sequence
+
     def _parse_request(self):
         """Parse the request sended by the selfcheck."""
-        txt = self.message_text[2:]
+        if current_app.config.get('SIP2_ERROR_DETECTION'):
+            # extract sequence number and checksum
+            self.sequence = self.message_text[-7:-6]
+            self.checksum = self.message_text[-4:]
+            self.variable_fields.append(FieldMessage(
+                MessageTypeVariableField.find_by_field_id('AY'),
+                self.sequence))
+            self.variable_fields.append(FieldMessage(
+                MessageTypeVariableField.find_by_field_id('AZ'),
+                self.checksum))
+
+        # get remaining parts of the message
+        txt = self.message_text[2:-9]
+
         # extract fixed fields from request
         for fixed_field in self.message_type.fixed_fields:
             # get fixed field value
@@ -221,9 +238,14 @@ class Message(object):
 
     def dumps(self):
         """Dumps message as dict."""
-        # TODO: anonymize user and patron login & password
         data = {}
-        data['message_type'] = self.message_type.label
+        # TODO: `_sip2` field is only use in backend. Try to mask it on
+        #       view or logging
+        data['_sip2'] = str(self)
+        data['message_type'] = {
+            'command': self.message_type.command,
+            'label': self.message_type.label
+        }
         for fixed_field in self.fixed_fields:
             data[fixed_field.field.field_id] = fixed_field.field_value
 
@@ -231,5 +253,11 @@ class Message(object):
             if variable_field.field.name not in ['login_uid',
                                                  'login_pwd',
                                                  'patron_pwd']:
-                data[variable_field.field.name] = variable_field.field_value
+                if variable_field.field.is_multiple:
+                    field_list = data.get(variable_field.field.name, [])
+                    field_list.append(variable_field.field_value)
+                    data[variable_field.field.name] = field_list
+                else:
+                    data[variable_field.field.name] = \
+                        variable_field.field_value
         return data
