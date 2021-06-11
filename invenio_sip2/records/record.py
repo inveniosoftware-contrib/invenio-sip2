@@ -18,6 +18,7 @@
 """API for manipulating the client."""
 
 from copy import deepcopy
+from datetime import datetime
 from uuid import uuid4
 
 from invenio_sip2 import datastore
@@ -50,6 +51,7 @@ class Sip2RecordMetadata(dict):
 
         data['id'] = id_
         record = cls(data, **kwargs)
+        record['created'] = datetime.utcnow().isoformat()
         datastore.add(record, id_=id_, **kwargs)
 
         return record
@@ -73,6 +75,7 @@ class Sip2RecordMetadata(dict):
         """
         if self.id:
             super(Sip2RecordMetadata, self).update(data)
+            data['updated'] = datetime.utcnow().isoformat()
             datastore.update(self)
 
     def delete(self):
@@ -123,8 +126,7 @@ class Server(Sip2RecordMetadata):
 
     def delete(self):
         """Delete server and all attached clients."""
-        for data in self.get_clients():
-            Client(data).delete()
+        self.clear_all_clients()
         super().delete()
 
     def get_clients(self):
@@ -136,6 +138,29 @@ class Server(Sip2RecordMetadata):
             index_type=Client.record_type,
             filter_query=filter_query
         )
+
+    def down(self):
+        """Set server status to `Down` and clear all clients data."""
+        self['status'] = 'down'
+        self['stopped_at'] = datetime.utcnow().isoformat()
+        try:
+            del self['process_id']
+        except KeyError:
+            pass
+        self.update(self)
+        # clear all clients
+        self.clear_all_clients()
+
+    def up(self):
+        """Set server status to `running` and clear all clients data."""
+        self['status'] = 'running'
+        self['started_at'] = datetime.utcnow().isoformat()
+        self.update(self)
+
+    def clear_all_clients(self):
+        """Clear all clients."""
+        for client in self.get_clients():
+            Client(client).delete()
 
     @classmethod
     def create(cls, data, id_=None, **kwargs):
@@ -159,6 +184,10 @@ class Server(Sip2RecordMetadata):
     @classmethod
     def find_server(cls, **kwargs):
         """Find server depending kwargs."""
+        try:
+            del kwargs['process_id']
+        except KeyError:
+            pass
         for server in datastore.all(cls.record_type):
             if kwargs.items() <= server.items():
                 # true only if `first` is a subset of `second`
@@ -224,3 +253,18 @@ class Client(Sip2RecordMetadata):
     def clear_patron_session(self):
         """Shortcut to library name."""
         del(self['patron_session'])
+
+    @property
+    def last_response_message(self):
+        """Shortcut to user id."""
+        return self.get('last_response',  {})
+
+    @property
+    def last_request_message(self):
+        """Shortcut to user id."""
+        return self.get('last_request', {})
+
+    @property
+    def get_last_sequence_number(self):
+        """Shortcut to user id."""
+        return self.last_request_message.get('sequence_number')

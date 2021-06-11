@@ -180,8 +180,8 @@ SIP2_LINE_TERMINATOR = '\r'
 SIP2_SOCKET_BUFFER_SIZE = '1024'
 """Socket buffer size."""
 
-SIP2_CHECKSUM_CONTROL = True
-"""Message checksum control."""
+SIP2_ERROR_DETECTION = True
+"""Enable error detection on message."""
 
 SIP2_PROTOCOL = '2.00'
 """SIP2 protocol version."""
@@ -236,7 +236,7 @@ SIP2_MESSAGE_ACTIONS = {
                action=PatronInformation),
     '65': dict(response='66', action=RenewAll),
     '93': dict(message="login", response='94', action=SelfCheckLogin),
-    '97': dict(response='96', action=RequestResend),
+    '97': dict(action=RequestResend),
     '99': dict(message="sc_status", response='98',
                action=AutomatedCirculationSystemStatus),
 }
@@ -1135,5 +1135,4 @@ SIP2_VARIABLE_FIELD_DEFINITION = dict(
     patron_birth_date=dict(field_id='PB', label=_('patron birth date')),
     patron_class=dict(field_id='PC', label=_('patron class')),
     register_login=dict(field_id='OR', label=_('register login')),
-    check_number=dict(field_id='RN', label=_('check number')),
 )

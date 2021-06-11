@@ -21,6 +21,8 @@ from __future__ import absolute_import, print_function
 
 from flask import current_app
 
+from invenio_sip2.api import Message
+
 from ..actions.base import Action, check_selfcheck_authentication
 from ..errors import SelfcheckCirculationError
 from ..handlers import authorize_patron_handler, checkin_handler, \
@@ -94,11 +96,18 @@ class AutomatedCirculationSystemStatus(Action):
 class RequestResend(Action):
     """Action to resend last message."""
 
+    def __init__(self, command):
+        """Init action object."""
+        self.command = command
+        self.validate_action()
+
     @check_selfcheck_authentication
     def execute(self, message, client):
         """Execute action."""
-        # TODO: implements action
-        return
+        last_response_message = client.last_response_message
+        return Message(
+            request=last_response_message.get('_sip2')
+        )
 
 
 class PatronEnable(Action):
