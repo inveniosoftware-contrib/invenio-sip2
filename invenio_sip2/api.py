@@ -126,6 +126,11 @@ class Message(object):
         return self.get_fixed_field_value('language')
 
     @property
+    def summary(self):
+        """Shortcut for sip2 summary."""
+        return self.get_fixed_field_value('summary')
+
+    @property
     def sequence_number(self):
         """Get the sequence number."""
         return self.sequence
