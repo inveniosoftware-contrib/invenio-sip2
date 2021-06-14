@@ -297,7 +297,7 @@ class SocketEventListener:
         )
         if not self.response:
             self.response = '96'
-        if self.request.command is not '97':
+        if self.request.command != '97':
             self.client.update(self.dumps())
 
         # Set selector to listen for write events, we're done reading.
@@ -340,7 +340,7 @@ class SocketEventListener:
     def verify_sequence_number(self, message):
         """Check sequence number increment."""
         if not self.client.last_request_message \
-                or self.request.command is '97':
+                or self.request.command == '97':
             return True
 
         # get current sequence from tag AY

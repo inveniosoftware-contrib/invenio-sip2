@@ -29,6 +29,7 @@ from ..handlers import authorize_patron_handler, checkin_handler, \
     checkout_handler, enable_patron_handler, hold_handler, item_handler, \
     patron_handler, patron_status_handler, renew_handler, \
     selfcheck_login_handler, system_status_handler, validate_patron_handler
+from ..models import SelfcheckSummary
 from ..proxies import current_sip2 as acs_system
 from ..utils import get_circulation_status, get_language_code, \
     get_security_marker_type
@@ -190,7 +191,6 @@ class PatronInformation(Action):
     @check_selfcheck_authentication
     def execute(self, message, client):
         """Execute action."""
-        # TODO: implements summary functionality
         patron_id = message.get_field_value('patron_id')
         patron_account = patron_handler(
             client.remote_app, patron_id, institution_id=client.institution_id
@@ -207,23 +207,30 @@ class PatronInformation(Action):
             patron_status=str(patron_account.get('patron_status')),
             language=message.language,
             transaction_date=acs_system.sip2_current_date,
-            hold_items_count=patron_account.hold_items_count,
-            overdue_items_count=patron_account.overdue_items_count,
-            charged_items_count=patron_account.charged_items_count,
-            fine_items_count=patron_account.fine_items_count,
-            recall_items_count=patron_account.recall_items_count,
-            unavailable_holds_count=patron_account.unavailable_items_count,
+            hold_items_count=str(patron_account.hold_items_count),
+            overdue_items_count=str(patron_account.overdue_items_count),
+            charged_items_count=str(patron_account.charged_items_count),
+            fine_items_count=str(patron_account.fine_items_count),
+            recall_items_count=str(patron_account.recall_items_count),
+            unavailable_holds_count=str(
+                patron_account.unavailable_items_count),
             institution_id=client.institution_id,
             patron_id=patron_id,
             patron_name=patron_account.get('patron_name')
         )
 
+        summary = SelfcheckSummary(message.summary)
+
         # add optional fields
         for optional_field in self.optional_fields:
-            response_message.add_field(
-                field=optional_field,
-                field_value=patron_account.get(optional_field.name)
-            )
+            # TODO: use custom handler to get specified summary field.
+            if (optional_field.name in summary.fields and
+                summary.is_needed(optional_field.name)) or \
+                    optional_field.name not in summary.fields:
+                response_message.add_field(
+                    field=optional_field,
+                    field_value=patron_account.get(optional_field.name)
+                )
 
         # check patron password
         patron_password = message.get_field_value('patron_pwd')

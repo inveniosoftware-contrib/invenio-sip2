@@ -429,7 +429,7 @@ class SelfcheckLanguage(Enum):
 
 
 class SelfcheckSecurityMarkerType(object):
-    """lass to handle all available security marker type."""
+    """Class to handle all available security marker type."""
 
     OTHER = '00'
     NONE = '01'
@@ -483,3 +483,30 @@ class SelfcheckCirculationStatus(object):
     CLAIMED_RETURNED = '11'
     LOST = '12'
     MISSING = '13'
+
+
+class SelfcheckSummary:
+    """Class representing summary."""
+
+    fields = [
+        'hold_items',
+        'overdue_items',
+        'charged_items',
+        'fine_items',
+        'recall_items',
+        'unavailable_items',
+    ]
+
+    def __init__(self, text):
+        """Init."""
+        from .utils import decode_char_to_bool
+        self.hold_items = decode_char_to_bool(text[0:])
+        self.overdue_items = decode_char_to_bool(text[1])
+        self.charged_items = decode_char_to_bool(text[2])
+        self.fine_items = decode_char_to_bool(text[3])
+        self.recall_items = decode_char_to_bool(text[4])
+        self.unavailable_items = decode_char_to_bool(text[5])
+
+    def is_needed(self, key):
+        """Check if the given information is needed."""
+        return getattr(self, key) or False
