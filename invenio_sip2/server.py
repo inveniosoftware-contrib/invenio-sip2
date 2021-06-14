@@ -72,18 +72,19 @@ class SocketServer:
                         message = key.data
                         try:
                             message.process_events(mask)
-                        except Exception:
-                            current_app.logger.error(
-                                'message cannot be processed',
-                                exc_info=True
+                        except Exception as ex:
+                            logger.error(
+                                f'message cannot be processed: {ex}',
                             )
                             message.close()
         except Exception as e:
-            raise RuntimeError(
-                'SIP2 Server closed prematurely ({host}, {port})'.format(
+            logger.error(
+                'SIP2 server closed prematurely ({host}, {port}: {msg}'.format(
                     port=self.port,
                     host=self.host,
-                ))
+                    msg=e
+                )
+            )
         finally:
             self.close()
 
