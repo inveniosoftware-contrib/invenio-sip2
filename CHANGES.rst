@@ -16,6 +16,12 @@
 
 Changes
 =======
+Version 0.6.2 (released 2021-06-14)
+
+**Minor changes:**
+* implement summary for patron information.
+* Fixes fixed field wrong length.
+
 Version 0.6.1 (released 2021-06-14)
 
 **Minor changes:**
