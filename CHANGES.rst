@@ -16,6 +16,12 @@
 
 Changes
 =======
+Version 0.6.1 (released 2021-06-14)
+
+**Minor changes:**
+
+- Use invenio-sip2 logger for server error logs.
+
 Version 0.6.0 (released 2021-06-11)
 
 **Implemented enhancements:**
