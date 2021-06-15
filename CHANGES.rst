@@ -16,6 +16,11 @@
 
 Changes
 =======
+Version 0.6.3 (released 2021-06-15)
+
+**Bug fix:**
+* Fixes error on renew action.
+
 Version 0.6.2 (released 2021-06-14)
 
 **Minor changes:**
