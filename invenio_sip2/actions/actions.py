@@ -31,8 +31,8 @@ from ..handlers import authorize_patron_handler, checkin_handler, \
     selfcheck_login_handler, system_status_handler, validate_patron_handler
 from ..models import SelfcheckSummary
 from ..proxies import current_sip2 as acs_system
-from ..utils import get_circulation_status, get_language_code, \
-    get_security_marker_type
+from ..utils import convert_bool_to_char, get_circulation_status, \
+    get_language_code, get_security_marker_type
 
 
 class SelfCheckLogin(Action):
@@ -489,7 +489,7 @@ class Renew(Action):
         # prepare message based on required fields
         response_message = self.prepare_message_response(
             ok=str(int(renew.is_success)),
-            renewal_ok=renew.is_renewal,
+            renewal_ok=convert_bool_to_char(renew.is_renewal),
             magnetic_media=renew.has_magnetic_media,
             desensitize=renew.desensitize,
             transaction_date=acs_system.sip2_current_date,
