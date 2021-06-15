@@ -273,7 +273,7 @@ class SelfcheckCheckout(dict):
 
     @property
     def due_date(self):
-        """Shortcut for renewal ok."""
+        """Shortcut for due date."""
         return self.get('due_date', '')
 
     @property
@@ -321,19 +321,24 @@ class SelfcheckHold(dict):
 class SelfcheckRenew(dict):
     """Class representing renew handler response."""
 
-    def __init__(self, title_id, renew=False, renewal=False,
+    def __init__(self, title_id, success=False, renewal=False,
                  magnetic_media=False, desensitize=False,  **kwargs):
         """Constructor.
 
-        :param title_id - title_id (e.g. title, identifier, ...)
-        :param renew - renew operation is success or not
-        :param renewal - renewal operation is success or not
-        :param magnetic_media - indicate the presence of magnetic media
-        :param desensitize - desensitize an item ?
-        :param kwargs - optional fields
+        :param title_id: title_id (e.g. title, identifier, ...)
+        :param renew: renew operation is success or not
+            should be set to True if the ACS renew the item.
+            should be set to 0 if the ACS did not renew the item.
+        :param renewal: renewal operation.
+            should be set to True if the patron requesting to renew the item
+            already has the item renewed.
+            should be set to False if the item is not already renewed.
+        :param magnetic_media: indicate the presence of magnetic media
+        :param desensitize: desensitize an item ?
+        :param kwargs: optional fields
         """
         # required properties
-        self['renew'] = renew
+        self['success'] = success
         self['renewal'] = renewal
         self['magnetic_media'] = magnetic_media
         self['desensitize'] = desensitize
@@ -348,13 +353,18 @@ class SelfcheckRenew(dict):
 
     @property
     def is_success(self):
-        """Shortcut for renew ok."""
-        return self.get('renew')
+        """Shortcut for success operation."""
+        return self.get('success')
 
     @property
     def is_renewal(self):
         """Shortcut for renewal ok."""
         return self.get('renewal')
+
+    @property
+    def due_date(self):
+        """Shortcut for due date."""
+        return self.get('due_date', '')
 
     @property
     def desensitize(self):
