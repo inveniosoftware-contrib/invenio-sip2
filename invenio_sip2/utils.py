@@ -30,6 +30,13 @@ def convert_bool_to_char(value=False):
     return 'Y' if value else 'N'
 
 
+def convert_to_char(value='unknown'):
+    """Convert value to SIP2 char representation."""
+    if isinstance(value, str):
+        return 'U'
+    return 'Y' if value else 'N'
+
+
 def decode_char_to_bool(value='N'):
     """Decode SIP2 char representation to boolean."""
     return value == 'Y'

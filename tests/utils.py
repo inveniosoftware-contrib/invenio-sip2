@@ -74,8 +74,8 @@ def remote_enable_patron_handler(patron_id, **kwargs):
 def remote_patron_status_handler(patron_id, **kwargs):
     """Dummy remote handler for patron information."""
     response = SelfcheckPatronStatus(
-        patron_status=PatronStatus(),
-        language='und',
+        patron_id='patron_id',
+        institution_id='selfcheck_location',
         print_line='message on one line'
     )
     return response

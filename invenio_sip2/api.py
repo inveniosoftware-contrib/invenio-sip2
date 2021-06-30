@@ -36,7 +36,7 @@ def preprocess_field_value(func):
     def inner(*args, **kwargs):
         field = kwargs.get('field')
         value = kwargs.get('field_value')
-        if value and field.callback:
+        if value is not None and field.callback:
             return func(*args, field=field, field_value=field.callback(value))
         return func(*args, **kwargs)
 
@@ -208,7 +208,7 @@ class Message(object):
     @preprocess_field_value
     def add_field(self, field, field_value):
         """Add field to message according field type."""
-        if field_value:
+        if field_value is not None:
             if isinstance(field, MessageTypeFixedField):
                 self.add_fixed_field(field, field_value)
             else:
@@ -219,7 +219,7 @@ class Message(object):
 
     def add_variable_field(self, field_name, field_value):
         """Add variable field to message."""
-        if field_value:
+        if field_value is not None:
             self.variable_fields.append(
                 FieldMessage(
                     field=MessageTypeVariableField.get(field_name),

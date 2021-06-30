@@ -69,20 +69,53 @@ class PatronStatus(object):
         self.patron_status_types[patron_status_type] = True
 
 
-class SelfcheckPatronStatus(dict):
+class SelfcheckEnablePatron(dict):
     """Class representing patron information handler response."""
 
-    def __init__(self, patron_status, language, **kwargs):
+    def __init__(self, patron_id, institution_id, patron_name='',
+                 patron_status=None, language='und', **kwargs):
         """Constructor.
 
         :param patron_id - patron identifier (e.g. id, barcode, ...)
-        :param patron_name - full name of the patron
         :param institution_id - institution id (or code) of the patron
+        :param patron_name - full name of the patron
+        :param patron_status - status of the patron
         :param language - iso-639-2 language
         :param kwargs - optional fields
         """
         # required properties
-        self['patron_status'] = patron_status
+        self['patron_id'] = patron_id
+        self['patron_name'] = patron_name
+        self['patron_status'] = patron_status or PatronStatus()
+        self['institution_id'] = institution_id
+        self['language'] = language
+        self['screen_messages'] = []
+
+        # optional properties
+        for key, value in kwargs.items():
+            if value:
+                self[key] = value
+
+
+class SelfcheckPatronStatus(dict):
+    """Class representing patron information handler response."""
+
+    def __init__(self, patron_id, institution_id, patron_name='',
+                 patron_status=None, language='und', **kwargs):
+        """Constructor.
+
+        :param patron_id - patron identifier (e.g. id, barcode, ...)
+        :param institution_id - institution id (or code) of the patron
+        :param patron_name - full name of the patron
+        :param patron_status - status of the patron
+        :param language - iso-639-2 language
+        :param kwargs - optional fields
+        """
+        # required properties
+        self['patron_id'] = patron_id
+        self['patron_name'] = patron_name
+        self['patron_status'] = patron_status or PatronStatus()
+        self['institution_id'] = institution_id
         self['language'] = language
         self['screen_messages'] = []
 
@@ -95,20 +128,21 @@ class SelfcheckPatronStatus(dict):
 class SelfcheckPatronInformation(dict):
     """Class representing patron information handler response."""
 
-    def __init__(self, patron_id, patron_name, patron_status, institution_id,
-                 language, **kwargs):
+    def __init__(self, patron_id, institution_id, patron_name='',
+                 patron_status=None, language='und', **kwargs):
         """Constructor.
 
         :param patron_id - patron identifier (e.g. id, barcode, ...)
-        :param patron_name - full name of the patron
         :param institution_id - institution id (or code) of the patron
+        :param patron_name - full name of the patron
+        :param patron_status - status of the patron
         :param language - iso-639-2 language
         :param kwargs - optional fields
         """
         # required properties
         self['patron_id'] = patron_id
         self['patron_name'] = patron_name
-        self['patron_status'] = patron_status
+        self['patron_status'] = patron_status or PatronStatus()
         self['institution_id'] = institution_id
         self['language'] = language
         self['hold_items'] = []
@@ -128,6 +162,11 @@ class SelfcheckPatronInformation(dict):
     def patron_id(self):
         """Shortcut for patron pid."""
         return self.get('patron_id')
+
+    @property
+    def patron_name(self):
+        """Shortcut for patron pid."""
+        return self.get('patron_name')
 
     @property
     def hold_items_count(self):
@@ -163,8 +202,8 @@ class SelfcheckPatronInformation(dict):
 class SelfcheckItemInformation(dict):
     """Class representing item information handler response."""
 
-    def __init__(self, item_id, title_id, circulation_status,
-                 fee_type, **kwargs):
+    def __init__(self, item_id, title_id=None, circulation_status=None,
+                 fee_type=None, security_marker=None, **kwargs):
         """Constructor.
 
         :param patron_id - patron identifier (e.g. id, barcode, ...)
@@ -175,9 +214,12 @@ class SelfcheckItemInformation(dict):
         """
         # required properties
         self['item_id'] = item_id
-        self['title_id'] = title_id
-        self['circulation_status'] = circulation_status
-        self['fee_type'] = fee_type
+        self['title_id'] = title_id or ''
+        self['circulation_status'] = circulation_status or \
+            SelfcheckCirculationStatus.OTHER
+        self['fee_type'] = fee_type or SelfcheckFeeType.OTHER
+        self['security_marker'] = security_marker or \
+            SelfcheckSecurityMarkerType.OTHER
         self['screen_messages'] = []
 
         # optional properties
@@ -190,7 +232,7 @@ class SelfcheckCheckin(dict):
     """Class representing checkin handler response."""
 
     def __init__(self, permanent_location, checkin=False, alert=False,
-                 magnetic_media=False, resensitize=False,  **kwargs):
+                 magnetic_media='unknown', resensitize='unknown',  **kwargs):
         """Constructor.
 
         :param permanent_location - permanent_location of the item
@@ -238,7 +280,7 @@ class SelfcheckCheckout(dict):
     """Class representing checkout handler response."""
 
     def __init__(self, title_id, checkout=False, renewal=False,
-                 magnetic_media=False, desensitize=False,  **kwargs):
+                 magnetic_media='unknown', desensitize='unknown',  **kwargs):
         """Constructor.
 
         :param title_id - title_id (e.g. title, identifier, ...)
@@ -322,7 +364,7 @@ class SelfcheckRenew(dict):
     """Class representing renew handler response."""
 
     def __init__(self, title_id, success=False, renewal=False,
-                 magnetic_media=False, desensitize=False,  **kwargs):
+                 magnetic_media='unknown', desensitize='unknown',  **kwargs):
         """Constructor.
 
         :param title_id: title_id (e.g. title, identifier, ...)
