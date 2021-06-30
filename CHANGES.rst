@@ -16,6 +16,12 @@
 
 Changes
 =======
+Version 0.6.4 (released 2021-06-30)
+
+**Bug fix:**
+* Fixes wrong circulation messages response.
+* Fixes no such process in command line utilities.
+
 Version 0.6.3 (released 2021-06-15)
 
 **Bug fix:**
