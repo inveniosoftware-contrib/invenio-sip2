@@ -119,7 +119,7 @@ from .actions import AutomatedCirculationSystemStatus, BlockPatron, Checkin, \
     RenewAll, RequestResend, SelfCheckLogin
 from .models import SelfcheckSecurityMarkerType
 from .permissions import default_permission_factory
-from .utils import convert_bool_to_char, get_media_type
+from .utils import convert_bool_to_char, convert_to_char, get_media_type
 
 # I18N
 # ====
@@ -1028,9 +1028,9 @@ SIP2_FIXED_FIELD_DEFINITION = dict(
     unrenewed_count=dict(length=4, label=_('renewal ok')),
     renewed_count=dict(length=4, label=_('renewal ok')),
     magnetic_media=dict(length=1, label=_('magnetic media'),
-                        callback=convert_bool_to_char),
+                        callback=convert_to_char),
     desensitize=dict(length=1, label=_('desensitize'),
-                     callback=convert_bool_to_char),
+                     callback=convert_to_char),
     resensitize=dict(length=1, label=_('resensitize'),
                      callback=convert_bool_to_char),
     return_date=dict(length=18, label=_('return date')),

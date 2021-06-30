@@ -26,6 +26,7 @@ import threading
 import click
 import psutil
 from flask.cli import with_appcontext
+from psutil import NoSuchProcess
 
 from .records.record import Server
 from .server import SocketServer
@@ -80,10 +81,13 @@ def stop_server(name, delete):
         server = Server.find_server(server_name=name)
         if server:
             if server.is_running:
-                pid = server.get('process_id')
-                click.echo(f"stop {server.get('name')} (pid:{pid})")
-                p = psutil.Process(server.get('process_id'))
-                p.terminate()
+                try:
+                    pid = server.get('process_id')
+                    p = psutil.Process(server.get('process_id'))
+                    click.echo(f"stop {server.get('name')} (pid:{pid})")
+                    p.terminate()
+                except NoSuchProcess as ex:
+                    server.down()
             else:
                 click.echo('server already stopped')
 

@@ -136,7 +136,6 @@ class PatronEnable(Action):
             patron_id=patron_id,
             patron_name=enabled_patron.get('patron_name'),
         )
-
         response_message.add_variable_field(
             field_name='valid_patron',
             field_value='Y' if is_valid_patron else 'N'
@@ -153,6 +152,13 @@ class PatronEnable(Action):
             response_message.add_variable_field(
                 field_name='valid_patron_pwd',
                 field_value='Y' if is_authenticated else 'N'
+            )
+
+        # add optional fields
+        for optional_field in self.optional_fields:
+            response_message.add_field(
+                field=optional_field,
+                field_value=enabled_patron.get(optional_field.name)
             )
 
         return response_message
@@ -216,7 +222,7 @@ class PatronInformation(Action):
                 patron_account.unavailable_items_count),
             institution_id=client.institution_id,
             patron_id=patron_id,
-            patron_name=patron_account.get('patron_name')
+            patron_name=patron_account.patron_name
         )
 
         summary = SelfcheckSummary(message.summary)
@@ -344,7 +350,7 @@ class Checkin(Action):
             ok=str(int(checkin.is_success)),
             resensitize=checkin.resensitize,
             magnetic_media=checkin.has_magnetic_media,
-            alert=checkin.sound_alert,
+            alert=convert_bool_to_char(checkin.sound_alert),
             transaction_date=acs_system.sip2_current_date,
             institution_id=client.institution_id,
             item_id=item_id,
@@ -489,7 +495,7 @@ class Renew(Action):
         # prepare message based on required fields
         response_message = self.prepare_message_response(
             ok=str(int(renew.is_success)),
-            renewal_ok=convert_bool_to_char(renew.is_renewal),
+            renewal_ok=renew.is_renewal,
             magnetic_media=renew.has_magnetic_media,
             desensitize=renew.desensitize,
             transaction_date=acs_system.sip2_current_date,

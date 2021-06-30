@@ -70,7 +70,7 @@ class Action(object):
             message_type=self.response_type
         )
         for required_field in self.required_fields:
-            field_value = kwargs.pop(required_field.name, None)
+            field_value = kwargs.pop(required_field.name)
             message.add_field(
                 field=required_field,
                 field_value=field_value
