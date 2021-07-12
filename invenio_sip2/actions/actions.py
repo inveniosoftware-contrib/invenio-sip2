@@ -30,6 +30,7 @@ from ..handlers import authorize_patron_handler, checkin_handler, \
     patron_handler, patron_status_handler, renew_handler, \
     selfcheck_login_handler, system_status_handler, validate_patron_handler
 from ..models import SelfcheckSummary
+from ..proxies import current_logger
 from ..proxies import current_sip2 as acs_system
 from ..utils import convert_bool_to_char, get_circulation_status, \
     get_language_code, get_security_marker_type
@@ -43,12 +44,17 @@ class SelfCheckLogin(Action):
         selfcheck_login = message.get_field_value('login_uid')
         selfcheck_password = message.get_field_value('login_pwd')
         client = kwargs.pop('client')
-
+        current_logger\
+            .debug(f'[SelfCheckLogin]: args: {selfcheck_login},'
+                   f' password: {selfcheck_password},'
+                   f' client: {selfcheck_password}')
         selfcheck_user = selfcheck_login_handler(
             client.remote_app, selfcheck_login, selfcheck_password,
             terminal_ip=client.get('ip_address')
         )
-
+        current_logger\
+            .debug(f'[SelfCheckLogin]: handler response: '
+                   f'{selfcheck_user}')
         if selfcheck_user:
             client.update(selfcheck_user)
 
@@ -68,6 +74,9 @@ class AutomatedCirculationSystemStatus(Action):
         status = system_status_handler(client.remote_app,
                                        client.terminal,
                                        institution_id=client.institution_id)
+        current_logger \
+            .debug(f'[AutomatedCirculationSystemStatus]: '
+                   f'handler response: {status}')
         client['status'] = status
         # prepare message based on required fields
         response_message = self.prepare_message_response(
@@ -126,7 +135,8 @@ class PatronEnable(Action):
         enabled_patron = enable_patron_handler(
             client.remote_app, patron_id, institution_id=client.institution_id
         )
-
+        current_logger \
+            .debug(f'[PatronEnable]: handler response: {enabled_patron}')
         # prepare message based on required fields
         response_message = self.prepare_message_response(
             patron_status=str(enabled_patron.get('patron_status')),
@@ -174,7 +184,8 @@ class PatronStatus(Action):
         patron_status = patron_status_handler(
             client.remote_app, patron_id, institution_id=client.institution_id
         )
-
+        current_logger \
+            .debug(f'[PatronStatus]: handler response: {patron_status}')
         response_message = self.prepare_message_response(
             patron_status=str(patron_status.get('patron_status')),
             language=message.language,
@@ -201,7 +212,8 @@ class PatronInformation(Action):
         patron_account = patron_handler(
             client.remote_app, patron_id, institution_id=client.institution_id
         )
-
+        current_logger \
+            .debug(f'[PatronInformation]: handler response: {patron_account}')
         # TODO: better way to begin session
         # Begin session
         client['patron_session'] = {
@@ -288,6 +300,8 @@ class ItemInformation(Action):
             language=patron_session.get('language'),
             institution_id=client.institution_id
         )
+        current_logger \
+            .debug(f'[ItemInformation]: handler response: {item_information}')
 
         # prepare message based on required fields
         response_message = self.prepare_message_response(
@@ -345,6 +359,8 @@ class Checkin(Action):
                 terminal=client.terminal,
                 message=error), exc_info=True)
 
+        current_logger.debug(f'[Checkin]: handler response: {checkin}')
+
         # prepare message based on required fields
         response_message = self.prepare_message_response(
             ok=str(int(checkin.is_success)),
@@ -389,6 +405,8 @@ class Checkout(Action):
             checkout = error.data
             current_app.logger.error('{message}'.format(
                 message=error), exc_info=True)
+
+        current_logger.debug(f'[Checkout]: handler response: {checkout}')
 
         # prepare message based on required fields
         response_message = self.prepare_message_response(
@@ -448,6 +466,8 @@ class Hold(Action):
                 terminal=client.terminal,
                 message=error), exc_info=True)
 
+        current_logger.debug(f'[Hold]: handler response: {hold}')
+
         # prepare message based on required fields
         response_message = self.prepare_message_response(
             ok=str(int(hold.is_success)),
@@ -491,6 +511,8 @@ class Renew(Action):
             current_app.logger.error('[{terminal}] {message}'.format(
                 terminal=client.terminal,
                 message=error), exc_info=True)
+
+        current_logger.debug(f'[Renew]: handler response: {renew}')
 
         # prepare message based on required fields
         response_message = self.prepare_message_response(

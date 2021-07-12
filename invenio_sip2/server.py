@@ -25,7 +25,7 @@ from flask import current_app
 
 from .api import Message
 from .errors import InvalidSelfCheckMessageError
-from .ext import logger
+from .proxies import current_logger as logger
 from .proxies import current_sip2
 from .records.record import Client, Server
 
@@ -75,6 +75,7 @@ class SocketServer:
                         except Exception as ex:
                             logger.error(
                                 f'message cannot be processed: {ex}',
+                                exc_info=True
                             )
                             message.close()
         except Exception as e:
@@ -83,7 +84,8 @@ class SocketServer:
                     port=self.port,
                     host=self.host,
                     msg=e
-                )
+                ),
+                exc_info=True
             )
         finally:
             self.close()

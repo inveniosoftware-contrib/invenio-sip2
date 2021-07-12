@@ -245,6 +245,7 @@ class _SIP2(object):
         """Execute action on message."""
         try:
             action = self.actions[msg.command]
+            logger.debug(f'[_SIP2] execute action: {action}')
             return action.execute(msg, **kwargs)
 
         except SelfCheckActionError:
