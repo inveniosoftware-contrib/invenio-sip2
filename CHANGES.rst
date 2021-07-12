@@ -16,6 +16,12 @@
 
 Changes
 =======
+Version 0.6.5 (released 2021-07-12)
+
+**Minor changes:**
+
+* Logs more information for debugging
+
 Version 0.6.4 (released 2021-06-30)
 
 **Bug fix:**
