@@ -118,7 +118,7 @@ class Message(object):
             return languages.get(name=language).alpha_2
         except (ValueError, AttributeError):
             # return default language
-            return current_app.config.get('BABEL_DEFAULT_LANGUAGE')
+            return current_app.config.get('SIP2_DEFAULT_LANGUAGE')
 
     @property
     def language(self):
