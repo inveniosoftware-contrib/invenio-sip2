@@ -126,6 +126,9 @@ from .utils import convert_bool_to_char, convert_to_char, get_media_type
 #: Default language
 BABEL_DEFAULT_LANGUAGE = 'en'
 
+#: Default SIP2 language
+SIP2_DEFAULT_LANGUAGE = BABEL_DEFAULT_LANGUAGE
+
 # DATASTORE
 # =========
 SIP2_DATASTORE_HANDLER = 'invenio_sip2.datastore:Sip2RedisDatastore'

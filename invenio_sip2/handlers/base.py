@@ -51,7 +51,7 @@ def base_validate_patron_handler(remote, patron_identifier, **kwargs):
     returns: True if patron is valid else False
     """
     handlers = acs_system.sip2_handlers.patron_handlers[remote]
-    return handlers['validate'](patron_identifier, **kwargs)
+    return handlers['validate_patron'](patron_identifier, **kwargs)
 
 
 def base_authorize_patron_handler(remote, patron_identifier, password,
@@ -64,7 +64,7 @@ def base_authorize_patron_handler(remote, patron_identifier, password,
     returns: True if patron password is valid else False
     """
     handlers = acs_system.sip2_handlers.patron_handlers[remote]
-    return handlers['authorize'](patron_identifier, password, **kwargs)
+    return handlers['authorize_patron'](patron_identifier, password, **kwargs)
 
 
 def base_enable_patron_handler(remote, patron_identifier, **kwargs):
@@ -75,7 +75,7 @@ def base_enable_patron_handler(remote, patron_identifier, **kwargs):
     returns: login response
     """
     handlers = acs_system.sip2_handlers.patron_handlers[remote]
-    return handlers['enable'](patron_identifier, **kwargs)
+    return handlers['enable_patron'](patron_identifier, **kwargs)
 
 
 def base_patron_handler(remote, patron_identifier, **kwargs):
@@ -100,16 +100,15 @@ def base_patron_status_handler(remote, patron_identifier, **kwargs):
     return handlers['patron_status'](patron_identifier, **kwargs)
 
 
-def base_item_handler(remote, patron_identifier, item_identifier,  **kwargs):
+def base_item_handler(remote, item_identifier,  **kwargs):
     """Handle item information functionality.
 
     :param remote: remote ils
-    :param patron_identifier: Identifier of the patron (e.g. id, barcode,...)
     :param item_identifier: Identifier of the item (e.g. id, barcode,...)
     returns: Item information
     """
     handlers = acs_system.sip2_handlers.item_handlers[remote]
-    return handlers['item'](patron_identifier, item_identifier, **kwargs)
+    return handlers['item'](item_identifier, **kwargs)
 
 
 def base_circulation_handlers(remote, handler, user_id, item_identifier,

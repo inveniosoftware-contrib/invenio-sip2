@@ -24,6 +24,7 @@ from uuid import uuid4
 from invenio_sip2 import datastore
 
 from ..errors import ServerAlreadyRunning
+from ..proxies import current_sip2 as acs
 
 
 class Sip2RecordMetadata(dict):
@@ -155,6 +156,7 @@ class Server(Sip2RecordMetadata):
         """Set server status to `running` and clear all clients data."""
         self['status'] = 'running'
         self['started_at'] = datetime.utcnow().isoformat()
+        del(self['stopped_at'])
         self.update(self)
 
     def clear_all_clients(self):
@@ -246,13 +248,21 @@ class Client(Sip2RecordMetadata):
         """Shortcut to library name."""
         return self.get('library_name')
 
+    @property
+    def library_language(self):
+        """Shortcut for library language."""
+        return self.get('library_language', acs.sip2_language)
+
     def get_current_patron_session(self):
         """Shortcut to patron session."""
         return self.get('patron_session', None)
 
     def clear_patron_session(self):
         """Shortcut to library name."""
-        del(self['patron_session'])
+        try:
+            del(self['patron_session'])
+        except KeyError:
+            pass
 
     @property
     def last_response_message(self):
