@@ -32,8 +32,8 @@ from ..handlers import authorize_patron_handler, checkin_handler, \
 from ..models import SelfcheckSummary
 from ..proxies import current_logger
 from ..proxies import current_sip2 as acs_system
-from ..utils import convert_bool_to_char, get_circulation_status, \
-    get_language_code, get_security_marker_type
+from ..utils import get_circulation_status, get_language_code, \
+    get_security_marker_type
 
 
 class SelfCheckLogin(Action):
@@ -90,9 +90,9 @@ class AutomatedCirculationSystemStatus(Action):
             retries_allowed=str(acs_system.retries_allowed),
             date_time_sync=acs_system.sip2_current_date,
             protocol_version=acs_system.supported_protocol,
-            supported_messages=acs_system.supported_messages,
+            supported_messages=str(acs_system.supported_messages(
+                client.remote_app)),
             institution_id=client.institution_id
-
         )
         # add variable field
         if client.library_name:
@@ -188,7 +188,7 @@ class PatronStatus(Action):
             .debug(f'[PatronStatus]: handler response: {patron_status}')
         response_message = self.prepare_message_response(
             patron_status=str(patron_status.get('patron_status')),
-            language=message.language,
+            language=get_language_code(patron_status.get('language')),
             transaction_date=acs_system.sip2_current_date,
         )
 
@@ -223,7 +223,7 @@ class PatronInformation(Action):
         # prepare message based on required fields
         response_message = self.prepare_message_response(
             patron_status=str(patron_account.get('patron_status')),
-            language=message.language,
+            language=get_language_code(patron_account.get('language')),
             transaction_date=acs_system.sip2_current_date,
             hold_items_count=str(patron_account.hold_items_count),
             overdue_items_count=str(patron_account.overdue_items_count),
@@ -293,11 +293,15 @@ class ItemInformation(Action):
     def execute(self, message, client):
         """Execute action."""
         patron_session = client.get_current_patron_session()
+        if patron_session:
+            language = patron_session.get('language')
+        else:
+            language = client.library_language
         item_identifier = message.get_field_value('item_id')
         item_information = item_handler(
-            client.remote_app, patron_session.get('patron_id'),
+            client.remote_app,
             item_identifier, terminal=client.terminal,
-            language=patron_session.get('language'),
+            language=language,
             institution_id=client.institution_id
         )
         current_logger \
@@ -342,16 +346,19 @@ class Checkin(Action):
     def execute(self, message, client, **kwargs):
         """Execute checkin action."""
         patron_session = client.get_current_patron_session()
+        if patron_session:
+            language = patron_session.get('language')
+        else:
+            language = client.library_language
         item_id = message.get_field_value('item_id')
 
         try:
             # TODO: give the client to reduce the number of parameters.
             checkin = checkin_handler(
                 client.remote_app, client.transaction_user_id, item_id,
-                patron_id=patron_session.get('patron_id'),
                 institution_id=client.institution_id,
                 terminal=client.terminal,
-                language=patron_session.get('language')
+                language=language
             )
         except SelfcheckCirculationError as error:
             checkin = error.data
@@ -366,7 +373,7 @@ class Checkin(Action):
             ok=str(int(checkin.is_success)),
             resensitize=checkin.resensitize,
             magnetic_media=checkin.has_magnetic_media,
-            alert=convert_bool_to_char(checkin.sound_alert),
+            alert=checkin.sound_alert,
             transaction_date=acs_system.sip2_current_date,
             institution_id=client.institution_id,
             item_id=item_id,
@@ -390,6 +397,10 @@ class Checkout(Action):
     def execute(self, message, client, **kwargs):
         """Execute checkout action."""
         patron_session = client.get_current_patron_session()
+        if patron_session:
+            language = patron_session.get('language')
+        else:
+            language = client.library_language
         item_id = message.get_field_value('item_id')
         patron_id = message.get_field_value('patron_id')
 
@@ -399,7 +410,7 @@ class Checkout(Action):
                 patron_id,
                 institution_id=client.institution_id,
                 terminal=client.terminal,
-                language=patron_session.get('language')
+                language=language
             )
         except SelfcheckCirculationError as error:
             checkout = error.data

@@ -32,6 +32,7 @@ from . import config, handlers
 from .actions.actions import Action
 from .errors import SelfCheckActionError
 from .helpers import MessageTypeFixedField, MessageTypeVariableField
+from .models import SupportedMessages
 from .utils import convert_bool_to_char
 
 logger = logging.getLogger('invenio-sip2')
@@ -159,6 +160,11 @@ class InvenioSIP2(object):
         )
 
     @property
+    def sip2_language(self):
+        """Get default language from system."""
+        return current_app.config['SIP2_DEFAULT_LANGUAGE']
+
+    @property
     def sip2_current_date(self):
         """Get current date from system."""
         return datetime.now(timezone.utc).strftime(
@@ -222,11 +228,9 @@ class InvenioSIP2(object):
         """Number of retries allowed by the automated circulation system."""
         return current_app.config['SIP2_RETRIES_ALLOWED']
 
-    @cached_property
-    def supported_messages(self):
+    def supported_messages(self, remote_app):
         """Supported messages by the automated circulation system."""
-        # TODO: return supported message type from config
-        return 'YYYYYYYYYYYYYYYY'
+        return self._state.supported_messages[remote_app]
 
 
 class _SIP2(object):
@@ -306,96 +310,59 @@ class _Sip2State(object):
     def __init__(self, app):
         """Initialize state."""
         self.app = app
-        self.handlers = {}
         self.login_handler = {}
         self.system_status_handler = {}
         self.patron_handlers = {}
         self.item_handlers = {}
         self.circulation_handlers = {}
-
-        # TODO: configure automatically which command is supported by ACS
+        self.supported_messages = {}
 
         # register api handlers
         for remote, conf in app.config['SIP2_REMOTE_ACTION_HANDLERS'].items():
+            supported_messages = SupportedMessages()
             # register login handler
-            self.login_handler[remote] = handlers.make_api_handler(
-                conf.get('login_handler'),
-                with_data=True
-            )
+            if conf.get('login_handler'):
+                self.login_handler[remote] = handlers.make_api_handler(
+                    conf.get('login_handler'),
+                    with_data=True
+                )
+                supported_messages.add_supported_message('login')
 
-            self.system_status_handler[remote] = handlers.make_api_handler(
-                conf.get('system_status_handler'),
-                with_data=False
-            )
+            if conf.get('system_status_handler'):
+                self.system_status_handler[remote] = handlers.make_api_handler(
+                    conf.get('system_status_handler'),
+                    with_data=True
+                )
+                supported_messages.add_supported_message('system_status')
 
             # register patron handlers
-            patron_handlers = conf.get('patron_handlers', dict())
+            patron_handlers = {}
+            for k, v in conf.get('patron_handlers', dict()).items():
+                patron_handlers[k] = \
+                    handlers.make_api_handler(v, with_data=True)
+                supported_messages.add_supported_message(k)
 
-            validate_patron_handler = handlers.make_api_handler(
-                patron_handlers.get('validate_patron'),
-                with_data=True
-            )
-
-            authorize_patron_handler = handlers.make_api_handler(
-                patron_handlers.get('authorize_patron'),
-                with_data=True
-            )
-
-            enable_patron_handler = handlers.make_api_handler(
-                patron_handlers.get('enable_patron'),
-                with_data=True
-            )
-
-            account_handler = handlers.make_api_handler(
-                patron_handlers.get('account'),
-                with_data=True
-            )
-
-            patron_status_handler = handlers.make_api_handler(
-                patron_handlers.get('patron_status'),
-                with_data=True
-            )
-            self.patron_handlers[remote] = dict(
-                validate=validate_patron_handler,
-                authorize=authorize_patron_handler,
-                enable=enable_patron_handler,
-                account=account_handler,
-                patron_status=patron_status_handler,
-            )
+            if patron_handlers:
+                self.patron_handlers[remote] = patron_handlers
 
             # register item handlers
-            item_handlers = conf.get('item_handlers', dict())
+            item_handlers = {}
+            for k, v in conf.get('item_handlers', dict()).items():
+                item_handlers[k] = \
+                    handlers.make_api_handler(v, with_data=True)
+                supported_messages.add_supported_message(k)
 
-            item_handler = handlers.make_api_handler(
-                item_handlers.get('item'),
-                with_data=True
-            )
-            self.item_handlers[remote] = dict(
-                item=item_handler,
-            )
+            if item_handlers:
+                self.item_handlers[remote] = item_handlers
 
             # register circulation handlers
-            circulation_handlers = conf.get('circulation_handlers', dict())
+            circulation_handlers = {}
+            for k, v in conf.get('circulation_handlers', dict()).items():
+                circulation_handlers[k] = \
+                    handlers.make_api_handler(v, with_data=True)
+                supported_messages.add_supported_message(k)
 
-            checkout_handler = handlers.make_api_handler(
-                circulation_handlers.get('checkout'),
-                with_data=True
-            )
-            checkin_handler = handlers.make_api_handler(
-                circulation_handlers.get('checkin'),
-                with_data=True
-            )
-            hold_handler = handlers.make_api_handler(
-                circulation_handlers.get('hold'),
-                with_data=True
-            )
-            renew_handler = handlers.make_api_handler(
-                circulation_handlers.get('renew'),
-                with_data=True
-            )
-            self.circulation_handlers[remote] = dict(
-                checkout=checkout_handler,
-                checkin=checkin_handler,
-                hold=hold_handler,
-                renew=renew_handler,
-            )
+            if circulation_handlers:
+                self.circulation_handlers[remote] = circulation_handlers
+
+            self.supported_messages[remote] = supported_messages

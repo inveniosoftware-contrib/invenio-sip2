@@ -60,9 +60,9 @@ def patron_status_handler(remote, patron_identifier, **kwargs):
     return base_patron_status_handler(remote, patron_identifier, **kwargs)
 
 
-def item_handler(remote, patron_identifier, item_identifier, **kwargs):
+def item_handler(remote, item_identifier, **kwargs):
     """Handle item information functionality."""
-    return base_item_handler(remote, patron_identifier, item_identifier,
+    return base_item_handler(remote, item_identifier,
                              **kwargs)
 
 
