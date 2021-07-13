@@ -97,7 +97,7 @@ def remote_patron_account_handler(patron_id, **kwargs):
     return response
 
 
-def remote_item_information_handler(patron_id, item_id, **kwargs):
+def remote_item_information_handler(item_id, **kwargs):
     """Dummy remote handler for item information."""
     response = SelfcheckItemInformation(
         item_id=item_id,

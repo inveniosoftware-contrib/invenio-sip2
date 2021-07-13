@@ -21,6 +21,49 @@ from enum import Enum
 from .proxies import current_sip2 as acs_system
 
 
+class SupportedMessages:
+    """Class to define supported mesages from handler config."""
+
+    handlers = [
+        'patron_status',
+        'checkout',
+        'checkin',
+        'block_patron',
+        'system_status',
+        'request_resend',
+        'login',
+        'account',
+        'end_patron_session',
+        'fee_paid',
+        'item',
+        'item_status_update',
+        'enable_patron',
+        'hold',
+        'renew',
+        'renew_all',
+    ]
+
+    def __init__(self):
+        """Constructor."""
+        self.supported_messages = {
+            'request_resend': True,
+            'end_patron_session': True,
+        }
+
+    def __str__(self):
+        """Sip2 string representation."""
+        supported_messages_text = ''
+        for handler in self.handlers:
+            supported_messages_text += 'Y' \
+                if handler in self.supported_messages else 'N'
+        return supported_messages_text
+
+    def add_supported_message(self, handler):
+        """Add supported message."""
+        if handler in self.handlers:
+            self.supported_messages[handler] = True
+
+
 class PatronStatusTypes(Enum):
     """Enum class to list all possible patron status types."""
 
@@ -456,6 +499,7 @@ class SelfcheckLanguage(Enum):
     und = UNKNOWN
     eng = ENGLISH
     fre = FRENCH
+    fra = FRENCH
     ger = GERMAN
     ita = ITALIAN
     dut = DUTCH
