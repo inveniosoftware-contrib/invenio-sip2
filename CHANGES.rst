@@ -16,6 +16,17 @@
 
 Changes
 =======
+Version 0.6.6 (released 2021-07-14)
+
+**Minor changes:**
+
+* Defines supported messages from handlers config.
+
+**Bug fix:**
+
+* Fixes empty patron session.
+* Improves i18n language.
+
 Version 0.6.5 (released 2021-07-12)
 
 **Minor changes:**
@@ -25,17 +36,20 @@ Version 0.6.5 (released 2021-07-12)
 Version 0.6.4 (released 2021-06-30)
 
 **Bug fix:**
+
 * Fixes wrong circulation messages response.
 * Fixes no such process in command line utilities.
 
 Version 0.6.3 (released 2021-06-15)
 
 **Bug fix:**
+
 * Fixes error on renew action.
 
 Version 0.6.2 (released 2021-06-14)
 
 **Minor changes:**
+
 * implement summary for patron information.
 * Fixes fixed field wrong length.
 
