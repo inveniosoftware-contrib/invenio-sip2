@@ -17,6 +17,10 @@
 
 """Pytest utils."""
 
+from datetime import datetime, timezone
+
+from flask import current_app
+
 from invenio_sip2.models import PatronStatus, SelfcheckCheckin, \
     SelfcheckCheckout, SelfcheckCirculationStatus, SelfcheckFeeType, \
     SelfcheckHold, SelfcheckItemInformation, SelfcheckMediaType, \
@@ -125,6 +129,9 @@ def remote_checkout_handler(user_id, item_id, patron_id,
         security_marker=SelfcheckSecurityMarkerType.OTHER
     )
     response['media_type'] = SelfcheckMediaType.OTHER
+    response['due_date'] = datetime.now(timezone.utc).strftime(
+        current_app.config['SIP2_CIRCULATION_DATE_FORMAT']
+    )
     response['hold_queue_length'] = 0
     response['owner'] = 'owner'
     response['permanent_location'] = 'permanent_location'

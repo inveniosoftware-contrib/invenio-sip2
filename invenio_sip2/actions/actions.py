@@ -32,8 +32,8 @@ from ..handlers import authorize_patron_handler, checkin_handler, \
 from ..models import SelfcheckSummary
 from ..proxies import current_logger
 from ..proxies import current_sip2 as acs_system
-from ..utils import get_circulation_status, get_language_code, \
-    get_security_marker_type
+from ..utils import ensure_i18n_language, get_circulation_status, \
+    get_language_code, get_security_marker_type
 
 
 class SelfCheckLogin(Action):
@@ -56,6 +56,9 @@ class SelfCheckLogin(Action):
             .debug(f'[SelfCheckLogin]: handler response: '
                    f'{selfcheck_user}')
         if selfcheck_user:
+            language = selfcheck_user.get('library_language',
+                                          acs_system.sip2_language)
+            selfcheck_user['library_language'] = ensure_i18n_language(language)
             client.update(selfcheck_user)
 
         response_message = self.prepare_message_response(
