@@ -19,7 +19,10 @@
 
 from __future__ import absolute_import, print_function
 
+import pytz
+from dateutil import parser
 from flask import current_app
+from pycountry import languages
 
 from .models import SelfcheckCirculationStatus, SelfcheckLanguage, \
     SelfcheckMediaType, SelfcheckSecurityMarkerType
@@ -42,6 +45,15 @@ def decode_char_to_bool(value='N'):
     return value == 'Y'
 
 
+def parse_circulation_date(date):
+    """Converts a date of string format to a formatted date utc aware."""
+    date_format = current_app.config.get('SIP2_CIRCULATION_DATE_FORMAT')
+    parsed_date = parser.parse(date)
+    if parsed_date.tzinfo:
+        return parsed_date.strftime(date_format)
+    return pytz.utc.localize(parsed_date).strftime(date_format)
+
+
 def get_language_code(language):
     """Get mapped selfcheck language.
 
@@ -52,6 +64,14 @@ def get_language_code(language):
         return SelfcheckLanguage[language].value
     except KeyError:
         return SelfcheckLanguage.UNKNOWN.value
+
+
+def ensure_i18n_language(language):
+    """Ensure that the given language is an i18n language."""
+    if len(language) > 2:
+        return languages.lookup(language).alpha_2
+    else:
+        return language
 
 
 def get_security_marker_type(marker_type=None):

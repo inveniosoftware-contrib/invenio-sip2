@@ -119,7 +119,8 @@ from .actions import AutomatedCirculationSystemStatus, BlockPatron, Checkin, \
     RenewAll, RequestResend, SelfCheckLogin
 from .models import SelfcheckSecurityMarkerType
 from .permissions import default_permission_factory
-from .utils import convert_bool_to_char, convert_to_char, get_media_type
+from .utils import convert_bool_to_char, convert_to_char, get_media_type, \
+    parse_circulation_date
 
 # I18N
 # ====
@@ -214,7 +215,10 @@ SIP2_SUPPORT_STATUS_UPDATE = True
 """Support patron status updating by the selfcheck."""
 
 SIP2_DATE_FORMAT = '%Y%m%d    %H%M%S'
-"""SIP2 date format."""
+"""SIP2 date format for transaction."""
+
+SIP2_CIRCULATION_DATE_FORMAT = '%Y%m%d    %H%M%S'
+"""SIP2 date format for circulation."""
 
 SIP2_DEFAULT_SECURITY_MARKER = SelfcheckSecurityMarkerType.OTHER
 """SIP2 default security marker type."""
@@ -1063,7 +1067,8 @@ SIP2_VARIABLE_FIELD_DEFINITION = dict(
     screen_messages=dict(field_id='AF', multiple=True,
                          label=_('screen message')),
     print_line=dict(field_id='AG', multiple=True, label=_('print line')),
-    due_date=dict(field_id='AH', label=_('due date')),
+    due_date=dict(field_id='AH', label=_('due date'),
+                  callback=parse_circulation_date),
     title_id=dict(field_id='AJ', label=_('title identifier')),
     blocked_card_msg=dict(field_id='AL', label=_('blocked card msg')),
     library_name=dict(field_id='AM', label=_('library name')),
