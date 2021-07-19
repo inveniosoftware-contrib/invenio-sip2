@@ -24,7 +24,6 @@ from uuid import uuid4
 from invenio_sip2 import datastore
 
 from ..errors import ServerAlreadyRunning
-from ..proxies import current_sip2 as acs
 
 
 class Sip2RecordMetadata(dict):
@@ -251,7 +250,7 @@ class Client(Sip2RecordMetadata):
     @property
     def library_language(self):
         """Shortcut for library language."""
-        return self.get('library_language', acs.sip2_language)
+        return self.get('library_language')
 
     def get_current_patron_session(self):
         """Shortcut to patron session."""
