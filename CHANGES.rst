@@ -16,6 +16,13 @@
 
 Changes
 =======
+Version 0.6.7 (released 2021-07-19)
+
+**Bug fix:**
+
+* Fixes missing conversion of i18n language.
+* Fixes date format.
+
 Version 0.6.6 (released 2021-07-14)
 
 **Minor changes:**

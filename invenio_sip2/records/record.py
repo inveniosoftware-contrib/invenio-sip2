@@ -155,7 +155,10 @@ class Server(Sip2RecordMetadata):
         """Set server status to `running` and clear all clients data."""
         self['status'] = 'running'
         self['started_at'] = datetime.utcnow().isoformat()
-        del(self['stopped_at'])
+        try:
+            del self['stopped_at']
+        except KeyError:
+            pass
         self.update(self)
 
     def clear_all_clients(self):
