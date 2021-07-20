@@ -19,8 +19,30 @@
 
 from __future__ import absolute_import, print_function
 
-from invenio_sip2.datastore import Sip2RedisDatastore
-from invenio_sip2.records.record import Server
+import pytest
+
+from invenio_sip2.datastore import Datastore, Sip2RedisDatastore
+from invenio_sip2.errors import ServerAlreadyRunning
+from invenio_sip2.records.record import Client, Server
+
+
+def test_datastore_interface(app, server_data):
+    """Test datastore interface."""
+    ds = Datastore()
+    with pytest.raises(NotImplementedError):
+        ds.add('key', 'value')
+    with pytest.raises(NotImplementedError):
+        ds.get('id_')
+    with pytest.raises(NotImplementedError):
+        ds.update('key', 'value')
+    with pytest.raises(NotImplementedError):
+        ds.delete('key')
+    with pytest.raises(NotImplementedError):
+        ds.all()
+    with pytest.raises(NotImplementedError):
+        ds.search('query')
+    with pytest.raises(NotImplementedError):
+        ds.flush()
 
 
 def test_redis_datastore(app, server_data):
@@ -35,3 +57,32 @@ def test_redis_datastore(app, server_data):
         assert data
         datastore.flush()
         assert not datastore.get(server.id)
+
+
+def test_record_metadata(app, server_data, dummy_client_data):
+    """Record metadata tests"""
+    with app.app_context():
+        server = Server.create(server_data, id_='key_1')
+        assert server.id
+        assert server.count() == 1
+        data = Server.find_server(server_name=server_data.get('server_name'))
+        assert data.id == server.id
+        assert not server.is_running
+        server.up()
+        assert server.is_running
+        # create client
+        client = Client.create(dummy_client_data)
+        assert client.id
+        # test empty value
+        assert not client.library_language
+        assert not client.last_response_message
+        assert not client.last_request_message
+        assert not client.last_sequence_number
+        # try to clear empty patron session
+        client.clear_patron_session()
+        # try to recreate same server
+        with pytest.raises(ServerAlreadyRunning):
+            Server.create(server_data)
+        server.down()
+        assert not server.is_running
+        server.delete()

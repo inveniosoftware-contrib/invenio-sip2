@@ -106,7 +106,7 @@ class SocketServer:
         """Close socket server."""
         try:
             self.selector.close()
-        except:
+        except Exception:
             pass
         self.server.down()
 
@@ -348,7 +348,7 @@ class SocketEventListener:
         # get current sequence from tag AY
         sequence = message[-7:-6]
         # get sequence number from last request message
-        last_sequence_number = self.client.get_last_sequence_number
+        last_sequence_number = self.client.last_sequence_number
 
         return last_sequence_number and \
             (int(sequence)-1 == int(last_sequence_number) or

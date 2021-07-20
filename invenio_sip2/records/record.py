@@ -277,6 +277,6 @@ class Client(Sip2RecordMetadata):
         return self.get('last_request', {})
 
     @property
-    def get_last_sequence_number(self):
+    def last_sequence_number(self):
         """Shortcut to user id."""
         return self.last_request_message.get('sequence_number')

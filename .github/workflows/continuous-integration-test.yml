@@ -13,7 +13,7 @@ on:
         default: 'Manual trigger'
 
 jobs:
-  python-tests:
+  Tests:
     runs-on: ubuntu-latest
 
     # Service containers to run with `container-job`
@@ -35,89 +35,97 @@ jobs:
     strategy:
       matrix:
           python-version: [3.6, 3.7, 3.8, 3.9]
-          # You can add more combinations e.g. dev requirements or MySQL by adding
-          # a new item to this list. Add its corresponding definition below.
+          requirements-level: [min, pypi]
           cache-service: [redis]
-          services: [release, devel]
-          include:
-          - services: release
-            EXTRAS: "all"
-            REQUIREMENTS: "release"
-            REQUIREMENTS_LEVEL: "pypi"
-#          - services: lowest
+#          services: [release, devel]
+#          include:
+#          - services: release
 #            EXTRAS: "all"
-#            REQUIREMENTS: "lowest"
-#            REQUIREMENTS_LEVEL: "min"
-          - services: devel
-            EXTRAS: "all"
-            REQUIREMENTS: "devel"
-            REQUIREMENTS_LEVEL: "dev"
+#            REQUIREMENTS: "release"
+#            REQUIREMENTS_LEVEL: "pypi"
+##          - services: lowest
+##            EXTRAS: "all"
+##            REQUIREMENTS: "lowest"
+##            REQUIREMENTS_LEVEL: "min"
+#          - services: devel
+#            EXTRAS: "all"
+#            REQUIREMENTS: "devel"
+#            REQUIREMENTS_LEVEL: "dev"
 
     env:
       CACHE: ${{ matrix.cache-service }}
       ES_VERSION: ${{matrix.ES_VERSION}}
+      EXTRAS: all #,${{ matrix.EXTRAS }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
+
       - name: Generate dependencies
-        if: ${{ matrix.REQUIREMENTS != 'devel' }}
+#        if: ${{ matrix.REQUIREMENTS != 'devel' }}
         run: |
           python -m pip install --upgrade pip setuptools py wheel requirements-builder
-          requirements-builder -e ${{ matrix.EXTRAS }} --level=${{ matrix.REQUIREMENTS_LEVEL }} setup.py > .${{ matrix.REQUIREMENTS }}-${{ matrix.python-version }}-requirements.txt
-      - name: Generate dependencies devel
-        if: ${{ matrix.REQUIREMENTS == 'devel' }}
-        run: |
-          python -m pip install --upgrade pip setuptools py wheel requirements-builder
-          requirements-builder -e ${{ matrix.EXTRAS }} --level=${{ matrix.REQUIREMENTS_LEVEL }} --req requirements-devel.txt setup.py > .${{ matrix.REQUIREMENTS }}-${{ matrix.python-version }}-requirements.txt
+          requirements-builder -e "$EXTRAS" --level=${{ matrix.requirements-level }} setup.py > .${{ matrix.requirements-level }}-${{ matrix.python-version }}-requirements.txt
+
+#      - name: Generate dependencies devel
+#        if: ${{ matrix.REQUIREMENTS == 'devel' }}
+#        run: |
+#          python -m pip install --upgrade pip setuptools py wheel requirements-builder
+#          requirements-builder -e "$EXTRAS" --level=${{ matrix.REQUIREMENTS_LEVEL }} --req requirements-devel.txt setup.py > .${{ matrix.REQUIREMENTS }}-${{ matrix.python-version }}-requirements.txt
+
       - name: Cache pip
         uses: actions/cache@v2
         with:
           path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('.${{ matrix.REQUIREMENTS }}-${{ matrix.python-version }}-requirements.txt') }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('.${{ matrix.requirements-level }}-${{ matrix.python-version }}-requirements.txt') }}
+
       - name: Install dependencies
         run: |
-          pip install -r .${{matrix.REQUIREMENTS}}-${{ matrix.python-version }}-requirements.txt
-          pip install -e .[all]
-          pip install --upgrade coveralls
+          pip install -r .${{ matrix.requirements-level }}-${{ matrix.python-version }}-requirements.txt
+          pip install -e .[$EXTRAS]
           pip freeze
           docker --version
           docker-compose --version
+
       - name: Run tests
         run: |
           ./run-tests.sh
         continue-on-error: false
+
       - name: Upload Coverage ${{ matrix.python-version }}
-        if: ${{ matrix.services == 'release' }}
+        if: ${{ matrix.requirements-level == 'pypi' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COVERALLS_SERVICE_NAME: github
-          COVERALLS_FLAG_NAME: test-${{ matrix.services }}
-          COVERALLS_PARALLEL: true
-        run: coveralls
-
-  coveralls:
-    needs: [python-tests]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Cancel Previous Runs
-        uses: styfle/cancel-workflow-action@0.5.0
-        with:
-          access_token: ${{ github.token }}
-
-      - name: Set up Python 3.6
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.6
-
-      - name: Finished
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          COVERALLS_PARALLEL_FINISHED: true
+#          COVERALLS_FLAG_NAME: test-${{ matrix.services }}
+#          COVERALLS_PARALLEL: true
         run: |
           pip install --upgrade coveralls
-          coveralls --finish
+          coveralls
+
+#  coveralls:
+#    needs: [python-tests]
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Cancel Previous Runs
+#        uses: styfle/cancel-workflow-action@0.5.0
+#        with:
+#          access_token: ${{ github.token }}
+#
+#      - name: Set up Python 3.6
+#        uses: actions/setup-python@v2
+#        with:
+#          python-version: 3.6
+#
+#      - name: Finished
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#          COVERALLS_PARALLEL_FINISHED: true
+#        run: |
+#          pip install --upgrade coveralls
+#          coveralls --finish

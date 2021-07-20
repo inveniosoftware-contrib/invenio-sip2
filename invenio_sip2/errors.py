@@ -30,15 +30,6 @@ class InvalidSelfCheckActionError(Exception):
         super().__init__(**kwargs)
 
 
-class SelfCheckActionError(Exception):
-    """Action error in sip2."""
-
-    def __init__(self, action=None, **kwargs):
-        """Initialize exception."""
-        self.description = "SelfCheckActionError '{}'".format(action)
-        super().__init__(**kwargs)
-
-
 class SelfcheckCirculationError(Exception):
     """Selfcheck Circulation error."""
 
