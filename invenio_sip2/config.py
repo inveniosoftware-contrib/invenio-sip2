@@ -18,13 +18,13 @@
 """Invenio module that add SIP2 communication for self-check.
 
 ================================ ==============================================
-`SIP2_DATASTORE_HANDLER`         datastore handler, default: `SIP2SimpleDatastore`
+`SIP2_DATASTORE_HANDLER`         datastore, default: `Sip2RedisDatastore`
 `SIP2_DATASTORE_REDIS_PREFIX`    Prefix for redis keys, default `sip2`
 `SIP2_DATASTORE_REDIS_URL`       Redis Datastore URL
 
 `SIP2_MESSAGE_ACTIONS`           Dictionary of all selfcheck actions.
-`SIP2_REMOTE_ACTION_HANDLERS`    Dictionary of remote action handlers. See example
-                                 below.
+`SIP2_REMOTE_ACTION_HANDLERS`    Dictionary of remote action handlers.
+                                 See example below.
 `SIP2_MESSAGE_TYPES`             Define all message types conforming to SIP2
                                  protocol.
 `SIP2_FIXED_FIELD_DEFINITION`    All fixed field available.
@@ -34,7 +34,6 @@
 .. py:data:: SIP2_DATASTORE_HANDLER
     Add the preferred datastore adaptor.
     Provided adaptor by invenio-sip2 are:
-    .. seealso:: :py:class:`~invenio_sip2.datastore.datastore.SIP2SimpleDatastore`
     .. seealso:: :py:class:`~invenio_sip2.datastore.redis.RedisSip2Datastore`
 
 Each custom handler actions must be defined in the ``SIP2_ACTIONS_HANDLERS``
@@ -53,35 +52,32 @@ The application name is used to start invenio-sip2 server and call customized
 handlers.
 
 
-Remote action Handlers
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-Handlers allow customizing endpoints for each selfcheck actions:
+Remote action handlers
+^^^^^^^^^^^^^^^^^^^^^^
+Handlers allow customizing endpoints for each selfcheck actions.
 
 Configuration of a single remote application is a dictionary with the following
 keys:
 
 - ``login_handler`` - Import path to login selfcheck callback handler.
-
 - ``logout_handler`` - Import path to logout selfcheck callback handler.
-
-- ``system_status_handler``  - Import path to automated system status callback handler.
-
+- ``system_status_handler`` - Import path to automated system status callback
+  handler.
 - ``patron_handlers`` - A dictionary of import path to patron callback handler.
-    - ``validate_patron`` - Import path to validate patron callback handler.
-    - ``authorize_patron`` - Import path to authorize patron  callback handler.
-    - ``enable_patron`` - Import path to enable patron callback handler.
-    - ``patron_status`` - Import path to patron status callback handler.
-    - ``account`` - Import path to retrieve patron account callback handler.
-
+  - ``validate_patron`` - Import path to validate patron callback handler.
+  - ``authorize_patron`` - Import path to authorize patron  callback handler.
+  - ``enable_patron`` - Import path to enable patron callback handler.
+  - ``patron_status`` - Import path to patron status callback handler.
+  - ``account`` - Import path to retrieve patron account callback handler.
 - ``item_handlers`` - A dictionary of import path to item callback handler.
-    - ``item`` - Import path to retrieve item callback handler.
-
-- ``circulation_handlers`` - A dictionary of import path to circulation callback handler.
-    - ``checkout`` - Import path to checkout item callback handler.
-    - ``checkin`` - Import path to checkin item callback handler.
-    - ``hold`` - Import path to hold item callback handler.
-    - ``renew`` - Import path to renew item callback handler.
-    - ``renew_all`` - Import path to renew_all items callback handler.
+  - ``item`` - Import path to retrieve item callback handler.
+- ``circulation_handlers`` - A dictionary of import path to circulation
+  callback handler.
+  - ``checkout`` - Import path to checkout item callback handler.
+  - ``checkin`` - Import path to checkin item callback handler.
+  - ``hold`` - Import path to hold item callback handler.
+  - ``renew`` - Import path to renew item callback handler.
+  - ``renew_all`` - Import path to renew_all items callback handler.
 
 .. code-block:: python
 
@@ -146,7 +142,7 @@ SIP2_LOGGING_CONSOLE = True
 SIP2_LOGGING_CONSOLE_LEVEL = "INFO"
 """Console logging level.
 
-All requests and responses will be written to the console if the level is on 
+All requests and responses will be written to the console if the level is on
 info mode. Otherwise, they will not logged.
 """
 

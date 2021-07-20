@@ -30,7 +30,6 @@ from werkzeug.utils import cached_property
 
 from . import config, handlers
 from .actions.actions import Action
-from .errors import SelfCheckActionError
 from .helpers import MessageTypeFixedField, MessageTypeVariableField
 from .models import SupportedMessages
 from .utils import convert_bool_to_char
@@ -251,8 +250,7 @@ class _SIP2(object):
             action = self.actions[msg.command]
             logger.debug(f'[_SIP2] execute action: {action}')
             return action.execute(msg, **kwargs)
-
-        except SelfCheckActionError:
+        except Exception:
             pass
 
 
