@@ -72,6 +72,8 @@ class SocketServer:
                         message = key.data
                         try:
                             message.process_events(mask)
+                        except RuntimeError:
+                            message.close()
                         except Exception as ex:
                             logger.error(
                                 f'message cannot be processed: {ex}',
