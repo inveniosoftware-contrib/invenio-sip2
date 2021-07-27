@@ -16,6 +16,14 @@
 
 Changes
 =======
+Version 0.6.8 (released 2021-07-27)
+**Minor change:**
+
+* Catches runtime error.
+* Uses pydocstyle and pycodestyle.
+* Increase code coverage.
+* Cleans code.
+
 Version 0.6.7 (released 2021-07-19)
 
 **Bug fix:**
