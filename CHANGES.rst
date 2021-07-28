@@ -16,6 +16,12 @@
 
 Changes
 =======
+Version 0.6.9 (released 2021-07-28)
+**Bug fix:**
+
+* Fixes invenio-search version.
+* Fixes invenio-db version.
+
 Version 0.6.8 (released 2021-07-27)
 **Minor change:**
 
