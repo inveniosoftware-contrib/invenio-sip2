@@ -49,22 +49,22 @@ invenio_db_version = ">=1.0.9,<2.0.0"
 
 extras_require = {
     'elasticsearch6': [
-        'invenio-search[elasticsearch6]>={}'.format(invenio_search_version),
+        'invenio-search[elasticsearch6]{}'.format(invenio_search_version),
     ],
     'elasticsearch7': [
-        'invenio-search[elasticsearch7]>={}'.format(invenio_search_version),
+        'invenio-search[elasticsearch7]{}'.format(invenio_search_version),
     ],
     'docs': [
         'Sphinx>=3',
     ],
     'mysql': [
-        'invenio-db[versioning,mysql]>={}'.format(invenio_db_version),
+        'invenio-db[versioning,mysql]{}'.format(invenio_db_version),
     ],
     'postgresql': [
-        'invenio-db[versioning,postgresql]>={}'.format(invenio_db_version),
+        'invenio-db[versioning,postgresql]{}'.format(invenio_db_version),
     ],
     'sqlite': [
-        'invenio-db[versioning]>={}'.format(invenio_db_version),
+        'invenio-db[versioning]{}'.format(invenio_db_version),
     ],
     'tests': tests_require,
 }
