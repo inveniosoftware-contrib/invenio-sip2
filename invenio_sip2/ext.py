@@ -227,6 +227,21 @@ class InvenioSIP2(object):
         """Number of retries allowed by the automated circulation system."""
         return current_app.config['SIP2_RETRIES_ALLOWED']
 
+    @cached_property
+    def line_terminator(self):
+        """Line terminator used for message."""
+        return current_app.config['SIP2_LINE_TERMINATOR']
+
+    @cached_property
+    def text_encoding(self):
+        """Message text charset encoding."""
+        return current_app.config['SIP2_TEXT_ENCODING']
+
+    @cached_property
+    def is_error_detection_enabled(self):
+        """Check if error detection is enabled."""
+        return current_app.config['SIP2_ERROR_DETECTION']
+
     def supported_messages(self, remote_app):
         """Supported messages by the automated circulation system."""
         return self._state.supported_messages[remote_app]

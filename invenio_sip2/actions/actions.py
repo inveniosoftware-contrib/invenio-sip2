@@ -23,7 +23,8 @@ from flask import current_app
 
 from invenio_sip2.api import Message
 
-from ..actions.base import Action, check_selfcheck_authentication
+from ..actions.base import Action
+from ..decorators import add_sequence_number, check_selfcheck_authentication
 from ..errors import SelfcheckCirculationError
 from ..handlers import authorize_patron_handler, checkin_handler, \
     checkout_handler, enable_patron_handler, hold_handler, item_handler, \
@@ -39,6 +40,7 @@ from ..utils import ensure_i18n_language, get_circulation_status, \
 class SelfCheckLogin(Action):
     """Action to selfcheck login."""
 
+    @add_sequence_number
     def execute(self, message, **kwargs):
         """Execute action."""
         selfcheck_login = message.get_field_value('login_uid')
@@ -71,6 +73,7 @@ class AutomatedCirculationSystemStatus(Action):
     """Action to get status from automated circulation system."""
 
     @check_selfcheck_authentication
+    @add_sequence_number
     def execute(self, message, client):
         """Execute action."""
         # TODO : calculate system status from remote app
@@ -109,10 +112,16 @@ class AutomatedCirculationSystemStatus(Action):
 class RequestResend(Action):
     """Action to resend last message."""
 
-    def __init__(self, command):
+    def __init__(self, command, message):
         """Init action object."""
         self.command = command
+        self.message = message
         self.validate_action()
+
+    def __str__(self):
+        """String representation of Action class."""
+        return f'{self.__class__.__name__}() message:{self.message}, ' \
+               f'request:{self.command}'
 
     @check_selfcheck_authentication
     def execute(self, message, client):
@@ -127,6 +136,7 @@ class PatronEnable(Action):
     """Action to enable patron on automated circulation system."""
 
     @check_selfcheck_authentication
+    @add_sequence_number
     def execute(self, message, client):
         """Execute action."""
         patron_id = message.get_field_value('patron_id')
@@ -181,6 +191,7 @@ class PatronStatus(Action):
     """Action to get patron status from automated circulation system."""
 
     @check_selfcheck_authentication
+    @add_sequence_number
     def execute(self, message, client):
         """Execute action."""
         patron_id = message.get_field_value('patron_id')
@@ -209,6 +220,7 @@ class PatronInformation(Action):
     """Action to get patron information from automated circulation system."""
 
     @check_selfcheck_authentication
+    @add_sequence_number
     def execute(self, message, client):
         """Execute action."""
         patron_id = message.get_field_value('patron_id')
@@ -272,6 +284,7 @@ class EndPatronSession(Action):
     """Action to end patron session on automated circulation system."""
 
     @check_selfcheck_authentication
+    @add_sequence_number
     def execute(self, message, client):
         """Execute action."""
         client.clear_patron_session()
@@ -293,6 +306,7 @@ class ItemInformation(Action):
     """Action to get item information from automated circulation system."""
 
     @check_selfcheck_authentication
+    @add_sequence_number
     def execute(self, message, client):
         """Execute action."""
         patron_session = client.get_current_patron_session()
@@ -336,6 +350,7 @@ class BlockPatron(Action):
     """Action to block patron."""
 
     @check_selfcheck_authentication
+    @add_sequence_number
     def execute(self, message, client, **kwargs):
         """Execute action."""
         # TODO: implements action
@@ -346,6 +361,7 @@ class Checkin(Action):
     """Action to checkin an item."""
 
     @check_selfcheck_authentication
+    @add_sequence_number
     def execute(self, message, client, **kwargs):
         """Execute checkin action."""
         patron_session = client.get_current_patron_session()
@@ -397,6 +413,7 @@ class Checkout(Action):
     """Action to checkout an item."""
 
     @check_selfcheck_authentication
+    @add_sequence_number
     def execute(self, message, client, **kwargs):
         """Execute checkout action."""
         patron_session = client.get_current_patron_session()
@@ -450,6 +467,7 @@ class FeePaid(Action):
     """Action to paid fee."""
 
     @check_selfcheck_authentication
+    @add_sequence_number
     def execute(self, message, client, **kwargs):
         """Execute action."""
         # TODO: implements action
@@ -460,6 +478,7 @@ class Hold(Action):
     """Action to hold an item."""
 
     @check_selfcheck_authentication
+    @add_sequence_number
     def execute(self, message, client, **kwargs):
         """Execute hold action."""
         patron_session = client.get_current_patron_session()
@@ -506,6 +525,7 @@ class Renew(Action):
     """Action to renew an item."""
 
     @check_selfcheck_authentication
+    @add_sequence_number
     def execute(self, message, client, **kwargs):
         """Execute checkout action."""
         patron_session = client.get_current_patron_session()
@@ -556,6 +576,7 @@ class RenewAll(Action):
     """Action to renew all items."""
 
     @check_selfcheck_authentication
+    @add_sequence_number
     def execute(self, message, client, **kwargs):
         """Execute action."""
         # TODO: implements action
@@ -566,6 +587,7 @@ class ItemStatusUpdate(Action):
     """Action to update item status."""
 
     @check_selfcheck_authentication
+    @add_sequence_number
     def execute(self, message, client, **kwargs):
         """Execute action."""
         # TODO: implements action
