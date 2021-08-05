@@ -19,30 +19,16 @@
 
 from __future__ import absolute_import, print_function
 
-from functools import wraps
-
 from ..api import Message
 from ..proxies import current_sip2 as acs_system
-
-
-def check_selfcheck_authentication(func):
-    """Decorator to check authentication of selfcheck client."""
-
-    @wraps(func)
-    def inner(*args, **kwargs):
-        client = kwargs.pop('client')
-        # TODO: maybe we can always call remote api to authenticate client
-        if client and client.is_authenticated:
-            return func(*args, client)
-
-    return inner
 
 
 class Action(object):
     """An action object used for automated circulation system."""
 
-    def __init__(self, command, response, **kwargs):
+    def __init__(self, command, response, message, **kwargs):
         """Init action object."""
+        self.message = message
         self.command = command
         self.response_type = acs_system.sip2_message_types.get_by_command(
             response
@@ -87,3 +73,8 @@ class Action(object):
     def execute(self, **kwargs):
         """Execute actions."""
         raise NotImplementedError()
+
+    def __str__(self):
+        """String representation of Action class."""
+        return f'{self.__class__.__name__}() message:{self.message}, ' \
+               f'request:{self.command}, response:{self.response_type.command}'

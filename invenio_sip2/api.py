@@ -27,6 +27,7 @@ from pycountry import languages
 from .helpers import MessageTypeFixedField, MessageTypeVariableField
 from .models import SelfcheckLanguage
 from .proxies import current_sip2 as acs_system
+from .utils import generate_checksum
 
 
 def preprocess_field_value(func):
@@ -60,7 +61,7 @@ class FieldMessage(object):
 
     def __str__(self):
         """String representation of FieldMessage object."""
-        return self.field.field_id + (self.field_value or '') + '|'
+        return self.field.field_id + (self.field_value or '')
 
 
 class FixedFieldMessage(FieldMessage):
@@ -78,6 +79,9 @@ class Message(object):
         """Constructor."""
         self.variable_fields = []
         self.fixed_fields = []
+        self.checksum = None
+        self.sequence_number = None
+        self.line_terminator = acs_system.line_terminator
 
         for key, value in kwargs.items():
             setattr(self, key, value)
@@ -97,11 +101,20 @@ class Message(object):
         new_message = self.command
 
         for fixed_field in self.fixed_fields:
-            new_message = new_message + str(fixed_field)
+            new_message += str(fixed_field)
 
-        for variable_field in self.variable_fields:
-            new_message = new_message + str(variable_field)
+        for idx, variable_field in enumerate(self.variable_fields):
+            if idx != 0:
+                new_message += '|'
+            new_message += str(variable_field)
 
+        if acs_system.is_error_detection_enabled:
+            if self.sequence_number:
+                new_message += f'AY{self.sequence_number}'
+            if not self.checksum:
+                self.checksum = generate_checksum(new_message)
+            new_message += f'AZ{self.checksum}'
+        new_message += self.line_terminator
         self.message_text = new_message
         return self.message_text
 
@@ -130,26 +143,21 @@ class Message(object):
         """Shortcut for sip2 summary."""
         return self.get_fixed_field_value('summary')
 
-    @property
-    def sequence_number(self):
-        """Get the sequence number."""
-        return self.sequence
-
     def _parse_request(self):
         """Parse the request sended by the selfcheck."""
-        if current_app.config.get('SIP2_ERROR_DETECTION'):
-            # extract sequence number and checksum
-            self.sequence = self.message_text[-7:-6]
-            self.checksum = self.message_text[-4:]
-            self.variable_fields.append(FieldMessage(
-                MessageTypeVariableField.find_by_field_id('AY'),
-                self.sequence))
-            self.variable_fields.append(FieldMessage(
-                MessageTypeVariableField.find_by_field_id('AZ'),
-                self.checksum))
-
-        # get remaining parts of the message
-        txt = self.message_text[2:-9]
+        txt = self.message_text[2:]
+        # try to extract sequence number and checksum
+        error_txt = txt[-9:]
+        field_sequence_id = error_txt[:2]
+        field_checksum_id = error_txt[-6:-4]
+        if field_sequence_id == 'AY':
+            # process sequence_number
+            self.sequence_number = error_txt[2:3]
+        if field_checksum_id == 'AZ':
+            self.checksum = error_txt[-4:]
+        if acs_system.is_error_detection_enabled and self.sequence_number \
+                and self.checksum:
+            txt = txt[:-9]
 
         # extract fixed fields from request
         for fixed_field in self.message_type.fixed_fields:
@@ -157,15 +165,15 @@ class Message(object):
             value = txt[:fixed_field.length]
             self.fixed_fields.append(FixedFieldMessage(fixed_field, value))
             txt = txt[fixed_field.length:]
-
         if not txt:
             return
 
-        # extract variable fields from request
         for part in filter(None, txt.split('|')):
-            field = MessageTypeVariableField.find_by_field_id(part[:2])
+            field_id = part[:2]
+            field_value = part[2:]
+            field = MessageTypeVariableField.find_by_field_id(field_id)
             if field is not None:
-                self.variable_fields.append(FieldMessage(field, part[2:]))
+                self.variable_fields.append(FieldMessage(field, field_value))
 
     def get_fixed_field_by_name(self, field_name):
         """Get the FixedFieldMessage object by field name."""
@@ -243,14 +251,14 @@ class Message(object):
 
     def dumps(self):
         """Dumps message as dict."""
-        data = {}
+        data = {
+            '_sip2': str(self),
+            'message_type': {
+                'command': self.message_type.command,
+                'label': self.message_type.label
+            }}
         # TODO: `_sip2` field is only use in backend. Try to mask it on
         #       view or logging
-        data['_sip2'] = str(self)
-        data['message_type'] = {
-            'command': self.message_type.command,
-            'label': self.message_type.label
-        }
         for fixed_field in self.fixed_fields:
             data[fixed_field.field.field_id] = fixed_field.field_value
 
@@ -265,4 +273,8 @@ class Message(object):
                 else:
                     data[variable_field.field.name] = \
                         variable_field.field_value
+        if self.sequence_number:
+            data['sequence_number'] = self.sequence_number
+        if self.checksum:
+            data['checksum'] = self.checksum
         return data

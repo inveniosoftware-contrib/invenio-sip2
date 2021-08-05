@@ -19,6 +19,8 @@
 
 from __future__ import absolute_import, print_function
 
+from datetime import datetime
+
 import pytz
 from dateutil import parser
 from flask import current_app
@@ -26,6 +28,8 @@ from pycountry import languages
 
 from .models import SelfcheckCirculationStatus, SelfcheckLanguage, \
     SelfcheckMediaType, SelfcheckSecurityMarkerType
+from .proxies import current_logger as logger
+from .proxies import current_sip2 as acs_system
 
 
 def convert_bool_to_char(value=False):
@@ -48,10 +52,23 @@ def decode_char_to_bool(value='N'):
 def parse_circulation_date(date):
     """Converts a date of string format to a formatted date utc aware."""
     date_format = current_app.config.get('SIP2_CIRCULATION_DATE_FORMAT')
+    try:
+        if isinstance(date, datetime):
+            if date.tzinfo is None:
+                date = date.replace(tzinfo=pytz.utc)
+            return date.strftime(date_format)
+        return date_string_to_utc(date)
+    except Exception:
+        logger.warning(f'parse circulation date error for: [{date}]')
+        return date or ''
+
+
+def date_string_to_utc(date):
+    """Converts a date of string format to a datetime utc aware."""
     parsed_date = parser.parse(date)
     if parsed_date.tzinfo:
-        return parsed_date.strftime(date_format)
-    return pytz.utc.localize(parsed_date).strftime(date_format)
+        return parsed_date
+    return pytz.utc.localize(parsed_date)
 
 
 def get_language_code(language):
@@ -96,3 +113,68 @@ def get_circulation_status(status=None):
         return getattr(SelfcheckCirculationStatus, status)
     except AttributeError:
         return SelfcheckCirculationStatus.OTHER
+
+
+def generate_checksum(message):
+    """Generate and format checksum for SIP2 messages.
+
+    :param message: SIP2 string message
+    :returns checksum string
+    """
+    # Calculate CRC
+    checksum = 0
+    for n in range(0, len(message)):
+        checksum = checksum + ord(message[n:n + 1])
+    crc = format((-checksum & 0xFFFF), 'X')
+    return crc
+
+
+def verify_checksum(message_str):
+    """Verify the integrity of SIP2 messages containing checksum.
+
+    :param message_str: SIP2 string message
+    :returns boolean
+    """
+    # extract message without checksum
+    message = message_str[:-4]
+    # extract and parse checksum
+    checksum = int(message_str[-4:], 16)
+
+    # check minimum length of message
+    # It should be 8 for request ACS resend and 11 for all other messaged
+    minimum_len = 8 if message_str[2:] == '97' else 11
+    if len(message_str) >= minimum_len:
+        # sum all the byte values of each character in the message including
+        # the checksum identifier
+        value = sum([b for b in message.encode(acs_system.text_encoding)])
+        # add the checksum hex value
+        value += checksum
+
+        # To validate the message the two's complement of calculated value
+        # should equal zero
+        return -value & 0xFFFF == 0
+    return False
+
+
+def verify_sequence_number(client, message):
+    """Check sequence number increment.
+
+    :param client: connected client
+    :param message: instance of Message object
+    :returns boolean
+    """
+    # we need to return true in following cases :
+    # 1. there is no last request message
+    # 2. the message type is a resend request message
+    if not client.last_request_message \
+            or message.command == '97':
+        return True
+
+    # get current sequence from tag AY
+    sequence = message.sequence_number
+    # get sequence number from last request message
+    last_sequence_number = client.last_sequence_number
+
+    return last_sequence_number and \
+        (int(sequence)-1 == int(last_sequence_number) or
+            (int(last_sequence_number) == 9 and int(sequence) == 0))

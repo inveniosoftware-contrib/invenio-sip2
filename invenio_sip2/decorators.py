@@ -25,6 +25,19 @@ from flask_login import current_user
 from .permissions import check_permission
 
 
+def check_selfcheck_authentication(func):
+    """Decorator to check authentication of selfcheck client."""
+
+    @wraps(func)
+    def inner(*args, **kwargs):
+        client = kwargs.pop('client')
+        # TODO: maybe we can always call remote api to authenticate client
+        if client and client.is_authenticated:
+            return func(*args, client)
+
+    return inner
+
+
 def need_permission(actions):
     """Decorator to check authentication permission."""
 
@@ -40,3 +53,18 @@ def need_permission(actions):
         return decorate_view
 
     return decorator
+
+
+def add_sequence_number(func):
+    """Decorator to add sequence_number to response message."""
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        result = func(*args, **kwargs)
+        request_message = args[1]
+        sequence_number = request_message.sequence_number
+        if sequence_number:
+            result.sequence_number = sequence_number
+        return result
+
+    return wrapper
