@@ -17,6 +17,7 @@
 
 """Invenio-SIP2 socket server management."""
 
+import logging
 import selectors
 import signal
 import socket
@@ -24,10 +25,10 @@ import socket
 from flask import current_app
 
 from .api import Message
-from .errors import InvalidSelfCheckMessageError
 from .proxies import current_logger as logger
 from .proxies import current_sip2
 from .records.record import Client, Server
+from .utils import verify_checksum, verify_sequence_number
 
 
 class SocketServer:
@@ -72,7 +73,11 @@ class SocketServer:
                         message = key.data
                         try:
                             message.process_events(mask)
-                        except RuntimeError:
+                        except RuntimeError as e:
+                            logger.debug(
+                                f'message cannot be processed: {e}',
+                                exc_info=True
+                            )
                             message.close()
                         except Exception as ex:
                             logger.error(
@@ -134,9 +139,9 @@ class SocketEventListener:
         self.response = None
         self.message = None
         self.response_created = False
-        self.error_detection = current_app.config.get('SIP2_ERROR_DETECTION')
-        self.line_terminator = current_app.config.get('SIP2_LINE_TERMINATOR')
-        self.message_encoding = current_app.config.get('SIP2_TEXT_ENCODING')
+        self.error_detection = current_sip2.is_error_detection_enabled
+        self.line_terminator = current_sip2.line_terminator
+        self.message_encoding = current_sip2.text_encoding
         self.client = Client.create(data=self.dumps())
 
     def dumps(self):
@@ -171,25 +176,39 @@ class SocketEventListener:
         try:
             # Should be ready to read
             data = self.sock.recv(1024)
-            # strip the line separator
         except BlockingIOError:
             # Resource temporarily unavailable (errno EWOULDBLOCK)
             pass
         else:
             if data:
-                request = data.decode(encoding=self.message_encoding)
-                # strip the line separator
-                request = \
-                    request[:len(request) - len(self.line_terminator)]
-                self.request = Message(request=request)
-                if self.validate_message(request):
+                request_msg = data.decode(encoding=self.message_encoding)
+                # strip the line terminator
+                request_msg = \
+                    request_msg[:len(request_msg) - len(self.line_terminator)]
+                self.request = Message(request=request_msg)
+
+                request = self.request.dumps() if logger.level == \
+                    logging.DEBUG else request_msg
+
+                logger.info(f'request from {self.client.terminal} '
+                            f'({self.client.get("ip_address")}, '
+                            f'{self.client.get("socket")}): {request}')
+
+                if self.validate_message(request_msg):
                     self._recv_buffer += data
                 else:
-                    raise InvalidSelfCheckMessageError(
-                        'invalid checksum for {message}'.format(
-                            message=self.request.dumps()
-                        ))
-                    self.close()
+                    logger.error(
+                        f'invalid checksum for: {request_msg}',
+                        exc_info=True
+                    )
+                    # prepare request selcheck resend message
+                    self.response = Message(
+                        message_type=current_sip2.sip2_message_types
+                        .get_by_command('96')
+                    )
+                    # Set selector to listen for write events
+                    self._set_selector_events_mask("w")
+
             else:
                 raise RuntimeError("Peer closed.")
 
@@ -207,24 +226,6 @@ class SocketEventListener:
         self.response_created = False
         self._set_selector_events_mask("r")
 
-    def _create_message(self):
-        """Create response message that will be send to selfcheck client."""
-        response_text = str(self.response)
-        if self.error_detection:
-            # if the current request is a request resend message, we don't
-            # return the sequence number
-            if self.request.command != '97':
-                response_text += 'AY'
-                response_text += self.request.sequence_number
-            response_text += 'AZ'
-            response_text += self.calculate_checksum(response_text)
-        else:
-            # remove last character `|` if exist
-            response_text.rstrip("|")
-        response_text += self.line_terminator
-
-        return bytes(response_text, self.message_encoding)
-
     def process_events(self, mask):
         """Process events with the selfcheck client."""
         if mask & selectors.EVENT_READ:
@@ -235,15 +236,8 @@ class SocketEventListener:
     def read(self):
         """Read message from selfcheck client."""
         self._read()
+
         if self._recv_buffer:
-            message = 'request from {terminal} ({ip}) : {request}'.format(
-                terminal=self.client.terminal,
-                ip=self.client.get('ip_address'),
-                request=self.request.dumps(),
-            )
-            logger.info('{message}'.format(
-                message=message
-            ))
             self.process_request()
 
     def write(self):
@@ -251,14 +245,14 @@ class SocketEventListener:
         if self.request:
             if not self.response_created:
                 self.create_response()
-            message = 'send to {terminal} ({ip}): {response}'.format(
-                terminal=self.client.terminal,
-                ip=self.client.get('ip_address'),
-                response=self.response.dumps()
-            )
-            logger.info('{message}'.format(
-                message=message
-            ))
+
+            if logger.level in [logging.DEBUG]:
+                response = self.response.dumps()
+            else:
+                response = str(self.response)
+            logger.info(f'send to {self.client.terminal} '
+                        f'({self.client.get("ip_address")}, '
+                        f'{self.client.get("socket")}): {response}')
             self._write()
 
     def close(self):
@@ -299,8 +293,6 @@ class SocketEventListener:
             self.request,
             client=self.client
         )
-        if not self.response:
-            self.response = '96'
         if self.request.command != '97':
             self.client.update(self.dumps())
 
@@ -310,48 +302,27 @@ class SocketEventListener:
     def create_response(self):
         """Create response message."""
         if self.request:
-            message = self._create_message()
+            message = bytes(str(self.response), self.message_encoding)
             self.response_created = True
             self._send_buffer += message
 
-    def calculate_checksum(self, message):
-        """Generate and format checksums for SIP2 messages."""
-        # Calculate CRC
-        checksum = 0
-        for n in range(0, len(message)):
-            checksum = checksum + ord(message[n:n + 1])
-        crc = format((-checksum & 0xFFFF), 'X')
-        return crc
-
-    def validate_message(self, request):
-        """Validate sequence number and checksum."""
+    def validate_message(self, request_msg):
+        """Validate sequence number and checksum for request message."""
         # check for enabled crc
         if not self.error_detection:
+            if self.request.sequence_number and self.request.checksum:
+                logger.warning(
+                    'error detection is disabled but the request message '
+                    'contains sequence number and checksum: {message}'.format(
+                        message=self.request
+                    ))
             return True
-
-        return self.verify_sequence_number(request) and \
-            self.verify_checksum(request)
-
-    def verify_checksum(self, message):
-        """Verify the integrity of SIP2 messages containing checksum."""
-        # get four last characters
-        test = message[-4:]
-        # check validity
-        return len(test) > 1 and \
-            (self.calculate_checksum(test[0]) > test[1] and
-                self.calculate_checksum(test[0]) < test[1]) == 0
-
-    def verify_sequence_number(self, message):
-        """Check sequence number increment."""
-        if not self.client.last_request_message \
-                or self.request.command == '97':
+        if self.request.checksum:
+            return verify_sequence_number(self.client, self.request) and \
+                verify_checksum(request_msg)
+        else:
+            logger.warning(
+                'error detection is enabled but the request message '
+                'hasn\'t checksum: {message}'.format(
+                    message=self.request))
             return True
-
-        # get current sequence from tag AY
-        sequence = message[-7:-6]
-        # get sequence number from last request message
-        last_sequence_number = self.client.last_sequence_number
-
-        return last_sequence_number and \
-            (int(sequence)-1 == int(last_sequence_number) or
-                (int(last_sequence_number) == 9 and int(sequence) == 0))
