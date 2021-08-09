@@ -16,6 +16,18 @@
 
 Changes
 =======
+Version 0.6.10 (released 2021-08-09)
+**Minor change:**
+* Improves server logging.
+* Ensures that the sequence number is present in the message if the selfchek
+terminal sends it.
+* Adds sequence number and checksum in dumped message.
+* Adds cached property to extension.
+
+**Bug fix:**
+* Fixes circulation date parsing.
+* Rewrites error detection for request and response message.
+
 Version 0.6.9 (released 2021-07-28)
 **Bug fix:**
 
