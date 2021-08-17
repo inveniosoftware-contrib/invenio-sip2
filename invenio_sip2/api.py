@@ -104,16 +104,16 @@ class Message(object):
             new_message += str(fixed_field)
 
         for idx, variable_field in enumerate(self.variable_fields):
-            if idx != 0:
-                new_message += '|'
             new_message += str(variable_field)
+            new_message += '|'
 
         if acs_system.is_error_detection_enabled:
             if self.sequence_number:
                 new_message += f'AY{self.sequence_number}'
+            new_message += 'AZ'
             if not self.checksum:
                 self.checksum = generate_checksum(new_message)
-            new_message += f'AZ{self.checksum}'
+            new_message += self.checksum
         new_message += self.line_terminator
         self.message_text = new_message
         return self.message_text

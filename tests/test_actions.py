@@ -43,7 +43,7 @@ def test_sip2_login_failed(app, dummy_client, failed_login_message):
             Message(request=failed_login_message),
             client=dummy_client
     )
-    assert str(response) == '940AY0AZFE99\r'
+    assert str(response) == '940AY0AZFDFE\r'
 
 
 def test_sip2_login(app, dummy_client, login_message):
@@ -52,7 +52,7 @@ def test_sip2_login(app, dummy_client, login_message):
         Message(request=login_message),
         client=dummy_client
     )
-    assert str(response) == '941AY1AZFE97\r'
+    assert str(response) == '941AY1AZFDFC\r'
 
 
 def test_sip2_system_status(app, dummy_client, system_status_message):

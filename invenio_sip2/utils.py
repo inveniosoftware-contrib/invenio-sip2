@@ -121,12 +121,9 @@ def generate_checksum(message):
     :param message: SIP2 string message
     :returns checksum string
     """
-    # Calculate CRC
-    checksum = 0
-    for n in range(0, len(message)):
-        checksum = checksum + ord(message[n:n + 1])
-    crc = format((-checksum & 0xFFFF), 'X')
-    return crc
+    # Calculate checksum
+    checksum = sum([b for b in message.encode(acs_system.text_encoding)])
+    return format((-checksum & 0xFFFF), 'X')
 
 
 def verify_checksum(message_str):
