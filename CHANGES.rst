@@ -16,6 +16,10 @@
 
 Changes
 =======
+Version 0.6.11 (released 2021-08-17)
+**Bug fix:**
+* Forces text encoding on checksum generation
+
 Version 0.6.10 (released 2021-08-09)
 **Minor change:**
 * Improves server logging.
