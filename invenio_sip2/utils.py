@@ -57,9 +57,9 @@ def parse_circulation_date(date):
             if date.tzinfo is None:
                 date = date.replace(tzinfo=pytz.utc)
             return date.strftime(date_format)
-        return date_string_to_utc(date)
+        return date_string_to_utc(date).strftime(date_format)
     except Exception:
-        logger.warning(f'parse circulation date error for: [{date}]')
+        logger.error(f'parse circulation date error for: [{date}]')
         return date or ''
 
 
@@ -139,7 +139,7 @@ def verify_checksum(message_str):
 
     # check minimum length of message
     # It should be 8 for request ACS resend and 11 for all other messaged
-    minimum_len = 8 if message_str[2:] == '97' else 11
+    minimum_len = 8 if message_str[:2] == '97' else 11
     if len(message_str) >= minimum_len:
         # sum all the byte values of each character in the message including
         # the checksum identifier

@@ -318,6 +318,8 @@ class SocketEventListener:
                     ))
             return True
         if self.request.checksum:
+            if self.request.command == '97':
+                return True
             return verify_sequence_number(self.client, self.request) and \
                 verify_checksum(request_msg)
         else:
