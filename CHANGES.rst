@@ -16,29 +16,45 @@
 
 Changes
 =======
-Version 0.6.11 (released 2021-08-17)
+Version 0.6.12 (released 2021-08-24)
+
 **Bug fix:**
+
+* Fix missing parsing date.
+
+**Minor change:**
+
+* Adds module version inq logging formatter.
+
+Version 0.6.11 (released 2021-08-17)
+
+**Bug fix:**
+
 * Forces text encoding on checksum generation
 
 Version 0.6.10 (released 2021-08-09)
+
 **Minor change:**
+
 * Improves server logging.
-* Ensures that the sequence number is present in the message if the selfchek
-terminal sends it.
+* Ensures that the sequence number is present in the message if the selfchek terminal sends it.
 * Adds sequence number and checksum in dumped message.
 * Adds cached property to extension.
 
 **Bug fix:**
+
 * Fixes circulation date parsing.
 * Rewrites error detection for request and response message.
 
 Version 0.6.9 (released 2021-07-28)
+
 **Bug fix:**
 
 * Fixes invenio-search version.
 * Fixes invenio-db version.
 
 Version 0.6.8 (released 2021-07-27)
+
 **Minor change:**
 
 * Catches runtime error.

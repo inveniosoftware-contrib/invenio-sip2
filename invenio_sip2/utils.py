@@ -57,9 +57,9 @@ def parse_circulation_date(date):
             if date.tzinfo is None:
                 date = date.replace(tzinfo=pytz.utc)
             return date.strftime(date_format)
-        return date_string_to_utc(date)
+        return date_string_to_utc(date).strftime(date_format)
     except Exception:
-        logger.warning(f'parse circulation date error for: [{date}]')
+        logger.error(f'parse circulation date error for: [{date}]')
         return date or ''
 
 

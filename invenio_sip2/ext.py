@@ -33,6 +33,7 @@ from .actions.actions import Action
 from .helpers import MessageTypeFixedField, MessageTypeVariableField
 from .models import SupportedMessages
 from .utils import convert_bool_to_char
+from .version import __version__
 
 logger = logging.getLogger('invenio-sip2')
 
@@ -131,8 +132,10 @@ class InvenioSIP2(object):
     @classmethod
     def get_logging_formatter(cls):
         """Return logging formatter."""
-        return logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        log_format = \
+            '%(asctime)s - %(name)s ({version}) - %(levelname)s - %(message)s'\
+            .format(version=__version__)
+        return logging.Formatter(log_format)
 
     @cached_property
     def sip2(self):
