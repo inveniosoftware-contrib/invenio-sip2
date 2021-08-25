@@ -30,6 +30,7 @@ from werkzeug.utils import cached_property
 
 from . import config, handlers
 from .actions.actions import Action
+from .errors import CommandNotFound
 from .helpers import MessageTypeFixedField, MessageTypeVariableField
 from .models import SupportedMessages
 from .utils import convert_bool_to_char
@@ -282,10 +283,11 @@ class _Sip2MessageType(object):
             self.message_types[command] = _MessageType(command, **message_type)
 
     def get_by_command(self, command):
-        command = self.message_types.get(command)
-        if command:
-            return command
-        raise NotImplementedError
+        try:
+            return self.message_types[command]
+        except Exception:
+            err_msg = f"Command '{command}' not found"
+            raise CommandNotFound(message=err_msg)
 
 
 class _MessageType(object):
