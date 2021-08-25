@@ -58,6 +58,15 @@ class UnknownFieldIdMessageError(Exception):
         super().__init__(**kwargs)
 
 
+class CommandNotFound(Exception):
+    """Command not found."""
+
+    def __init__(self, message=None, **kwargs):
+        """Initialize exception."""
+        self.description = message
+        super().__init__(**kwargs)
+
+
 # Server
 class ServerMessageError(Exception):
     """Server message error."""

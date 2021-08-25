@@ -25,6 +25,7 @@ import socket
 from flask import current_app
 
 from .api import Message
+from .errors import CommandNotFound
 from .proxies import current_logger as logger
 from .proxies import current_sip2
 from .records.record import Client, Server
@@ -73,6 +74,12 @@ class SocketServer:
                         message = key.data
                         try:
                             message.process_events(mask)
+                        except CommandNotFound as err:
+                            logger.error(
+                                err.description,
+                                exc_info=True
+                            )
+                            message.close()
                         except RuntimeError as e:
                             logger.debug(
                                 f'message cannot be processed: {e}',
@@ -181,34 +188,42 @@ class SocketEventListener:
             pass
         else:
             if data:
+                log_prefix = f'request from {self.client.terminal} ' \
+                    f'({self.client.get("ip_address")}, ' \
+                    f'{self.client.get("socket")})'
                 request_msg = data.decode(encoding=self.message_encoding)
                 # strip the line terminator
                 request_msg = \
                     request_msg[:len(request_msg) - len(self.line_terminator)]
-                self.request = Message(request=request_msg)
+                try:
+                    self.request = Message(request=request_msg)
+                    request = self.request.dumps() if logger.level == \
+                        logging.DEBUG else request_msg
 
-                request = self.request.dumps() if logger.level == \
-                    logging.DEBUG else request_msg
+                    logger.info(f'{log_prefix}: {request}')
 
-                logger.info(f'request from {self.client.terminal} '
-                            f'({self.client.get("ip_address")}, '
-                            f'{self.client.get("socket")}): {request}')
-
-                if self.validate_message(request_msg):
-                    self._recv_buffer += data
-                else:
-                    logger.error(
-                        f'invalid checksum for: {request_msg}',
-                        exc_info=True
-                    )
-                    # prepare request selcheck resend message
-                    self.response = Message(
-                        message_type=current_sip2.sip2_message_types
-                        .get_by_command('96')
-                    )
-                    # Set selector to listen for write events
-                    self._set_selector_events_mask("w")
-
+                    if self.validate_message(request_msg):
+                        self._recv_buffer += data
+                    else:
+                        logger.error(
+                            f'invalid checksum for: {request_msg}',
+                            exc_info=True
+                        )
+                        # prepare request selcheck resend message
+                        self.response = Message(
+                            message_type=current_sip2.sip2_message_types
+                            .get_by_command('96')
+                        )
+                        # Set selector to listen for write events
+                        self._set_selector_events_mask("w")
+                except CommandNotFound as e:
+                    raise CommandNotFound(
+                        message='{prefix} - {description}'.format(
+                            prefix=log_prefix, description=e.description))
+                except Exception as err:
+                    logger.info('{prefix} - {request}'.format(
+                        prefix=log_prefix, request=request_msg))
+                    raise Exception(err)
             else:
                 raise RuntimeError("Peer closed.")
 

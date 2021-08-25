@@ -16,6 +16,18 @@
 
 Changes
 =======
+Version 0.6.13 (released 2021-08-25)
+
+**Bug fix:**
+
+* Fixes request resend wrong decoding.
+
+**Minor change:**
+
+* Adds CommandNotFound exception.
+* Catchs all exceptions when reading the request.
+
+
 Version 0.6.12 (released 2021-08-24)
 
 **Bug fix:**
