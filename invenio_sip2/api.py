@@ -24,6 +24,7 @@ from functools import wraps
 from flask import current_app
 from pycountry import languages
 
+from .errors import CommandNotFound
 from .helpers import MessageTypeFixedField, MessageTypeVariableField
 from .models import SelfcheckLanguage
 from .proxies import current_sip2 as acs_system
@@ -88,10 +89,16 @@ class Message(object):
 
         if hasattr(self, 'request'):
             self.message_text = self.request
-            self.message_type = acs_system.sip2_message_types.get_by_command(
-                self.message_text[:2]
-            )
-            self._parse_request()
+            try:
+                self.message_type = acs_system.sip2_message_types.\
+                    get_by_command(self.message_text[:2])
+                self._parse_request()
+            except CommandNotFound as err:
+                description = '{err} - request: {request}'.format(
+                    err=err.description,
+                    request=self.message_text
+                )
+                raise CommandNotFound(message=description)
 
     def __str__(self):
         """String representation of Message object."""

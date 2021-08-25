@@ -127,8 +127,12 @@ class RequestResend(Action):
     def execute(self, message, client):
         """Execute action."""
         last_response_message = client.last_response_message
+        request_msg = last_response_message.get('_sip2')
+        # strip the line terminator
+        request_msg = \
+            request_msg[:len(request_msg) - len(acs_system.line_terminator)]
         return Message(
-            request=last_response_message.get('_sip2')
+            request=request_msg
         )
 
 
