@@ -17,8 +17,6 @@
 
 """Helper proxy to the state object."""
 
-from __future__ import absolute_import, print_function
-
 import logging
 
 from flask import current_app
@@ -27,6 +25,11 @@ from werkzeug.local import LocalProxy
 current_sip2 = LocalProxy(
     lambda: current_app.extensions['invenio-sip2']
 )
+
+current_datastore = LocalProxy(
+    lambda: current_app.extensions['invenio-sip2'].datastore
+)
+
 """Helper proxy to get the current app sip2 extension."""
 current_logger = LocalProxy(
     lambda: logging.getLogger('invenio-sip2')

@@ -19,6 +19,8 @@
 
 from __future__ import absolute_import, print_function
 
+from unittest.mock import patch
+
 import pytest
 
 from invenio_sip2.datastore import Datastore, Sip2RedisDatastore
@@ -26,6 +28,7 @@ from invenio_sip2.errors import ServerAlreadyRunning
 from invenio_sip2.records.record import Client, Server
 
 
+@patch.multiple(Datastore, __abstractmethods__=set())
 def test_datastore_interface(app, server_data):
     """Test datastore interface."""
     ds = Datastore()

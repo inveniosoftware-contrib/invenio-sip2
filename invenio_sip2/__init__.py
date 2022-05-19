@@ -17,14 +17,17 @@
 
 """Invenio module that add SIP2 communication for self-check."""
 
-from __future__ import absolute_import, print_function
-
 from werkzeug.local import LocalProxy
 
-from .ext import InvenioSIP2
-from .proxies import current_sip2
-from .version import __version__
+from invenio_sip2.ext import InvenioSIP2
+from invenio_sip2.proxies import current_datastore, current_sip2
+from invenio_sip2.version import __version__
 
 datastore = LocalProxy(lambda: current_sip2.datastore)
 
-__all__ = ('__version__', 'InvenioSIP2', 'datastore')
+__all__ = (
+    '__version__',
+    'current_datastore',
+    'current_sip2',
+    'InvenioSIP2'
+)

@@ -51,8 +51,6 @@ To reset the example application run:
 SPHINX-END
 """
 
-from __future__ import absolute_import, print_function
-
 import os
 
 from flask import Flask

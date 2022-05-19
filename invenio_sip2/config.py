@@ -109,14 +109,14 @@ keys:
 
 from gettext import gettext as _
 
-from .actions import AutomatedCirculationSystemStatus, BlockPatron, Checkin, \
-    Checkout, EndPatronSession, FeePaid, Hold, ItemInformation, \
-    ItemStatusUpdate, PatronEnable, PatronInformation, PatronStatus, Renew, \
-    RenewAll, RequestResend, SelfCheckLogin
-from .models import SelfcheckSecurityMarkerType
-from .permissions import default_permission_factory
-from .utils import convert_bool_to_char, convert_to_char, get_media_type, \
-    parse_circulation_date
+from invenio_sip2.actions import AutomatedCirculationSystemStatus, \
+    BlockPatron, Checkin, Checkout, EndPatronSession, FeePaid, Hold, \
+    ItemInformation, ItemStatusUpdate, PatronEnable, PatronInformation, \
+    PatronStatus, Renew, RenewAll, RequestResend, SelfCheckLogin
+from invenio_sip2.models import SelfcheckSecurityMarkerType
+from invenio_sip2.permissions import default_permission_factory
+from invenio_sip2.utils import convert_bool_to_char, convert_to_char, \
+    get_media_type, parse_circulation_date
 
 # I18N
 # ====

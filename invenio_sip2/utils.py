@@ -17,8 +17,6 @@
 
 """Invenio-SIP2 Utilities."""
 
-from __future__ import absolute_import, print_function
-
 from datetime import datetime
 
 import pytz
@@ -26,10 +24,10 @@ from dateutil import parser
 from flask import current_app
 from pycountry import languages
 
-from .models import SelfcheckCirculationStatus, SelfcheckLanguage, \
-    SelfcheckMediaType, SelfcheckSecurityMarkerType
-from .proxies import current_logger as logger
-from .proxies import current_sip2 as acs_system
+from invenio_sip2.models import SelfcheckCirculationStatus, \
+    SelfcheckLanguage, SelfcheckMediaType, SelfcheckSecurityMarkerType
+from invenio_sip2.proxies import current_logger as logger
+from invenio_sip2.proxies import current_sip2 as acs_system
 
 
 def convert_bool_to_char(value=False):

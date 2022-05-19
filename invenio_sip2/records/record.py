@@ -21,9 +21,8 @@ from copy import deepcopy
 from datetime import datetime
 from uuid import uuid4
 
-from invenio_sip2 import datastore
-
-from ..errors import ServerAlreadyRunning
+from invenio_sip2 import current_datastore as datastore
+from invenio_sip2.errors import ServerAlreadyRunning
 
 
 class Sip2RecordMetadata(dict):

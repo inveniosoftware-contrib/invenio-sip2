@@ -17,12 +17,10 @@
 
 """Blueprint for Invenio-SIP2."""
 
-from __future__ import absolute_import, print_function
-
 from flask import Blueprint, render_template
 from flask_babelex import gettext as _
 
-from invenio_sip2.records.record import Server
+from invenio_sip2.records import Server
 
 blueprint = Blueprint(
     'invenio_sip2',

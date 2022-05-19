@@ -18,7 +18,7 @@
 
 from enum import Enum
 
-from .proxies import current_sip2 as acs_system
+from invenio_sip2.proxies import current_sip2 as acs_system
 
 
 class SupportedMessages:

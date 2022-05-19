@@ -17,8 +17,6 @@
 
 """Flask extension for Invenio-SIP2."""
 
-from __future__ import absolute_import, print_function
-
 import logging
 from copy import deepcopy
 from datetime import datetime, timezone
@@ -28,13 +26,14 @@ from flask import current_app
 from invenio_base.utils import obj_or_import_string
 from werkzeug.utils import cached_property
 
-from . import config, handlers
-from .actions.actions import Action
-from .errors import CommandNotFound
-from .helpers import MessageTypeFixedField, MessageTypeVariableField
-from .models import SupportedMessages
-from .utils import convert_bool_to_char
-from .version import __version__
+from invenio_sip2 import config, handlers
+from invenio_sip2.actions.actions import Action
+from invenio_sip2.errors import CommandNotFound
+from invenio_sip2.helpers import MessageTypeFixedField, \
+    MessageTypeVariableField
+from invenio_sip2.models import SupportedMessages
+from invenio_sip2.utils import convert_bool_to_char
+from invenio_sip2.version import __version__
 
 logger = logging.getLogger('invenio-sip2')
 
@@ -63,6 +62,7 @@ class InvenioSIP2(object):
 
     def __init__(self, app=None):
         """Extension initialization."""
+        self._state = None
         self.datastore = None
         if app:
             self.init_app(app)
@@ -74,10 +74,10 @@ class InvenioSIP2(object):
         self._state = _Sip2State(app)
 
         # Set SIP2 datastore
-        if not self.datastore:
-            datastore_factory = obj_or_import_string(
-                app.config['SIP2_DATASTORE_HANDLER'])
-            self.datastore = datastore_factory(app)
+        datastore_class = obj_or_import_string(
+            app.config['SIP2_DATASTORE_HANDLER']
+        )
+        self.datastore = datastore_class(app)
         # Initialize logging
         if app.config['SIP2_LOGGING_CONSOLE']:
             self.add_console_handler(app)

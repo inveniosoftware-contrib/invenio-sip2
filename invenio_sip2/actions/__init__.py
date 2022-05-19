@@ -17,12 +17,10 @@
 
 """Invenio-SIP2 actions module."""
 
-from __future__ import absolute_import, print_function
-
-from .actions import AutomatedCirculationSystemStatus, BlockPatron, Checkin, \
-    Checkout, EndPatronSession, FeePaid, Hold, ItemInformation, \
-    ItemStatusUpdate, PatronEnable, PatronInformation, PatronStatus, Renew, \
-    RenewAll, RequestResend, SelfCheckLogin
+from invenio_sip2.actions.actions import AutomatedCirculationSystemStatus, \
+    BlockPatron, Checkin, Checkout, EndPatronSession, FeePaid, Hold, \
+    ItemInformation, ItemStatusUpdate, PatronEnable, PatronInformation, \
+    PatronStatus, Renew, RenewAll, RequestResend, SelfCheckLogin
 
 __all__ = (
     AutomatedCirculationSystemStatus,

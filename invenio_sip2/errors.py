@@ -17,8 +17,6 @@
 
 """Invenio-SIP2 exceptions."""
 
-from __future__ import absolute_import, print_function
-
 
 # Actions
 class InvalidSelfCheckActionError(Exception):

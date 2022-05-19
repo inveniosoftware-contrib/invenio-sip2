@@ -17,8 +17,6 @@
 
 """Handlers for customizing sip2 api."""
 
-from __future__ import absolute_import, print_function
-
 from functools import wraps
 
 import six
@@ -29,6 +27,7 @@ def make_api_handler(func, with_data=True):
     """Make a handler for api callbacks.
 
     :param func: Callable or an import path to a callable
+    :param with_data: Is data passed to function ?
     """
     if isinstance(func, six.string_types):
         func = import_string(func)

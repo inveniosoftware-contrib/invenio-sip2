@@ -17,12 +17,11 @@
 
 """Handlers for customizing SIP2 APIs."""
 
-from __future__ import absolute_import, print_function
-
-from .base import base_authorize_patron_handler, base_circulation_handlers, \
-    base_enable_patron_handler, base_item_handler, base_patron_handler, \
-    base_patron_status_handler, base_selfcheck_login_handler, \
-    base_system_status_handler, base_validate_patron_handler
+from invenio_sip2.handlers.base import base_authorize_patron_handler, \
+    base_circulation_handlers, base_enable_patron_handler, base_item_handler, \
+    base_patron_handler, base_patron_status_handler, \
+    base_selfcheck_login_handler, base_system_status_handler, \
+    base_validate_patron_handler
 
 
 def selfcheck_login_handler(remote, login, password, **kwargs):

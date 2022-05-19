@@ -17,4 +17,10 @@
 
 """Blueprints for invenio-sip2."""
 
-from __future__ import absolute_import
+from invenio_sip2.views.rest import api_blueprint
+from invenio_sip2.views.views import blueprint
+
+__all__ = (
+    'blueprint',
+    'api_blueprint',
+)
