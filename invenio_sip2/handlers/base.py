@@ -17,7 +17,7 @@
 
 """Handlers for customizing sip2 api."""
 
-from ..proxies import current_sip2 as acs_system
+from invenio_sip2.proxies import current_sip2 as acs_system
 
 
 def base_selfcheck_login_handler(remote, login, password, **kwargs):

@@ -17,18 +17,17 @@
 
 """Invenio-SIP2 API."""
 
-from __future__ import absolute_import, print_function
-
 from functools import wraps
 
 from flask import current_app
 from pycountry import languages
 
-from .errors import CommandNotFound
-from .helpers import MessageTypeFixedField, MessageTypeVariableField
-from .models import SelfcheckLanguage
-from .proxies import current_sip2 as acs_system
-from .utils import generate_checksum
+from invenio_sip2.errors import CommandNotFound
+from invenio_sip2.helpers import MessageTypeFixedField, \
+    MessageTypeVariableField
+from invenio_sip2.models import SelfcheckLanguage
+from invenio_sip2.proxies import current_sip2 as acs_system
+from invenio_sip2.utils import generate_checksum
 
 
 def preprocess_field_value(func):

@@ -17,10 +17,8 @@
 
 """Invenio-SIP2 base actions."""
 
-from __future__ import absolute_import, print_function
-
-from ..api import Message
-from ..proxies import current_sip2 as acs_system
+from invenio_sip2.api import Message
+from invenio_sip2.proxies import current_sip2 as acs_system
 
 
 class Action(object):

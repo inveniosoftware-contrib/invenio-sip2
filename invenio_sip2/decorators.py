@@ -22,7 +22,7 @@ from functools import wraps
 from flask import current_app, jsonify
 from flask_login import current_user
 
-from .permissions import check_permission
+from invenio_sip2.permissions import check_permission
 
 
 def check_selfcheck_authentication(func):

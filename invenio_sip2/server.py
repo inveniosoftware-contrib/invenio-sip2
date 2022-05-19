@@ -24,12 +24,12 @@ import socket
 
 from flask import current_app
 
-from .api import Message
-from .errors import CommandNotFound
-from .proxies import current_logger as logger
-from .proxies import current_sip2
-from .records.record import Client, Server
-from .utils import verify_checksum, verify_sequence_number
+from invenio_sip2.api import Message
+from invenio_sip2.errors import CommandNotFound
+from invenio_sip2.proxies import current_logger as logger
+from invenio_sip2.proxies import current_sip2
+from invenio_sip2.records import Client, Server
+from invenio_sip2.utils import verify_checksum, verify_sequence_number
 
 
 class SocketServer:

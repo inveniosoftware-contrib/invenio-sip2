@@ -17,9 +17,6 @@
 
 """CLI application for Invenio-SIP2."""
 
-
-from __future__ import absolute_import, print_function
-
 import os
 import threading
 
@@ -28,8 +25,8 @@ import psutil
 from flask.cli import with_appcontext
 from psutil import NoSuchProcess
 
-from .records.record import Server
-from .server import SocketServer
+from invenio_sip2.records import Server
+from invenio_sip2.server import SocketServer
 
 
 @click.group()

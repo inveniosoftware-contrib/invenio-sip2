@@ -17,9 +17,7 @@
 
 """SIP2 helpers."""
 
-from __future__ import absolute_import, print_function
-
-from .errors import UnknownFieldIdMessageError
+from invenio_sip2.errors import UnknownFieldIdMessageError
 
 
 class MessageTypeFixedField(object):

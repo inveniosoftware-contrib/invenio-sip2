@@ -1,0 +1,42 @@
+[tool.poetry]
+name = "invenio-sip2"
+version = "0.6.13"
+description = "Invenio module that add SIP2 communication for self-check"
+authors = ["Lauren-D <laurent.dubois@itld-solutions.be>"]
+license = "GNU Affero General Public License v3.0"
+
+[tool.poetry.dependencies]
+python = ">=3.7,<3.10"
+invenio-base = ">=1.2.3"
+invenio-access = ">=1.3.1"
+jsonpickle = ">=1.2"
+psutil = "^5.9.0"
+pycountry = ">=19.7.15"
+python-dateutil = "^2.8.2"
+pytest-mock = "^3.7.0"
+mock = "^4.0.3"
+
+
+[tool.poetry.dev-dependencies]
+pytest-invenio=">=1.4.0,<1.5.0"
+autoflake = ">=1.3.1"
+Sphinx = "^4.5.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.plugins."invenio_base.apps"]
+invenio_sip2 = "invenio_sip2:InvenioSIP2"
+
+[tool.poetry.plugins."invenio_base.api_apps"]
+invenio_sip2 = "invenio_sip2:InvenioSIP2"
+
+[tool.poetry.plugins."invenio_base.blueprints"]
+invenio_sip2 = "invenio_sip2.views.views:blueprint"
+
+[tool.poetry.plugins."invenio_base.api_blueprints"]
+invenio_sip2 = "invenio_sip2.views.rest:api_blueprint"
+
+[tool.poetry.plugins."flask.commands"]
+selfcheck = "invenio_sip2.cli:selfcheck"

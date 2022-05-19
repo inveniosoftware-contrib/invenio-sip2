@@ -17,12 +17,10 @@
 
 """API blueprint for Invenio-SIP2."""
 
-from __future__ import absolute_import, print_function
-
 from flask import Blueprint, jsonify
 
 from invenio_sip2.decorators import need_permission
-from invenio_sip2.records.record import Client, Server
+from invenio_sip2.records import Client, Server
 
 api_blueprint = Blueprint(
     'api_sip2',
@@ -35,7 +33,10 @@ api_blueprint = Blueprint(
 @need_permission('api-monitoring')
 def status():
     """Display status for all SIP2 server."""
-    return jsonify(Monitoring.status())
+    try:
+        return jsonify(Monitoring.status())
+    except Exception as error:
+        return jsonify({'ERROR': str(error)})
 
 
 @api_blueprint.route('/servers')
@@ -87,8 +88,7 @@ class Monitoring:
         if result['servers']:
             info = {}
             for server in servers:
-                info[server.id] = {}
-                info[server.id]['status'] = server.get('status')
+                info[server.id] = {'status': server.get('status')}
                 info[server.id]['nb_client'] = \
                     cls.get_number_client_by_server(server.id)
                 if info[server.id]['status'] == 'down':
@@ -105,8 +105,7 @@ class Monitoring:
     @classmethod
     def get_servers(cls):
         """Get list of servers."""
-        servers = Server.get_all_records()
-        return servers
+        return Server.get_all_records()
 
     @classmethod
     def get_clients_by_server_id(cls, server_id):

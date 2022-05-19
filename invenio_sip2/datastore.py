@@ -17,22 +17,17 @@
 
 """SIP2 socket server datastore."""
 
-from __future__ import absolute_import
+from abc import ABC, abstractmethod
 
 import jsonpickle
 from flask import current_app
 from redis import StrictRedis
 
 
-class Datastore:
-    """Abstracted class datastore."""
+class Datastore(ABC):
+    """Abstract datastore class."""
 
-    def __init__(self, app=None, datastore=None):
-        """Initialize the datastore."""
-
-    def commit(self):
-        """Commit operation."""
-
+    @abstractmethod
     def get(self, id_):
         """Retrieve object for given id.
 
@@ -41,6 +36,7 @@ class Datastore:
         """
         raise NotImplementedError
 
+    @abstractmethod
     def add(self, key, value):
         """Store the object.
 
@@ -49,6 +45,7 @@ class Datastore:
         """
         raise NotImplementedError
 
+    @abstractmethod
     def update(self, key, value):
         """Store the object.
 
@@ -57,18 +54,22 @@ class Datastore:
         """
         raise NotImplementedError
 
+    @abstractmethod
     def delete(self, key):
         """Delete the specific key."""
         raise NotImplementedError
 
+    @abstractmethod
     def flush(self):
         """Flush the datastore."""
         raise NotImplementedError
 
+    @abstractmethod
     def all(self):
         """Return all stored object in the datastore."""
         raise NotImplementedError
 
+    @abstractmethod
     def search(self, query):
         """Return all objects in the datastore corresponding to the query."""
         raise NotImplementedError
@@ -77,11 +78,10 @@ class Datastore:
 class Sip2RedisDatastore(Datastore):
     """Redis datastore for sip2."""
 
-    def __init__(self, app=None):
+    def __init__(self, app=None, **kwargs):
         """Initialize the datastore."""
         app = app or current_app
         redis_url = app.config['SIP2_DATASTORE_REDIS_URL']
-        super(Sip2RedisDatastore, self).__init__(app=app)
         self.datastore = StrictRedis.from_url(redis_url)
 
     def get(self, id_, record_type=None):
@@ -112,7 +112,6 @@ class Sip2RedisDatastore(Datastore):
         """Store the object.
 
         :param record: the object
-        :param id_: the object's id
         """
         self.datastore.set(record.get_key(), jsonpickle.encode(record.dumps()))
 

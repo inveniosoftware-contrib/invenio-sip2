@@ -17,23 +17,21 @@
 
 """Invenio-SIP2 custom actions."""
 
-from __future__ import absolute_import, print_function
-
 from flask import current_app
 
+from invenio_sip2.actions.base import Action
 from invenio_sip2.api import Message
-
-from ..actions.base import Action
-from ..decorators import add_sequence_number, check_selfcheck_authentication
-from ..errors import SelfcheckCirculationError
-from ..handlers import authorize_patron_handler, checkin_handler, \
+from invenio_sip2.decorators import add_sequence_number, \
+    check_selfcheck_authentication
+from invenio_sip2.errors import SelfcheckCirculationError
+from invenio_sip2.handlers import authorize_patron_handler, checkin_handler, \
     checkout_handler, enable_patron_handler, hold_handler, item_handler, \
     patron_handler, patron_status_handler, renew_handler, \
     selfcheck_login_handler, system_status_handler, validate_patron_handler
-from ..models import SelfcheckSummary
-from ..proxies import current_logger
-from ..proxies import current_sip2 as acs_system
-from ..utils import ensure_i18n_language, get_circulation_status, \
+from invenio_sip2.models import SelfcheckSummary
+from invenio_sip2.proxies import current_logger
+from invenio_sip2.proxies import current_sip2 as acs_system
+from invenio_sip2.utils import ensure_i18n_language, get_circulation_status, \
     get_language_code, get_security_marker_type
 
 

@@ -17,4 +17,6 @@
 
 """Invenio-SIP2 API."""
 
-__all__ = ()
+from invenio_sip2.records.record import Client, Server
+
+__all__ = ('Client', 'Server')
