@@ -52,7 +52,7 @@ class FieldMessage(object):
         self.field = field
         if field.length and len(field_value) < field.length:
             self.field_value = '{value:{fill}>{width}}'.format(
-                value=str(field_value)[0:field.length],
+                value=str(field_value)[:field.length],
                 fill=self.field.fill,
                 width=self.field.length
             )
@@ -109,7 +109,7 @@ class Message(object):
         for fixed_field in self.fixed_fields:
             new_message += str(fixed_field)
 
-        for idx, variable_field in enumerate(self.variable_fields):
+        for variable_field in self.variable_fields:
             new_message += str(variable_field)
             new_message += '|'
 

@@ -24,7 +24,7 @@ class InvalidSelfCheckActionError(Exception):
 
     def __init__(self, action=None, **kwargs):
         """Initialize exception."""
-        self.description = "Invalid selfcheck '{}'".format(action)
+        self.description = f"Invalid selfcheck '{action}'"
         super().__init__(**kwargs)
 
 
@@ -43,7 +43,7 @@ class InvalidSelfCheckMessageError(Exception):
 
     def __init__(self, message=None, **kwargs):
         """Initialize exception."""
-        self.description = "InvalidSelfCheckMessageError '{}'".format(message)
+        self.description = f"InvalidSelfCheckMessageError '{message}'"
         super().__init__(**kwargs)
 
 
@@ -52,7 +52,7 @@ class UnknownFieldIdMessageError(Exception):
 
     def __init__(self, message=None, **kwargs):
         """Initialize exception."""
-        self.description = "Unknown field id message '{}'".format(message)
+        self.description = f"Unknown field id message '{message}'"
         super().__init__(**kwargs)
 
 

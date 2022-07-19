@@ -40,7 +40,11 @@ class SelfCheckLogin(Action):
 
     @add_sequence_number
     def execute(self, message, **kwargs):
-        """Execute action."""
+        """Execute login action.
+
+        :param message: message receive from the client
+        :return: message class representing the response of the current action
+        """
         selfcheck_login = message.get_field_value('login_uid')
         selfcheck_password = message.get_field_value('login_pwd')
         client = kwargs.pop('client')
@@ -61,10 +65,9 @@ class SelfCheckLogin(Action):
             selfcheck_user['library_language'] = ensure_i18n_language(language)
             client.update(selfcheck_user)
 
-        response_message = self.prepare_message_response(
+        return self.prepare_message_response(
             ok=str(int(client.is_authenticated))
         )
-        return response_message
 
 
 class AutomatedCirculationSystemStatus(Action):
@@ -73,7 +76,12 @@ class AutomatedCirculationSystemStatus(Action):
     @check_selfcheck_authentication
     @add_sequence_number
     def execute(self, message, client):
-        """Execute action."""
+        """Execute automated circulation system status action.
+
+        :param message: message receive from the client
+        :param client: the client
+        :return: message class representing the response of the current action
+        """
         # TODO : calculate system status from remote app
         status = system_status_handler(client.remote_app,
                                        client.terminal,
@@ -123,7 +131,13 @@ class RequestResend(Action):
 
     @check_selfcheck_authentication
     def execute(self, message, client):
-        """Execute action."""
+        """Execute resend action.
+
+        :param message: message receive from the client
+        :param client: the client
+        :return: message class representing the response of the last action
+            send tho the client
+        """
         last_response_message = client.last_response_message
         request_msg = last_response_message.get('_sip2')
         # strip the line terminator
@@ -140,7 +154,12 @@ class PatronEnable(Action):
     @check_selfcheck_authentication
     @add_sequence_number
     def execute(self, message, client):
-        """Execute action."""
+        """Execute enable patron action.
+
+        :param message: message receive from the client
+        :param client: the client
+        :return: message class representing the response of the current action
+        """
         patron_id = message.get_field_value('patron_id')
 
         is_valid_patron = validate_patron_handler(
@@ -195,7 +214,12 @@ class PatronStatus(Action):
     @check_selfcheck_authentication
     @add_sequence_number
     def execute(self, message, client):
-        """Execute action."""
+        """Execute patron status action.
+
+        :param message: message receive from the client
+        :param client: the client
+        :return: message class representing the response of the current action
+        """
         patron_id = message.get_field_value('patron_id')
         patron_status = patron_status_handler(
             client.remote_app, patron_id, institution_id=client.institution_id
@@ -224,7 +248,12 @@ class PatronInformation(Action):
     @check_selfcheck_authentication
     @add_sequence_number
     def execute(self, message, client):
-        """Execute action."""
+        """Execute patron information action.
+
+        :param message: message receive from the client
+        :param client: the client
+        :return: message class representing the response of the current action
+        """
         patron_id = message.get_field_value('patron_id')
         patron_account = patron_handler(
             client.remote_app, patron_id, institution_id=client.institution_id
@@ -288,7 +317,12 @@ class EndPatronSession(Action):
     @check_selfcheck_authentication
     @add_sequence_number
     def execute(self, message, client):
-        """Execute action."""
+        """Execute end patron session action.
+
+        :param message: message receive from the client
+        :param client: the client
+        :return: message class representing the response of the current action
+        """
         client.clear_patron_session()
 
         # prepare message based on required fields
@@ -310,7 +344,12 @@ class ItemInformation(Action):
     @check_selfcheck_authentication
     @add_sequence_number
     def execute(self, message, client):
-        """Execute action."""
+        """Execute item information action.
+
+        :param message: message receive from the client
+        :param client: the client
+        :return: message class representing the response of the current action
+        """
         patron_session = client.get_current_patron_session()
         if patron_session:
             language = patron_session.get('language')
@@ -354,7 +393,12 @@ class BlockPatron(Action):
     @check_selfcheck_authentication
     @add_sequence_number
     def execute(self, message, client, **kwargs):
-        """Execute action."""
+        """Execute block patron action.
+
+        :param message: message receive from the client
+        :param client: the client
+        :return: message class representing the response of the current action
+        """
         # TODO: implements action
         return
 
@@ -365,7 +409,12 @@ class Checkin(Action):
     @check_selfcheck_authentication
     @add_sequence_number
     def execute(self, message, client, **kwargs):
-        """Execute checkin action."""
+        """Execute checkin action.
+
+        :param message: message receive from the client
+        :param client: the client
+        :return: message class representing the response of the current action
+        """
         patron_session = client.get_current_patron_session()
         if patron_session:
             language = patron_session.get('language')
@@ -417,7 +466,12 @@ class Checkout(Action):
     @check_selfcheck_authentication
     @add_sequence_number
     def execute(self, message, client, **kwargs):
-        """Execute checkout action."""
+        """Execute checkout action.
+
+        :param message: message receive from the client
+        :param client: the client
+        :return: message class representing the response of the current action
+        """
         patron_session = client.get_current_patron_session()
         if patron_session:
             language = patron_session.get('language')
@@ -471,7 +525,12 @@ class FeePaid(Action):
     @check_selfcheck_authentication
     @add_sequence_number
     def execute(self, message, client, **kwargs):
-        """Execute action."""
+        """Execute fee paid action.
+
+        :param message: message receive from the client
+        :param client: the client
+        :return: message class representing the response of the current action
+        """
         # TODO: implements action
         return
 
@@ -482,7 +541,12 @@ class Hold(Action):
     @check_selfcheck_authentication
     @add_sequence_number
     def execute(self, message, client, **kwargs):
-        """Execute hold action."""
+        """Execute hold action.
+
+        :param message: message receive from the client
+        :param client: the client
+        :return: message class representing the response of the current action
+        """
         patron_session = client.get_current_patron_session()
         item_id = message.get_field_value('item_id')
         patron_id = message.get_field_value('patron_id')
@@ -529,7 +593,12 @@ class Renew(Action):
     @check_selfcheck_authentication
     @add_sequence_number
     def execute(self, message, client, **kwargs):
-        """Execute checkout action."""
+        """Execute renew action.
+
+        :param message: message receive from the client
+        :param client: the client
+        :return: message class representing the response of the current action
+        """
         patron_session = client.get_current_patron_session()
         item_id = message.get_field_value('item_id')
         patron_id = message.get_field_value('patron_id')
@@ -580,7 +649,12 @@ class RenewAll(Action):
     @check_selfcheck_authentication
     @add_sequence_number
     def execute(self, message, client, **kwargs):
-        """Execute action."""
+        """Execute renew all action.
+
+        :param message: message receive from the client
+        :param client: the client
+        :return: message class representing the response of the current action
+        """
         # TODO: implements action
         return
 
@@ -591,6 +665,11 @@ class ItemStatusUpdate(Action):
     @check_selfcheck_authentication
     @add_sequence_number
     def execute(self, message, client, **kwargs):
-        """Execute action."""
+        """Execute item status action.
+
+        :param message: message receive from the client
+        :param client: the client
+        :return: message class representing the response of the current action
+        """
         # TODO: implements action
         return

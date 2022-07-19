@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-"""Invenio module that add SIP2 communication for self-check.
+"""Configuration variables for defining invenio-sip2.
 
 ================================ ==============================================
 `SIP2_DATASTORE_HANDLER`         datastore, default: `Sip2RedisDatastore`
@@ -31,10 +31,17 @@
 `SIP2_VARIABLE_FIELD_DEFINITION` All variable field available.
 ================================ ==============================================
 
-.. py:data:: SIP2_DATASTORE_HANDLER
-    Add the preferred datastore adaptor.
-    Provided adaptor by invenio-sip2 are:
-    .. seealso:: :py:class:`~invenio_sip2.datastore.redis.RedisSip2Datastore`
+Datastore handlers
+^^^^^^^^^^^^^^^^^^
+
+Use `SIP2_DATASTORE_HANDLER` to define your custom datastore.
+
+Provided adaptor by invenio-sip2 is:
+  :class: `invenio_sip2.datastore:Sip2RedisDatastore`
+
+Remote action handlers
+^^^^^^^^^^^^^^^^^^^^^^
+Handlers allow customizing endpoints for each selfcheck actions.
 
 Each custom handler actions must be defined in the ``SIP2_ACTIONS_HANDLERS``
 dictionary, where the keys are the application names and the values the
@@ -51,33 +58,28 @@ configuration parameters for the application.
 The application name is used to start invenio-sip2 server and call customized
 handlers.
 
-
-Remote action handlers
-^^^^^^^^^^^^^^^^^^^^^^
-Handlers allow customizing endpoints for each selfcheck actions.
-
 Configuration of a single remote application is a dictionary with the following
 keys:
 
 - ``login_handler`` - Import path to login selfcheck callback handler.
 - ``logout_handler`` - Import path to logout selfcheck callback handler.
 - ``system_status_handler`` - Import path to automated system status callback
-  handler.
+    handler.
 - ``patron_handlers`` - A dictionary of import path to patron callback handler.
-  - ``validate_patron`` - Import path to validate patron callback handler.
-  - ``authorize_patron`` - Import path to authorize patron  callback handler.
-  - ``enable_patron`` - Import path to enable patron callback handler.
-  - ``patron_status`` - Import path to patron status callback handler.
-  - ``account`` - Import path to retrieve patron account callback handler.
+    - ``validate_patron`` - Import path to validate patron callback handler.
+    - ``authorize_patron`` - Import path to authorize patron  callback handler.
+    - ``enable_patron`` - Import path to enable patron callback handler.
+    - ``patron_status`` - Import path to patron status callback handler.
+    - ``account`` - Import path to retrieve patron account callback handler.
 - ``item_handlers`` - A dictionary of import path to item callback handler.
-  - ``item`` - Import path to retrieve item callback handler.
+    - ``item`` - Import path to retrieve item callback handler.
 - ``circulation_handlers`` - A dictionary of import path to circulation
-  callback handler.
-  - ``checkout`` - Import path to checkout item callback handler.
-  - ``checkin`` - Import path to checkin item callback handler.
-  - ``hold`` - Import path to hold item callback handler.
-  - ``renew`` - Import path to renew item callback handler.
-  - ``renew_all`` - Import path to renew_all items callback handler.
+    callback handler.
+    - ``checkout`` - Import path to checkout item callback handler.
+    - ``checkin`` - Import path to checkin item callback handler.
+    - ``hold`` - Import path to hold item callback handler.
+    - ``renew`` - Import path to renew item callback handler.
+    - ``renew_all`` - Import path to renew_all items callback handler.
 
 .. code-block:: python
 
