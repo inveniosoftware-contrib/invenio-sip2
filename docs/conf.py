@@ -9,7 +9,7 @@
 
 from __future__ import print_function
 
-import os
+from invenio_sip2 import __version__
 
 # -- General configuration ------------------------------------------------
 
@@ -56,12 +56,7 @@ author = u'UCLouvain'
 # The short X.Y version.
 
 # Get the version string. Cannot be done with import!
-g = {}
-with open(os.path.join(os.path.dirname(__file__), '..',
-                       'invenio_sip2', 'version.py'),
-          'rt') as fp:
-    exec(fp.read(), g)
-    version = g['__version__']
+version = __version__
 
 # The full version, including alpha/beta/rc tags.
 release = version

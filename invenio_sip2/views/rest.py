@@ -80,11 +80,13 @@ class Monitoring:
     @classmethod
     def status(cls):
         """Check status for all servers."""
-        result = {}
         servers = cls.get_servers()
-        result['servers'] = len(servers)
-        result['clients'] = len(Client.get_all_records())
-        result['status'] = 'green'
+        result = {
+            'servers': len(servers),
+            'clients': len(Client.get_all_records()),
+            'status': 'green'
+        }
+
         if result['servers']:
             info = {}
             for server in servers:

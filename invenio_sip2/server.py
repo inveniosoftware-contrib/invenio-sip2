@@ -17,6 +17,8 @@
 
 """Invenio-SIP2 socket server management."""
 
+
+import contextlib
 import logging
 import selectors
 import signal
@@ -74,9 +76,9 @@ class SocketServer:
                         message = key.data
                         try:
                             message.process_events(mask)
-                        except CommandNotFound as err:
-                            logger.error(
-                                err.description,
+                        except (UnicodeDecodeError, CommandNotFound) as err:
+                            logger.debug(
+                                err,
                                 exc_info=True
                             )
                             message.close()
@@ -118,10 +120,8 @@ class SocketServer:
 
     def close(self):
         """Close socket server."""
-        try:
+        with contextlib.suppress(Exception):
             self.selector.close()
-        except Exception:
-            pass
         self.server.down()
 
     def handler_stop_signals(self, signum, frame):
@@ -218,11 +218,9 @@ class SocketEventListener:
                         self._set_selector_events_mask("w")
                 except CommandNotFound as e:
                     raise CommandNotFound(
-                        message='{prefix} - {description}'.format(
-                            prefix=log_prefix, description=e.description))
+                        message=f'{log_prefix} - {e.description}')
                 except Exception as err:
-                    logger.info('{prefix} - {request}'.format(
-                        prefix=log_prefix, request=request_msg))
+                    logger.info('{log_prefix} - {request_msg}')
                     raise Exception(err)
             else:
                 raise RuntimeError("Peer closed.")
@@ -261,7 +259,7 @@ class SocketEventListener:
             if not self.response_created:
                 self.create_response()
 
-            if logger.level in [logging.DEBUG]:
+            if self.response and logger.level in [logging.DEBUG]:
                 response = self.response.dumps()
             else:
                 response = str(self.response)
@@ -333,13 +331,13 @@ class SocketEventListener:
                     ))
             return True
         if self.request.checksum:
-            if self.request.command == '97':
-                return True
-            return verify_sequence_number(self.client, self.request) and \
-                verify_checksum(request_msg)
-        else:
-            logger.warning(
-                'error detection is enabled but the request message '
-                'hasn\'t checksum: {message}'.format(
-                    message=self.request))
-            return True
+            return True \
+                if self.request.command == '97' \
+                else verify_sequence_number(self.client, self.request) \
+                and verify_checksum(request_msg)
+
+        logger.warning(
+            'error detection is enabled but the request message '
+            'hasn\'t checksum: {message}'.format(
+                message=self.request))
+        return True
