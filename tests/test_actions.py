@@ -24,6 +24,7 @@ import pytest
 
 from invenio_sip2.actions.base import Action
 from invenio_sip2.api import Message
+from invenio_sip2.errors import CommandNotFound
 from invenio_sip2.proxies import current_sip2
 
 
@@ -32,6 +33,14 @@ def test_sip2_actions_interface(app):
     action = Action(command='93', response='94', message='interface_message')
     with pytest.raises(NotImplementedError):
         action.execute()
+
+    with pytest.raises(CommandNotFound):
+        action = Action(
+            command='85', response='86', message='interface_message')
+        action.execute()
+
+    # test action from extension
+    current_sip2.sip2.execute('wrong command')
 
 
 @mock.patch('invenio_sip2.actions.actions.selfcheck_login_handler',
@@ -88,6 +97,11 @@ def test_patron_information(app, dummy_client, patron_information_message):
             Message(request=patron_information_message),
             client=dummy_client
     )
+    data = response.dumps()
+    required_fields = app.config.get('SIP2_MESSAGE_TYPES').get('64')\
+        .get('required_fields')
+    for field in required_fields:
+        assert data[field]
     assert str(response).startswith('64')
 
 

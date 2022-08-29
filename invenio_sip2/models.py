@@ -605,4 +605,4 @@ class SelfcheckSummary:
 
     def is_needed(self, key):
         """Check if the given information is needed."""
-        return getattr(self, key) or False
+        return hasattr(self, key)

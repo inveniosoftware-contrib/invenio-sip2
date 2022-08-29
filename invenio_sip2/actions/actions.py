@@ -261,7 +261,7 @@ class PatronInformation(Action):
         current_logger \
             .debug(f'[PatronInformation]: handler response: {patron_account}')
         # TODO: better way to begin session
-        # Begin session
+        # start patron session
         client['patron_session'] = {
             'patron_id': patron_id,
             'language': message.i18n_language
@@ -284,7 +284,6 @@ class PatronInformation(Action):
         )
 
         summary = SelfcheckSummary(message.summary)
-
         # add optional fields
         for optional_field in self.optional_fields:
             # TODO: use custom handler to get specified summary field.

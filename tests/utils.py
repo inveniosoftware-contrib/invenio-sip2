@@ -98,6 +98,8 @@ def remote_patron_account_handler(patron_id, **kwargs):
         language='und',
         currency_type='EUR'
     )
+    response.get('hold_items', []).append('item_pid_1')
+    response.get('hold_items', []).append('item_pid_2')
     return response
 
 

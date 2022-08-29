@@ -54,7 +54,7 @@ def test_monitoring_clients(app, users):
         assert res.status_code == 200
 
 
-def test_get_server(app, users, server, dummy_client):
+def test_get_server(app, users, server):
     """Test monitoring servers."""
     with app.test_client() as client:
         server_url = url_for(
