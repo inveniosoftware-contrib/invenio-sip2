@@ -150,7 +150,7 @@ class Message(object):
         return self.get_fixed_field_value('summary')
 
     def _parse_request(self):
-        """Parse the request sended by the selfcheck."""
+        """Parse the request sent by the selfcheck."""
         txt = self.message_text[2:]
         # try to extract sequence number and checksum
         error_txt = txt[-9:]

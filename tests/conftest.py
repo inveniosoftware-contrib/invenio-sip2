@@ -102,6 +102,8 @@ def base_app(request):
         CACHE_REDIS_URL='redis://localhost:6379/0',
         SIP2_DATASTORE_HANDLER='invenio_sip2.datastore:Sip2RedisDatastore',
         SIP2_DATASTORE_REDIS_URL='redis://localhost:6379/1',
+        SIP2_LOGGING_FS_LOGFILE='./log/sip2.log',
+        SIP2_ERROR_DETECTION=True,
         SIP2_REMOTE_ACTION_HANDLERS=dict(
             test_ils=dict(
                 login_handler=remote_login_handler,

@@ -18,16 +18,6 @@
 """Invenio-SIP2 exceptions."""
 
 
-# Actions
-class InvalidSelfCheckActionError(Exception):
-    """Action not found in sip2 configuration."""
-
-    def __init__(self, action=None, **kwargs):
-        """Initialize exception."""
-        self.description = f"Invalid selfcheck '{action}'"
-        super().__init__(**kwargs)
-
-
 class SelfcheckCirculationError(Exception):
     """Selfcheck Circulation error."""
 
@@ -35,16 +25,6 @@ class SelfcheckCirculationError(Exception):
         """Initialize exception."""
         self.data = data
         super().__init__(error, **kwargs)
-
-
-# Message
-class InvalidSelfCheckMessageError(Exception):
-    """Invalid SIP2 message."""
-
-    def __init__(self, message=None, **kwargs):
-        """Initialize exception."""
-        self.description = f"InvalidSelfCheckMessageError '{message}'"
-        super().__init__(**kwargs)
 
 
 class UnknownFieldIdMessageError(Exception):

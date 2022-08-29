@@ -98,7 +98,7 @@ def selfckeck_validate_patron_message(enable_patron_message):
 @pytest.fixture(scope="module")
 def patron_information_message():
     """Patron information message."""
-    return '6300020200716    211818          AOinstitution_id' \
+    return '6300020200716    211818Y         AOinstitution_id' \
            '|AApatron_identifier|ADpatron_pwd|AY3AZECEC'
 
 
