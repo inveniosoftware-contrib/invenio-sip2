@@ -16,6 +16,12 @@
 
 Changes
 =======
+Version 0.6.15 (released 2022-08-30)
+
+**Bug fix:**
+
+* Fixes sphinx dependency.
+
 Version 0.6.14 (released 2022-08-30)
 
 **Bug fix:**
