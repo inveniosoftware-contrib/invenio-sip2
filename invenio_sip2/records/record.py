@@ -257,7 +257,7 @@ class Client(Sip2RecordMetadata):
     def clear_patron_session(self):
         """Shortcut to library name."""
         with contextlib.suppress(KeyError):
-            del(self['patron_session'])
+            del (self['patron_session'])
 
     @property
     def last_response_message(self):
