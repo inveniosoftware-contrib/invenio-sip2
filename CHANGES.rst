@@ -16,6 +16,18 @@
 
 Changes
 =======
+Version 0.6.14 (released 2022-08-30)
+
+**Bug fix:**
+
+* Fixes datastore local proxy.
+
+**Minor change:**
+
+* Changes logging level for `CommandNotFound` and `UnicodeDecodeError`.
+* Moves to poetry.
+
+
 Version 0.6.13 (released 2021-08-25)
 
 **Bug fix:**
