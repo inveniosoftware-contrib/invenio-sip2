@@ -21,4 +21,4 @@ This file is imported by ``invenio_sip2.__init__``,
 and parsed by ``setup.py``.
 """
 
-__version__ = '0.6.13'
+__version__ = '0.6.14'
