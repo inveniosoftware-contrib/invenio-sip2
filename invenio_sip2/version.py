@@ -15,9 +15,6 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-"""Version information for Invenio-SIP2.
+"""Version information for Invenio-SIP2."""
 
-This file is imported by ``invenio_sip2.__init__``,
-and parsed by ``setup.py``.
-"""
 __version__ = '0.6.15'

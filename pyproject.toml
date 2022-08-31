@@ -7,6 +7,21 @@ authors = ["Laurent Dubois <laurent.dubois@uclouvain.be>"]
 license = "GNU Affero General Public License v3.0"
 repository = "https://github.com/inveniosoftware-contrib/invenio-sip2"
 documentation = "https://invenio-sip2.readthedocs.io"
+classifiers = [
+    "Environment :: Web Environment",
+    "Framework :: Invenio 3",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: GNU Affero General Public License v3",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Development Status :: 3 - Alpha",
+]
 
 [tool.poetry.dependencies]
 python = ">=3.7,<3.10"
@@ -16,11 +31,15 @@ jsonpickle = ">=1.2"
 psutil = "^5.9.0"
 pycountry = ">=19.7.15"
 python-dateutil = "^2.8.2"
-pytest-mock = "^3.7.0"
 mock = "^4.0.3"
+SQLAlchemy = ">=1.2.18,<1.4.0"
+SQLAlchemy-Utils = ">=0.33.1,<0.36"
+pytest-invenio = ">=1.4.0,<1.4.12"
+Flask = "<2.0.0,>=1.1.4"
+markupsafe = "<2.1.0"
 
 [tool.poetry.dev-dependencies]
-pytest-invenio=">=1.4.0,<1.5.0"
+pytest-invenio = ">=1.4.0,<1.4.12"
 autoflake = ">=1.3.1"
 Sphinx = ">=4.5.0"
 
