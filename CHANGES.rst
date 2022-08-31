@@ -16,6 +16,12 @@
 
 Changes
 =======
+Version 0.6.16 (released 2022-08-31)
+
+**Bug fix:**
+
+* Fixes project dependency.
+
 Version 0.6.15 (released 2022-08-30)
 
 **Bug fix:**
