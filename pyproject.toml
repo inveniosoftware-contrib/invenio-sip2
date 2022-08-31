@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "invenio-sip2"
-version = "0.6.15"
+version = "0.6.16"
 description = "Invenio module that add a SIP2 communication for library self-check service"
 readme = "README.rst"
 authors = ["Laurent Dubois <laurent.dubois@uclouvain.be>"]
