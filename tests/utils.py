@@ -20,12 +20,35 @@
 from datetime import datetime, timezone
 
 from flask import current_app
+from flask_security import login_user, logout_user
+from invenio_accounts.models import User
+from invenio_accounts.testutils import login_user_via_session
 
 from invenio_sip2.models import PatronStatus, SelfcheckCheckin, \
     SelfcheckCheckout, SelfcheckCirculationStatus, SelfcheckFeeType, \
     SelfcheckHold, SelfcheckItemInformation, SelfcheckMediaType, \
     SelfcheckPatronInformation, SelfcheckPatronStatus, SelfcheckRenew, \
     SelfcheckSecurityMarkerType
+
+
+def user_login(client, username, users):
+    """Util function to log in user."""
+    user_logout(client)
+    if username != "anonymous":
+        user = User.query.get(users[username].id)
+        # needed for sessions/http requests
+        login_user_via_session(client, user)
+        # needed for Identity/Permissions loading
+        login_user(user)
+        return user
+
+
+def user_logout(client):
+    """Util function to log out user."""
+    with client.session_transaction() as sess:
+        if "user_id" in sess:
+            del sess["user_id"]
+            logout_user()
 
 
 def str_to_bytes(string):
