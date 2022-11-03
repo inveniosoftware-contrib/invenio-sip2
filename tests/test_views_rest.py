@@ -18,7 +18,7 @@
 """Module test."""
 
 from flask import url_for
-from invenio_accounts.testutils import login_user_via_session
+from utils import user_login, user_logout
 
 
 def test_monitoring_status(app, users, server, dummy_client):
@@ -27,9 +27,10 @@ def test_monitoring_status(app, users, server, dummy_client):
         res = client.get(url_for('api_sip2.status'))
         assert res.status_code == 401
 
-        login_user_via_session(client, users.get('admin'))
+        user_login(client, 'admin', users)
         res = client.get(url_for('api_sip2.status'))
         assert res.status_code == 200
+        user_logout(client)
 
 
 def test_monitoring_servers(app, users):
@@ -38,9 +39,10 @@ def test_monitoring_servers(app, users):
         res = client.get(url_for('api_sip2.get_servers'))
         assert res.status_code == 401
 
-        login_user_via_session(client, users.get('admin'))
+        user_login(client, 'admin', users)
         res = client.get(url_for('api_sip2.get_servers'))
         assert res.status_code == 200
+        user_logout(client)
 
 
 def test_monitoring_clients(app, users):
@@ -49,20 +51,23 @@ def test_monitoring_clients(app, users):
         res = client.get(url_for('api_sip2.get_clients'))
         assert res.status_code == 401
 
-        login_user_via_session(client, users.get('admin'))
+        user_login(client, 'admin', users)
         res = client.get(url_for('api_sip2.get_clients'))
         assert res.status_code == 200
+        user_logout(client)
 
 
 def test_get_server(app, users, server):
     """Test monitoring servers."""
     with app.test_client() as client:
+
         server_url = url_for(
             'api_sip2.get_server', server_id=server.id
         )
         res = client.get(server_url)
         assert res.status_code == 401
 
-        login_user_via_session(client, users.get('admin'))
+        user_login(client, 'admin', users)
         res = client.get(server_url)
         assert res.status_code == 200
+        user_logout(client)
