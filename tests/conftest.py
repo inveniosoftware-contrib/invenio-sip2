@@ -238,6 +238,9 @@ def users(db, app):
         db.session.add(
             ActionRoles(action=superuser_access.value, role=admin_role)
         )
+        db.session.add(
+            ActionRoles(action='api-monitoring', role=admin_role)
+        )
         datastore.add_role_to_user(admin, admin_role)
         # Give role to librarian
         librarian_role = Role(name='librarian')

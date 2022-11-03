@@ -29,7 +29,7 @@ api_blueprint = Blueprint(
 )
 
 
-@api_blueprint.route('/status')
+@api_blueprint.route('/status', methods=['GET'])
 @need_permission('api-monitoring')
 def status():
     """Display status for all SIP2 server."""
@@ -39,7 +39,7 @@ def status():
         return jsonify({'ERROR': str(error)})
 
 
-@api_blueprint.route('/servers')
+@api_blueprint.route('/servers', methods=['GET'])
 @need_permission('api-monitoring')
 def get_servers():
     """Display all running SIP2 servers."""
@@ -49,7 +49,7 @@ def get_servers():
         return jsonify({'ERROR': str(error)})
 
 
-@api_blueprint.route('/servers/<string:server_id>')
+@api_blueprint.route('/servers/<string:server_id>', methods=['GET'])
 @need_permission('api-monitoring')
 def get_server(server_id):
     """Display all running SIP2 servers."""
@@ -64,7 +64,7 @@ def get_server(server_id):
         return jsonify({'ERROR': str(error)})
 
 
-@api_blueprint.route('/clients')
+@api_blueprint.route('/clients', methods=['GET'])
 @need_permission('api-monitoring')
 def get_clients():
     """Display all connected clients to server."""
