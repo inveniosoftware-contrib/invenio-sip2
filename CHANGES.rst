@@ -16,6 +16,13 @@
 
 Changes
 =======
+Version 0.6.17 (released 2022-11-07)
+
+**Minor change:**
+
+* Uses http method on monitoring api blueprint.
+* Updates Flask dependency.
+
 Version 0.6.16 (released 2022-08-31)
 
 **Bug fix:**
