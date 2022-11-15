@@ -596,7 +596,7 @@ class SelfcheckSummary:
     def __init__(self, text):
         """Init."""
         from .utils import decode_char_to_bool
-        self.hold_items = decode_char_to_bool(text[0:])
+        self.hold_items = decode_char_to_bool(text[0])
         self.overdue_items = decode_char_to_bool(text[1])
         self.charged_items = decode_char_to_bool(text[2])
         self.fine_items = decode_char_to_bool(text[3])
