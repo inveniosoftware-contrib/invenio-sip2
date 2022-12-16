@@ -16,6 +16,20 @@
 
 Changes
 =======
+Version 0.6.18 (released 2022-12-16)
+
+**Implemented enhancements:**
+
+* Implements fee paid action.
+
+**Bug fix:**
+
+* Fixes readthedoc compilation.
+
+**Minor change:**
+
+* Adds more documentation.
+
 Version 0.6.17 (released 2022-11-07)
 
 **Minor change:**
