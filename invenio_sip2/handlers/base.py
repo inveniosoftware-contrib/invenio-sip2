@@ -111,16 +111,39 @@ def base_item_handler(remote, item_identifier,  **kwargs):
     return handlers['item'](item_identifier, **kwargs)
 
 
-def base_circulation_handlers(remote, handler, user_id, item_identifier,
-                              *args, **kwargs):
+def base_circulation_handlers(remote, handler, user_id,
+                              item_or_patron_identifier, *args, **kwargs):
     """Handle checkout functionality.
 
     :param remote: remote ils
     :param handler: circulation handler (e.g.: checkin, checkout,...)
     :param user_id: Identifier of selfcheck client user
-    :param item_identifier: Identifier of the item (e.g. id, barcode,...)
-    :param patron_identifier: Identifier of the patron (e.g. id, barcode,...)
+    :param item_or_patron_identifier: Identifier of the item or the patron
+        (e.g. id, barcode,...) regarding circulation operation
     returns: Circulation handler
     """
     handlers = acs_system.sip2_handlers.circulation_handlers[remote]
-    return handlers[handler](user_id, item_identifier, *args, **kwargs)
+    return handlers[handler](
+        user_id, item_or_patron_identifier, *args, **kwargs
+    )
+
+
+def base_fee_paid_handler(remote, user_id, patron_identifier, fee_type,
+                          payment_type, currency_type, fee_amount, *args,
+                          **kwargs):
+    """Handle checkout functionality.
+
+    :param remote: remote ils
+    :param user_id: Identifier of selfcheck client user
+    :param patron_identifier: Identifier of the patron (e.g. id, barcode,...)
+    :param fee_type: Type of the fee
+    :param payment_type: Type of the payment
+    :param currency_type: Type of the currency
+    :param fee_amount: Amount of the fee
+    returns: Circulation handler
+    """
+    handler = acs_system.sip2_handlers.fee_paid_handler[remote]
+    return handler(
+        user_id, patron_identifier, fee_type, payment_type, currency_type,
+        fee_amount, *args,  **kwargs
+    )

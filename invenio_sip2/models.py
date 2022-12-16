@@ -462,6 +462,32 @@ class SelfcheckRenew(dict):
         return self.get('magnetic_media')
 
 
+class SelfcheckFeePaid(dict):
+    """Class representing fee paid handler response."""
+
+    def __init__(self, accepted=False, **kwargs):
+        """Constructor.
+
+        :param accepted: payment operation is accepted or not
+            should be set to True if the ACS accept the payment.
+            should be set to 0 if the ACS did not accept the payment.
+        :param kwargs: optional fields
+        """
+        # required properties
+        self['payment_accepted'] = accepted
+        self['screen_messages'] = []
+
+        # optional properties
+        for key, value in kwargs.items():
+            if value:
+                self[key] = value
+
+    @property
+    def is_accepted(self):
+        """Shortcut for payment_accepted operation."""
+        return self.get('payment_accepted', False)
+
+
 class SelfcheckLanguage(Enum):
     """Enum class to list all available language."""
 
@@ -545,6 +571,14 @@ class SelfcheckFeeType(object):
     REPLACEMENT = '07'
     COMPUTER_ACCESS_CHARGE = '08'
     HOLD_FEE = '09'
+
+
+class SelfcheckPaymentType(object):
+    """Class to handle all available payment type."""
+
+    CASH = '00'
+    VISA = '01'
+    CREDIT_CARD = '02'
 
 
 class SelfcheckMediaType(object):

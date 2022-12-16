@@ -25,10 +25,10 @@ from invenio_accounts.models import User
 from invenio_accounts.testutils import login_user_via_session
 
 from invenio_sip2.models import PatronStatus, SelfcheckCheckin, \
-    SelfcheckCheckout, SelfcheckCirculationStatus, SelfcheckFeeType, \
-    SelfcheckHold, SelfcheckItemInformation, SelfcheckMediaType, \
-    SelfcheckPatronInformation, SelfcheckPatronStatus, SelfcheckRenew, \
-    SelfcheckSecurityMarkerType
+    SelfcheckCheckout, SelfcheckCirculationStatus, SelfcheckFeePaid, \
+    SelfcheckFeeType, SelfcheckHold, SelfcheckItemInformation, \
+    SelfcheckMediaType, SelfcheckPatronInformation, SelfcheckPatronStatus, \
+    SelfcheckRenew, SelfcheckSecurityMarkerType
 
 
 def user_login(client, username, users):
@@ -216,3 +216,9 @@ def remote_renew_handler(user_id, item_id,
     response['permanent_location'] = 'permanent_location'
     response['current_location'] = 'current_location'
     return response
+
+
+def remote_fee_paid_handler(user_id, patron_identifier, fee_type, payment_type,
+                            currency_type, fee_amount, *args, **kwargs):
+    """Dummy remote handler for renew."""
+    return SelfcheckFeePaid(accepted=True)

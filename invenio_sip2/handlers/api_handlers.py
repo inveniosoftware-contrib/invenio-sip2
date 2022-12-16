@@ -18,10 +18,10 @@
 """Handlers for customizing SIP2 APIs."""
 
 from invenio_sip2.handlers.base import base_authorize_patron_handler, \
-    base_circulation_handlers, base_enable_patron_handler, base_item_handler, \
-    base_patron_handler, base_patron_status_handler, \
-    base_selfcheck_login_handler, base_system_status_handler, \
-    base_validate_patron_handler
+    base_circulation_handlers, base_enable_patron_handler, \
+    base_fee_paid_handler, base_item_handler, base_patron_handler, \
+    base_patron_status_handler, base_selfcheck_login_handler, \
+    base_system_status_handler, base_validate_patron_handler
 
 
 def selfcheck_login_handler(remote, login, password, **kwargs):
@@ -91,3 +91,12 @@ def renew_handler(remote, user_id, item_identifier,
     """Handle renew an item functionality."""
     return base_circulation_handlers(remote, 'renew', user_id,
                                      item_identifier, *args, **kwargs)
+
+
+def fee_paid_handler(remote, user_id, patron_identifier, fee_type,
+                     payment_type, currency_type, fee_amount, *args, **kwargs):
+    """Handle fee paid functionality."""
+    return base_fee_paid_handler(
+        remote, user_id, patron_identifier, fee_type, payment_type,
+        currency_type, fee_amount, *args, **kwargs
+    )
