@@ -30,7 +30,8 @@
 .. image:: https://img.shields.io/github/license/inveniosoftware-contrib/invenio-sip2.svg
         :target: https://github.com/inveniosoftware-contrib/invenio-sip2/blob/master/LICENSE
 
-Invenio module that add a SIP2 communication for library self-check service
+Invenio module that add a SIP2 interface between a library’s Automated
+Circulation System and library automation devices.
 
 This project is in work in progress. Some features may not yet be implemented.
 
@@ -39,8 +40,15 @@ https://invenio-sip2.readthedocs.io/
 
 Implemented SIP2 Features
 =========================
+- Login
+- Selfcheck Status
+- Request Resend
+- Patron Status
+- Patron Enable
+- End Patron Session
 - Patron Information
 - Item Information
 - Checkout
 - Checkin
 - Renew
+- Fee Paid

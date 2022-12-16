@@ -36,7 +36,7 @@ Datastore handlers
 
 Use `SIP2_DATASTORE_HANDLER` to define your custom datastore.
 
-Provided adaptor by invenio-sip2 is:
+Provided datastore by invenio-sip2 is:
   :class: `invenio_sip2.datastore:Sip2RedisDatastore`
 
 Remote action handlers
@@ -80,6 +80,7 @@ keys:
     - ``hold`` - Import path to hold item callback handler.
     - ``renew`` - Import path to renew item callback handler.
     - ``renew_all`` - Import path to renew_all items callback handler.
+- ``fee_paid_handler`` - Import path to fee paid callback handler.``
 
 .. code-block:: python
 
