@@ -150,6 +150,15 @@ def test_renew(app, dummy_client, renew_message):
     assert str(response).startswith('30')
 
 
+def test_fee_paid(app, dummy_client, fee_paid_message):
+    """Test invenio-sip2 checkin action."""
+    response = current_sip2.sip2.execute(
+            Message(request=fee_paid_message),
+            client=dummy_client
+    )
+    assert str(response).startswith('38')
+
+
 def test_end_patron_session(app, dummy_client, end_patron_session_message):
     """Test invenio-sip2 patron enable action."""
     # IMPORTANT NOTE:

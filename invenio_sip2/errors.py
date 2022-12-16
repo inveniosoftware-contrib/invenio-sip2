@@ -18,13 +18,17 @@
 """Invenio-SIP2 exceptions."""
 
 
-class SelfcheckCirculationError(Exception):
+class SelfcheckError(Exception):
     """Selfcheck Circulation error."""
 
     def __init__(self, error, data, **kwargs):
         """Initialize exception."""
         self.data = data
         super().__init__(error, **kwargs)
+
+
+class SelfcheckCirculationError(SelfcheckError):
+    """Selfcheck Circulation error."""
 
 
 class UnknownFieldIdMessageError(Exception):

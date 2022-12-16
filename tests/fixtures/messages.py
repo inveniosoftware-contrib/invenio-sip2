@@ -209,3 +209,16 @@ def renew_message():
 def selfckeck_renew_message(renew_message):
     """Selfcheck create hold message."""
     return str_to_bytes(renew_message)
+
+
+@pytest.fixture(scope="module")
+def fee_paid_message():
+    """Fee paid message."""
+    return '3720221013    0931580402EUR|BV2.50|AOinstitution_id|AApatron_id' \
+           '|CGfee_identifier|BKtransaction_id|AY0AZEC96'
+
+
+@pytest.fixture(scope="module")
+def selfckeck_fee_paid_message(fee_paid_message):
+    """Selfcheck create fee paid message."""
+    return str_to_bytes(fee_paid_message)

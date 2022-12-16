@@ -23,10 +23,10 @@ from invenio_sip2.actions.base import Action
 from invenio_sip2.api import Message
 from invenio_sip2.decorators import add_sequence_number, \
     check_selfcheck_authentication
-from invenio_sip2.errors import SelfcheckCirculationError
+from invenio_sip2.errors import SelfcheckCirculationError, SelfcheckError
 from invenio_sip2.handlers import authorize_patron_handler, checkin_handler, \
-    checkout_handler, enable_patron_handler, hold_handler, item_handler, \
-    patron_handler, patron_status_handler, renew_handler, \
+    checkout_handler, enable_patron_handler, fee_paid_handler, hold_handler, \
+    item_handler, patron_handler, patron_status_handler, renew_handler, \
     selfcheck_login_handler, system_status_handler, validate_patron_handler
 from invenio_sip2.models import SelfcheckSummary
 from invenio_sip2.proxies import current_logger
@@ -530,8 +530,46 @@ class FeePaid(Action):
         :param client: the client
         :return: message class representing the response of the current action
         """
-        # TODO: implements action
-        return
+        patron_session = client.get_current_patron_session()
+        if patron_session:
+            language = patron_session.get('language')
+        else:
+            language = client.library_language
+        patron_id = message.get_field_value('patron_id')
+        try:
+            fee_paid = fee_paid_handler(
+                client.remote_app, client.transaction_user_id, patron_id,
+                message.get_fixed_field_value('fee_type'),
+                message.get_fixed_field_value('payment_type'),
+                message.get_fixed_field_value('currency_type'),
+                message.get_field_value('fee_amount'),
+                institution_id=client.institution_id,
+                terminal=client.terminal,
+                language=language
+            )
+        except SelfcheckError as error:
+            fee_paid = error.data
+            current_app.logger.error('{message}'.format(
+                message=error), exc_info=True)
+
+        current_logger.debug(f'[Fee paid]: handler response: {fee_paid}')
+
+        # prepare message based on required fields
+        response_message = self.prepare_message_response(
+            payment_accepted=fee_paid.is_accepted,
+            transaction_date=acs_system.sip2_current_date,
+            institution_id=client.institution_id,
+            patron_id=patron_id
+        )
+
+        # add optional fields
+        for optional_field in self.optional_fields:
+            response_message.add_field(
+                field=optional_field,
+                field_value=fee_paid.get(optional_field.name)
+            )
+
+        return response_message
 
 
 class Hold(Action):
