@@ -48,7 +48,7 @@ class MessageTypeFixedField(object):
         try:
             return getattr(cls, name)
         except AttributeError:
-            raise UnknownFieldIdMessageError
+            raise UnknownFieldIdMessageError(message=name)
 
 
 class MessageTypeVariableField(object):

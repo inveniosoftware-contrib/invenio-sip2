@@ -103,7 +103,8 @@ keys:
                 checkin="...",
                 hold="...",
                 renew="...",
-            )
+            ),
+            fee_paid_handler="...",
         )
     )
 
@@ -1006,7 +1007,8 @@ SIP2_FIXED_FIELD_DEFINITION = dict(
     fee_type=dict(length=2, label=_('fee type')),
     payment_type=dict(length=2, label=_('payment type')),
     currency_type=dict(length=3, label=_('currency type')),
-    payment_accepted=dict(length=1, label=_('payment accepted')),
+    payment_accepted=dict(length=1, label=_('payment accepted'),
+                          callback=convert_bool_to_char),
     circulation_status=dict(length=2, label=_('circulation status')),
     security_marker=dict(length=2, label=_('security marker')),
     language=dict(length=3, label=_('language')),

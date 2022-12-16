@@ -333,6 +333,7 @@ class _Sip2State(object):
         self.patron_handlers = {}
         self.item_handlers = {}
         self.circulation_handlers = {}
+        self.fee_paid_handler = {}
         self.supported_messages = {}
 
         # register api handlers
@@ -382,5 +383,12 @@ class _Sip2State(object):
 
             if circulation_handlers:
                 self.circulation_handlers[remote] = circulation_handlers
+
+            if conf.get('fee_paid_handler'):
+                self.fee_paid_handler[remote] = handlers.make_api_handler(
+                    conf.get('fee_paid_handler'),
+                    with_data=True
+                )
+                supported_messages.add_supported_message('fee_paid')
 
             self.supported_messages[remote] = supported_messages
