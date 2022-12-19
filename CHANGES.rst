@@ -16,6 +16,12 @@
 
 Changes
 =======
+Version 0.6.19 (released 2022-12-19)
+
+**Bug fix:**
+
+* Fixes patron information summary field.
+
 Version 0.6.18 (released 2022-12-16)
 
 **Implemented enhancements:**
