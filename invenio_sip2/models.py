@@ -193,7 +193,7 @@ class SelfcheckPatronInformation(dict):
         self['charged_items'] = []
         self['fine_items'] = []
         self['recall_items'] = []
-        self['unavailable_items'] = []
+        self['unavailable_hold_items'] = []
         self['screen_messages'] = []
 
         # optional properties
@@ -624,7 +624,7 @@ class SelfcheckSummary:
         'charged_items',
         'fine_items',
         'recall_items',
-        'unavailable_items',
+        'unavailable_hold_items',
     ]
 
     def __init__(self, text):
@@ -635,8 +635,8 @@ class SelfcheckSummary:
         self.charged_items = decode_char_to_bool(text[2])
         self.fine_items = decode_char_to_bool(text[3])
         self.recall_items = decode_char_to_bool(text[4])
-        self.unavailable_items = decode_char_to_bool(text[5])
+        self.unavailable_hold_items = decode_char_to_bool(text[5])
 
     def is_needed(self, key):
         """Check if the given information is needed."""
-        return hasattr(self, key)
+        return getattr(self, key, False)

@@ -46,7 +46,7 @@ def test_sip2_actions_interface(app):
 @mock.patch('invenio_sip2.actions.actions.selfcheck_login_handler',
             mock.MagicMock(return_value={'authenticated': False}))
 def test_sip2_login_failed(app, dummy_client, failed_login_message):
-    """Test invenio-sip2 login action failed."""
+    """Test login action failed."""
 
     response = current_sip2.sip2.execute(
             Message(request=failed_login_message),
@@ -56,7 +56,7 @@ def test_sip2_login_failed(app, dummy_client, failed_login_message):
 
 
 def test_sip2_login(app, dummy_client, login_message):
-    """Test invenio-sip2 login action."""
+    """Test login action."""
     response = current_sip2.sip2.execute(
         Message(request=login_message),
         client=dummy_client
@@ -65,7 +65,7 @@ def test_sip2_login(app, dummy_client, login_message):
 
 
 def test_sip2_system_status(app, dummy_client, system_status_message):
-    """Test invenio-sip2 system status action."""
+    """Test system status action."""
     response = current_sip2.sip2.execute(
             Message(request=system_status_message),
             client=dummy_client
@@ -74,7 +74,7 @@ def test_sip2_system_status(app, dummy_client, system_status_message):
 
 
 def test_patron_enable(app, dummy_client, enable_patron_message):
-    """Test invenio-sip2 patron enable action."""
+    """Test patron enable action."""
     response = current_sip2.sip2.execute(
             Message(request=enable_patron_message),
             client=dummy_client
@@ -83,7 +83,7 @@ def test_patron_enable(app, dummy_client, enable_patron_message):
 
 
 def test_patron_status(app, dummy_client, patron_status_message):
-    """Test invenio-sip2 patron enable action."""
+    """Test patron status action."""
     response = current_sip2.sip2.execute(
             Message(request=patron_status_message),
             client=dummy_client
@@ -92,7 +92,7 @@ def test_patron_status(app, dummy_client, patron_status_message):
 
 
 def test_patron_information(app, dummy_client, patron_information_message):
-    """Test invenio-sip2 patron enable action."""
+    """Test patron information action."""
     response = current_sip2.sip2.execute(
             Message(request=patron_information_message),
             client=dummy_client
@@ -106,7 +106,7 @@ def test_patron_information(app, dummy_client, patron_information_message):
 
 
 def test_item_information(app, dummy_client, item_information_message):
-    """Test invenio-sip2 patron enable action."""
+    """Test patron enable action."""
     response = current_sip2.sip2.execute(
             Message(request=item_information_message),
             client=dummy_client
@@ -115,7 +115,7 @@ def test_item_information(app, dummy_client, item_information_message):
 
 
 def test_checkout(app, dummy_client, checkout_message):
-    """Test invenio-sip2 checkout action."""
+    """Test checkout action."""
     response = current_sip2.sip2.execute(
             Message(request=checkout_message),
             client=dummy_client
@@ -124,7 +124,7 @@ def test_checkout(app, dummy_client, checkout_message):
 
 
 def test_checkin(app, dummy_client, checkin_message):
-    """Test invenio-sip2 checkin action."""
+    """Test checkin action."""
     response = current_sip2.sip2.execute(
             Message(request=checkin_message),
             client=dummy_client
@@ -133,7 +133,7 @@ def test_checkin(app, dummy_client, checkin_message):
 
 
 def test_hold(app, dummy_client, create_hold_message):
-    """Test invenio-sip2 hold action."""
+    """Test hold action."""
     response = current_sip2.sip2.execute(
             Message(request=create_hold_message),
             client=dummy_client
@@ -142,7 +142,7 @@ def test_hold(app, dummy_client, create_hold_message):
 
 
 def test_renew(app, dummy_client, renew_message):
-    """Test invenio-sip2 renew action."""
+    """Test renew action."""
     response = current_sip2.sip2.execute(
             Message(request=renew_message),
             client=dummy_client
@@ -151,7 +151,7 @@ def test_renew(app, dummy_client, renew_message):
 
 
 def test_fee_paid(app, dummy_client, fee_paid_message):
-    """Test invenio-sip2 checkin action."""
+    """Test checkin action."""
     response = current_sip2.sip2.execute(
             Message(request=fee_paid_message),
             client=dummy_client
@@ -160,7 +160,7 @@ def test_fee_paid(app, dummy_client, fee_paid_message):
 
 
 def test_end_patron_session(app, dummy_client, end_patron_session_message):
-    """Test invenio-sip2 patron enable action."""
+    """Test patron enable action."""
     # IMPORTANT NOTE:
     # this test needs to be run last, because during this test,
     # the patron session is deleted
