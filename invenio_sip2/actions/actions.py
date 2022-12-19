@@ -294,7 +294,6 @@ class PatronInformation(Action):
                     field=optional_field,
                     field_value=patron_account.get(optional_field.name)
                 )
-
         # check patron password
         patron_password = message.get_field_value('patron_pwd')
         if patron_password:
