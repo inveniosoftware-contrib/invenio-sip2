@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "invenio-sip2"
-version = "0.6.19"
+version = "0.6.20"
 description = "Invenio module that add a SIP2 communication for library self-check service"
 readme = "README.rst"
 authors = ["Laurent Dubois <laurent.dubois@uclouvain.be>"]
@@ -34,7 +34,6 @@ mock = "^4.0.3"
 SQLAlchemy = ">=1.2.18,<1.4.0"
 SQLAlchemy-Utils = ">=0.33.1,<0.36"
 pytest-invenio = ">=1.4.0,<1.4.12"
-#markupsafe = ">=1.1.0,<2.1.0"
 # Pinned due to before_first_request deprecation https://flask.palletsprojects.com/en/2.2.x/api/#flask.Flask.before_first_request
 Flask = ">=2.2.0,<2.3.0"
 invenio-i18n = "^2.0.0"
