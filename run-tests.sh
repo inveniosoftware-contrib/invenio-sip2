@@ -48,5 +48,5 @@ if [ $# -eq 0 ]
         sphinx-build -qnNW docs docs/_build/html
         display_success_message "Tests:"
 #        python setup.py test
-        python -m pytest
+        poetry run pytest
 fi
