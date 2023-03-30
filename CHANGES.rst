@@ -16,6 +16,14 @@
 
 Changes
 =======
+
+Version 0.6.20 (released 2023-03-30)
+
+Minor change:
+
+* Uses invenio_i18n instead flask_babelex.
+* Updates dependencies.
+
 Version 0.6.19 (released 2022-12-19)
 
 **Bug fix:**
