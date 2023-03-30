@@ -18,7 +18,7 @@
 """Blueprint for Invenio-SIP2."""
 
 from flask import Blueprint, render_template
-from flask_babelex import gettext as _
+from invenio_i18n import gettext as _
 
 from invenio_sip2.records import Server
 

@@ -54,7 +54,7 @@ SPHINX-END
 import os
 
 from flask import Flask
-from flask_babelex import Babel
+from invenio_i18n import Babel
 from invenio_db.ext import InvenioDB
 
 from invenio_sip2 import InvenioSIP2

@@ -36,13 +36,13 @@ from subprocess import STDOUT
 import pytest
 from flask import Flask
 from flask.cli import ScriptInfo
-from flask_babelex import Babel
 from invenio_access import ActionRoles, authenticated_user, superuser_access
 from invenio_access.ext import InvenioAccess
 from invenio_accounts.ext import InvenioAccounts
 from invenio_accounts.models import Role
 from invenio_accounts.testutils import create_test_user
 from invenio_db.ext import InvenioDB  # , db
+from invenio_i18n import Babel
 from utils import remote_authorize_patron_handler, remote_checkin_handler, \
     remote_checkout_handler, remote_enable_patron_handler, \
     remote_fee_paid_handler, remote_handler, remote_hold_handler, \
