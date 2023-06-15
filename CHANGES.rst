@@ -17,6 +17,13 @@
 Changes
 =======
 
+Version 0.6.21 (released 2023-06-15)
+
+Minor change:
+
+* Uses warning instead error to log parse circulation error.
+* Updates dependencies.
+
 Version 0.6.20 (released 2023-03-30)
 
 Minor change:
