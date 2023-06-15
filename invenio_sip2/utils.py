@@ -57,7 +57,7 @@ def parse_circulation_date(date):
             return date.strftime(date_format)
         return date_string_to_utc(date).strftime(date_format)
     except Exception:
-        logger.error(f'parse circulation date error for: [{date}]')
+        logger.warning(f'parse circulation date error for: [{date}]')
         return date or ''
 
 
