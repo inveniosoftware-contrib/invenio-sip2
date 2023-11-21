@@ -41,8 +41,9 @@ from invenio_access.ext import InvenioAccess
 from invenio_accounts.ext import InvenioAccounts
 from invenio_accounts.models import Role
 from invenio_accounts.testutils import create_test_user
-from invenio_db.ext import InvenioDB  # , db
+from invenio_db.ext import InvenioDB
 from invenio_i18n import Babel
+from invenio_i18n.ext import InvenioI18N
 from utils import remote_authorize_patron_handler, remote_checkin_handler, \
     remote_checkout_handler, remote_enable_patron_handler, \
     remote_fee_paid_handler, remote_handler, remote_hold_handler, \
@@ -135,6 +136,7 @@ def base_app(request):
     InvenioDB(app)
     InvenioAccess(app)
     InvenioAccounts(app)
+    InvenioI18N(app)
     app.test_request_context().push()
     return app
 
