@@ -17,6 +17,13 @@
 Changes
 =======
 
+Version 0.6.22 (released 2023-11-24)
+
+Minor change:
+
+* Updates dependencies.
+* Updates poetry version in workflow for github actions.
+
 Version 0.6.21 (released 2023-06-15)
 
 Minor change:
