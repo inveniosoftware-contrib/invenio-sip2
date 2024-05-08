@@ -17,6 +17,13 @@
 Changes
 =======
 
+Version 0.6.23 (released 2024-05-08)
+
+Minor change:
+
+* Updates dependencies.
+* Adds `docker-services` parameter to `run-tests` to allow starting of necessary services for test.
+
 Version 0.6.22 (released 2023-11-24)
 
 Minor change:
