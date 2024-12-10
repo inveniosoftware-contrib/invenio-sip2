@@ -24,11 +24,21 @@ from flask_security import login_user, logout_user
 from invenio_accounts.models import User
 from invenio_accounts.testutils import login_user_via_session
 
-from invenio_sip2.models import PatronStatus, SelfcheckCheckin, \
-    SelfcheckCheckout, SelfcheckCirculationStatus, SelfcheckFeePaid, \
-    SelfcheckFeeType, SelfcheckHold, SelfcheckItemInformation, \
-    SelfcheckMediaType, SelfcheckPatronInformation, SelfcheckPatronStatus, \
-    SelfcheckRenew, SelfcheckSecurityMarkerType
+from invenio_sip2.models import (
+    PatronStatus,
+    SelfcheckCheckin,
+    SelfcheckCheckout,
+    SelfcheckCirculationStatus,
+    SelfcheckFeePaid,
+    SelfcheckFeeType,
+    SelfcheckHold,
+    SelfcheckItemInformation,
+    SelfcheckMediaType,
+    SelfcheckPatronInformation,
+    SelfcheckPatronStatus,
+    SelfcheckRenew,
+    SelfcheckSecurityMarkerType,
+)
 
 
 def user_login(client, username, users):
@@ -53,28 +63,28 @@ def user_logout(client):
 
 def str_to_bytes(string):
     """Convert string to bytes."""
-    return bytes(string, 'utf-8')
+    return bytes(string, "utf-8")
 
 
 def remote_handler():
     """Dummy remote handler function."""
-    return lambda *args, **kwargs: 'TEST'
+    return lambda *args, **kwargs: "TEST"
 
 
 def remote_login_handler(login, password, **kwargs):
     """Dummy remote handler for login."""
     return {
-        'authenticated': True,
-        'terminal': 'terminal_1',
-        'transaction_user_id': 'user_id',
-        'institution_id': 'selfcheck_location',
-        'library_name': 'Name of the library'
+        "authenticated": True,
+        "terminal": "terminal_1",
+        "transaction_user_id": "user_id",
+        "institution_id": "selfcheck_location",
+        "library_name": "Name of the library",
     }
 
 
 def remote_system_status_handler(login, **kwargs):
     """Dummy remote handler for system status."""
-    return {'institution_id': 'selfcheck_location'}
+    return {"institution_id": "selfcheck_location"}
 
 
 def remote_authorize_patron_handler(patron_id, patron_password, **kwargs):
@@ -90,20 +100,20 @@ def remote_validate_patron_handler(patron_id, **kwargs):
 def remote_enable_patron_handler(patron_id, **kwargs):
     """Dummy remote handler for enable patron."""
     return {
-        'patron_status': PatronStatus(),
-        'language': 'und',
-        'institution_id': 'selfcheck_location',
-        'patron_id': 'patron_id',
-        'patron_name': 'formatted patron name'
+        "patron_status": PatronStatus(),
+        "language": "und",
+        "institution_id": "selfcheck_location",
+        "patron_id": "patron_id",
+        "patron_name": "formatted patron name",
     }
 
 
 def remote_patron_status_handler(patron_id, **kwargs):
     """Dummy remote handler for patron information."""
     response = SelfcheckPatronStatus(
-        patron_id='patron_id',
-        institution_id='selfcheck_location',
-        print_line='message on one line'
+        patron_id="patron_id",
+        institution_id="selfcheck_location",
+        print_line="message on one line",
     )
     return response
 
@@ -113,16 +123,16 @@ def remote_patron_account_handler(patron_id, **kwargs):
     response = SelfcheckPatronInformation(
         patron_status=PatronStatus(),
         patron_id=patron_id,
-        patron_name='formatted_patron_name',
-        patron_email='patron_email',
-        patron_phone='patron_phone',
-        patron_address='patron_address',
-        institution_id='institution_id',
-        language='und',
-        currency_type='EUR'
+        patron_name="formatted_patron_name",
+        patron_email="patron_email",
+        patron_phone="patron_phone",
+        patron_address="patron_address",
+        institution_id="institution_id",
+        language="und",
+        currency_type="EUR",
     )
-    response.get('hold_items', []).append('item_pid_1')
-    response.get('hold_items', []).append('item_pid_2')
+    response.get("hold_items", []).append("item_pid_1")
+    response.get("hold_items", []).append("item_pid_2")
     return response
 
 
@@ -130,56 +140,54 @@ def remote_item_information_handler(item_id, **kwargs):
     """Dummy remote handler for item information."""
     response = SelfcheckItemInformation(
         item_id=item_id,
-        title_id='title_id',
+        title_id="title_id",
         circulation_status=SelfcheckCirculationStatus.OTHER,
         fee_type=SelfcheckFeeType.OTHER,
-        security_marker=SelfcheckSecurityMarkerType.OTHER
+        security_marker=SelfcheckSecurityMarkerType.OTHER,
     )
-    response['media_type'] = SelfcheckMediaType.OTHER
-    response['hold_queue_length'] = 0
-    response['owner'] = 'owner'
-    response['permanent_location'] = 'permanent_location'
-    response['current_location'] = 'current_location'
+    response["media_type"] = SelfcheckMediaType.OTHER
+    response["hold_queue_length"] = 0
+    response["owner"] = "owner"
+    response["permanent_location"] = "permanent_location"
+    response["current_location"] = "current_location"
     return response
 
 
-def remote_checkout_handler(user_id, item_id, patron_id,
-                            **kwargs):
+def remote_checkout_handler(user_id, item_id, patron_id, **kwargs):
     """Dummy remote handler for checkout."""
     response = SelfcheckCheckout(
         item_id=item_id,
-        title_id='title_id',
+        title_id="title_id",
         circulation_status=SelfcheckCirculationStatus.OTHER,
         fee_type=SelfcheckFeeType.OTHER,
-        security_marker=SelfcheckSecurityMarkerType.OTHER
+        security_marker=SelfcheckSecurityMarkerType.OTHER,
     )
-    response['media_type'] = SelfcheckMediaType.OTHER
-    response['due_date'] = datetime.now(timezone.utc).strftime(
-        current_app.config['SIP2_CIRCULATION_DATE_FORMAT']
+    response["media_type"] = SelfcheckMediaType.OTHER
+    response["due_date"] = datetime.now(timezone.utc).strftime(
+        current_app.config["SIP2_CIRCULATION_DATE_FORMAT"]
     )
-    response['hold_queue_length'] = 0
-    response['owner'] = 'owner'
-    response['permanent_location'] = 'permanent_location'
-    response['current_location'] = 'current_location'
+    response["hold_queue_length"] = 0
+    response["owner"] = "owner"
+    response["permanent_location"] = "permanent_location"
+    response["current_location"] = "current_location"
     return response
 
 
-def remote_checkin_handler(user_id, item_id,
-                           **kwargs):
+def remote_checkin_handler(user_id, item_id, **kwargs):
     """Dummy remote handler for checkin."""
     response = SelfcheckCheckin(
         item_id=item_id,
-        title_id='title_id',
-        permanent_location='permanent_location',
+        title_id="title_id",
+        permanent_location="permanent_location",
         circulation_status=SelfcheckCirculationStatus.OTHER,
         fee_type=SelfcheckFeeType.OTHER,
-        security_marker=SelfcheckSecurityMarkerType.OTHER
+        security_marker=SelfcheckSecurityMarkerType.OTHER,
     )
-    response['media_type'] = SelfcheckMediaType.OTHER
-    response['hold_queue_length'] = 0
-    response['owner'] = 'owner'
-    response['permanent_location'] = 'permanent_location'
-    response['current_location'] = 'current_location'
+    response["media_type"] = SelfcheckMediaType.OTHER
+    response["hold_queue_length"] = 0
+    response["owner"] = "owner"
+    response["permanent_location"] = "permanent_location"
+    response["current_location"] = "current_location"
     return response
 
 
@@ -187,38 +195,45 @@ def remote_hold_handler(user_id, item_id, **kwargs):
     """Dummy remote handler for hold."""
     response = SelfcheckHold(
         item_id=item_id,
-        title_id='title_id',
+        title_id="title_id",
         circulation_status=SelfcheckCirculationStatus.OTHER,
         fee_type=SelfcheckFeeType.OTHER,
-        security_marker=SelfcheckSecurityMarkerType.OTHER
+        security_marker=SelfcheckSecurityMarkerType.OTHER,
     )
-    response['media_type'] = SelfcheckMediaType.OTHER
-    response['hold_queue_length'] = 0
-    response['owner'] = 'owner'
-    response['permanent_location'] = 'permanent_location'
-    response['current_location'] = 'current_location'
+    response["media_type"] = SelfcheckMediaType.OTHER
+    response["hold_queue_length"] = 0
+    response["owner"] = "owner"
+    response["permanent_location"] = "permanent_location"
+    response["current_location"] = "current_location"
     return response
 
 
-def remote_renew_handler(user_id, item_id,
-                         **kwargs):
+def remote_renew_handler(user_id, item_id, **kwargs):
     """Dummy remote handler for renew."""
     response = SelfcheckRenew(
         item_id=item_id,
-        title_id='title_id',
+        title_id="title_id",
         circulation_status=SelfcheckCirculationStatus.OTHER,
         fee_type=SelfcheckFeeType.OTHER,
-        security_marker=SelfcheckSecurityMarkerType.OTHER
+        security_marker=SelfcheckSecurityMarkerType.OTHER,
     )
-    response['media_type'] = SelfcheckMediaType.OTHER
-    response['hold_queue_length'] = 0
-    response['owner'] = 'owner'
-    response['permanent_location'] = 'permanent_location'
-    response['current_location'] = 'current_location'
+    response["media_type"] = SelfcheckMediaType.OTHER
+    response["hold_queue_length"] = 0
+    response["owner"] = "owner"
+    response["permanent_location"] = "permanent_location"
+    response["current_location"] = "current_location"
     return response
 
 
-def remote_fee_paid_handler(user_id, patron_identifier, fee_type, payment_type,
-                            currency_type, fee_amount, *args, **kwargs):
+def remote_fee_paid_handler(
+    user_id,
+    patron_identifier,
+    fee_type,
+    payment_type,
+    currency_type,
+    fee_amount,
+    *args,
+    **kwargs,
+):
     """Dummy remote handler for renew."""
     return SelfcheckFeePaid(accepted=True)

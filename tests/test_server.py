@@ -30,7 +30,7 @@ def test_socket_server(app, dummy_socket_server, selfckeck_login_message):
     with app.app_context():
         # test client connection
         client = socket.socket()
-        client.connect(('127.0.0.1', 3006))
+        client.connect(("127.0.0.1", 3006))
         client.settimeout(1)
         client.sendall(selfckeck_login_message)
         client.close()

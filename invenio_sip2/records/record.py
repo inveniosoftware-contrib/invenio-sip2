@@ -50,9 +50,9 @@ class Sip2RecordMetadata(dict):
         # TODO: check if record already exist and raise exception
         id_ = id_ or str(uuid4())
 
-        data['id'] = id_
+        data["id"] = id_
         record = cls(data, **kwargs)
-        record['created'] = datetime.now(timezone.utc).isoformat()
+        record["created"] = datetime.now(timezone.utc).isoformat()
         datastore.add(record, id_=id_, **kwargs)
 
         return record
@@ -60,14 +60,11 @@ class Sip2RecordMetadata(dict):
     @property
     def id(self):
         """Shortcut for id."""
-        return self.get('id', None)
+        return self.get("id", None)
 
     def get_key(self):
         """Get generated key for Sip2RecordMetadata object."""
-        return '{record_type}:{id}'.format(
-            record_type=self.record_type,
-            id=self.id
-        )
+        return "{record_type}:{id}".format(record_type=self.record_type, id=self.id)
 
     def update(self, data):
         """Update instance with dictionary data.
@@ -76,17 +73,16 @@ class Sip2RecordMetadata(dict):
         """
         if self.id:
             super(Sip2RecordMetadata, self).update(data)
-            data['updated'] = datetime.now(timezone.utc).isoformat()
+            data["updated"] = datetime.now(timezone.utc).isoformat()
             datastore.update(self)
 
     def delete(self):
         """Delete record by uuid."""
         datastore.delete(self)
 
-    def search(self, query='*', index_type=None, filter_query=None):
+    def search(self, query="*", index_type=None, filter_query=None):
         """Search record by query."""
-        return datastore.search(
-            query, index_type=index_type, filter_query=filter_query)
+        return datastore.search(query, index_type=index_type, filter_query=filter_query)
 
     @classmethod
     def get_record_by_id(cls, id_):
@@ -113,7 +109,7 @@ class Sip2RecordMetadata(dict):
 class Server(Sip2RecordMetadata):
     """class for SIP2 server."""
 
-    record_type = 'server'
+    record_type = "server"
 
     @property
     def number_of_clients(self):
@@ -123,7 +119,7 @@ class Server(Sip2RecordMetadata):
     @property
     def is_running(self):
         """Check if server is running."""
-        return self.get('status') == 'running'
+        return self.get("status") == "running"
 
     def delete(self):
         """Delete server and all attached clients."""
@@ -132,30 +128,25 @@ class Server(Sip2RecordMetadata):
 
     def get_clients(self):
         """Return clients."""
-        filter_query = 'server:{server_id}'.format(
-            server_id=self.id
-        )
-        return self.search(
-            index_type=Client.record_type,
-            filter_query=filter_query
-        )
+        filter_query = "server:{server_id}".format(server_id=self.id)
+        return self.search(index_type=Client.record_type, filter_query=filter_query)
 
     def down(self):
         """Set server status to `Down` and clear all clients data."""
-        self['status'] = 'down'
-        self['stopped_at'] = datetime.now(timezone.utc).isoformat()
+        self["status"] = "down"
+        self["stopped_at"] = datetime.now(timezone.utc).isoformat()
         with contextlib.suppress(KeyError):
-            del self['process_id']
+            del self["process_id"]
         self.update(self)
         # clear all clients
         self.clear_all_clients()
 
     def up(self):
         """Set server status to `running` and clear all clients data."""
-        self['status'] = 'running'
-        self['started_at'] = datetime.now(timezone.utc).isoformat()
+        self["status"] = "running"
+        self["started_at"] = datetime.now(timezone.utc).isoformat()
         with contextlib.suppress(KeyError):
-            del self['stopped_at']
+            del self["stopped_at"]
         self.update(self)
 
     def clear_all_clients(self):
@@ -176,7 +167,7 @@ class Server(Sip2RecordMetadata):
             # check if server running
             if server.is_running:
                 raise ServerAlreadyRunning(
-                    'server already running {id}'.format(id=server.id)
+                    "server already running {id}".format(id=server.id)
                 )
             return server
 
@@ -186,7 +177,7 @@ class Server(Sip2RecordMetadata):
     def find_server(cls, **kwargs):
         """Find server depending kwargs."""
         with contextlib.suppress(KeyError):
-            del kwargs['process_id']
+            del kwargs["process_id"]
         for server in datastore.all(cls.record_type):
             if kwargs.items() <= server.items():
                 # true only if `first` is a subset of `second`
@@ -196,20 +187,18 @@ class Server(Sip2RecordMetadata):
 class Client(Sip2RecordMetadata):
     """class for selfcheck client."""
 
-    record_type = 'client'
+    record_type = "client"
 
     def get_key(self):
         """Get generated key for Client object."""
-        return '{record_type}:{id}_server:{server_id}'.format(
-            record_type=self.record_type,
-            id=self.id,
-            server_id=self.server_id
+        return "{record_type}:{id}_server:{server_id}".format(
+            record_type=self.record_type, id=self.id, server_id=self.server_id
         )
 
     @property
     def server_id(self):
         """Get server identifier."""
-        return self.get('server').get('id')
+        return self.get("server").get("id")
 
     def get_server(self):
         """Get server object."""
@@ -218,58 +207,58 @@ class Client(Sip2RecordMetadata):
     @property
     def remote_app(self):
         """Shortcut for remote app."""
-        return self.get_server().get('remote_app')
+        return self.get_server().get("remote_app")
 
     @property
     def is_authenticated(self):
         """Shortcut to check if the selfcheck client is authenticated."""
-        return self.get('authenticated', False)
+        return self.get("authenticated", False)
 
     @property
     def terminal(self):
         """Shortcut to terminal."""
-        return self.get('terminal', self.get('ip_address'))
+        return self.get("terminal", self.get("ip_address"))
 
     @property
     def transaction_user_id(self):
         """Shortcut to user id."""
-        return self.get('transaction_user_id')
+        return self.get("transaction_user_id")
 
     @property
     def institution_id(self):
         """Shortcut to institution id."""
-        return self.get('institution_id')
+        return self.get("institution_id")
 
     @property
     def library_name(self):
         """Shortcut to library name."""
-        return self.get('library_name')
+        return self.get("library_name")
 
     @property
     def library_language(self):
         """Shortcut for library language."""
-        return self.get('library_language')
+        return self.get("library_language")
 
     def get_current_patron_session(self):
         """Shortcut to patron session."""
-        return self.get('patron_session', None)
+        return self.get("patron_session", None)
 
     def clear_patron_session(self):
         """Shortcut to library name."""
         with contextlib.suppress(KeyError):
-            del (self['patron_session'])
+            del self["patron_session"]
 
     @property
     def last_response_message(self):
         """Shortcut to user id."""
-        return self.get('last_response',  {})
+        return self.get("last_response", {})
 
     @property
     def last_request_message(self):
         """Shortcut to user id."""
-        return self.get('last_request', {})
+        return self.get("last_request", {})
 
     @property
     def last_sequence_number(self):
         """Shortcut to user id."""
-        return self.last_request_message.get('sequence_number')
+        return self.last_request_message.get("sequence_number")

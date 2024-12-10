@@ -28,9 +28,7 @@ class Action(object):
         """Init action object."""
         self.message = message
         self.command = command
-        self.response_type = acs_system.sip2_message_types.get_by_command(
-            response
-        )
+        self.response_type = acs_system.sip2_message_types.get_by_command(response)
         self.validate_action()
 
     @property
@@ -50,21 +48,13 @@ class Action(object):
 
     def prepare_message_response(self, **kwargs):
         """Prepare response message object based on defined fixed_field."""
-        message = Message(
-            message_type=self.response_type
-        )
+        message = Message(message_type=self.response_type)
         for required_field in self.required_fields:
             field_value = kwargs.pop(required_field.name)
-            message.add_field(
-                field=required_field,
-                field_value=field_value
-            )
+            message.add_field(field=required_field, field_value=field_value)
         for optional_field in self.optional_fields:
             field_value = kwargs.pop(optional_field.name, None)
-            message.add_field(
-                field=optional_field,
-                field_value=field_value
-            )
+            message.add_field(field=optional_field, field_value=field_value)
         # TODO: try to raise exception if required field does not exist
         return message
 
@@ -74,5 +64,7 @@ class Action(object):
 
     def __str__(self):
         """String representation of Action class."""
-        return f'{self.__class__.__name__}() message:{self.message}, ' \
-               f'request:{self.command}, response:{self.response_type.command}'
+        return (
+            f"{self.__class__.__name__}() message:{self.message}, "
+            f"request:{self.command}, response:{self.response_type.command}"
+        )

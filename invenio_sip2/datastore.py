@@ -81,7 +81,7 @@ class Sip2RedisDatastore(Datastore):
     def __init__(self, app=None, **kwargs):
         """Initialize the datastore."""
         app = app or current_app
-        redis_url = app.config['SIP2_DATASTORE_REDIS_URL']
+        redis_url = app.config["SIP2_DATASTORE_REDIS_URL"]
         self.datastore = StrictRedis.from_url(redis_url)
 
     def get(self, id_, record_type=None):
@@ -93,10 +93,7 @@ class Sip2RedisDatastore(Datastore):
         """
         query = id_
         if record_type:
-            query = '{record_type}:{id}*'.format(
-                record_type=record_type,
-                id=id_
-            )
+            query = "{record_type}:{id}*".format(record_type=record_type, id=id_)
         for key in self._query(query):
             return jsonpickle.decode(self.datastore.get(key))
 
@@ -133,29 +130,26 @@ class Sip2RedisDatastore(Datastore):
         :param record_type: the object's type
         :return: list of stored objects
         """
-        query = '*'
+        query = "*"
         if record_type:
-            query = '{record_type}:*'.format(
-                record_type=record_type
-            )
+            query = "{record_type}:*".format(record_type=record_type)
 
         for key in self._query(query):
             yield jsonpickle.decode(self.datastore.get(key))
 
-    def _query(self, query='*'):
+    def _query(self, query="*"):
         """Execute search query to datastore."""
         return self.datastore.keys(query)
 
-    def search(self, search_term='*', index_type='*', filter_query=None):
+    def search(self, search_term="*", index_type="*", filter_query=None):
         """Search object in th datastore."""
-        search_key = '{record_type}:{search_term}'.format(
-            record_type=index_type,
-            search_term=search_term
+        search_key = "{record_type}:{search_term}".format(
+            record_type=index_type, search_term=search_term
         )
         if filter_query:
-            search_key += '_{filter}'.format(
-                filter=filter_query
-            )
+            search_key += "_{filter}".format(filter=filter_query)
 
-        return [jsonpickle.decode(self.datastore.get(key))
-                for key in self._query(search_key)]
+        return [
+            jsonpickle.decode(self.datastore.get(key))
+            for key in self._query(search_key)
+        ]

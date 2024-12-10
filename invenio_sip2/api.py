@@ -23,8 +23,7 @@ from flask import current_app
 from pycountry import languages
 
 from invenio_sip2.errors import CommandNotFound
-from invenio_sip2.helpers import MessageTypeFixedField, \
-    MessageTypeVariableField
+from invenio_sip2.helpers import MessageTypeFixedField, MessageTypeVariableField
 from invenio_sip2.models import SelfcheckLanguage
 from invenio_sip2.proxies import current_sip2 as acs_system
 from invenio_sip2.utils import generate_checksum
@@ -35,8 +34,8 @@ def preprocess_field_value(func):
 
     @wraps(func)
     def inner(*args, **kwargs):
-        field = kwargs.get('field')
-        value = kwargs.get('field_value')
+        field = kwargs.get("field")
+        value = kwargs.get("field_value")
         if value is not None and field.callback:
             return func(*args, field=field, field_value=field.callback(value))
         return func(*args, **kwargs)
@@ -47,21 +46,21 @@ def preprocess_field_value(func):
 class FieldMessage(object):
     """SIP2 variable field message class."""
 
-    def __init__(self, field=None, field_value=''):
+    def __init__(self, field=None, field_value=""):
         """Constructor."""
         self.field = field
         if field.length and len(field_value) < field.length:
-            self.field_value = '{value:{fill}>{width}}'.format(
-                value=str(field_value)[:field.length],
+            self.field_value = "{value:{fill}>{width}}".format(
+                value=str(field_value)[: field.length],
                 fill=self.field.fill,
-                width=self.field.length
+                width=self.field.length,
             )
         else:
             self.field_value = field_value
 
     def __str__(self):
         """String representation of FieldMessage object."""
-        return self.field.field_id + (self.field_value or '')
+        return self.field.field_id + (self.field_value or "")
 
 
 class FixedFieldMessage(FieldMessage):
@@ -86,22 +85,22 @@ class Message(object):
         for key, value in kwargs.items():
             setattr(self, key, value)
 
-        if hasattr(self, 'request'):
+        if hasattr(self, "request"):
             self.message_text = self.request
             try:
-                self.message_type = acs_system.sip2_message_types.\
-                    get_by_command(self.message_text[:2])
+                self.message_type = acs_system.sip2_message_types.get_by_command(
+                    self.message_text[:2]
+                )
                 self._parse_request()
             except CommandNotFound as err:
-                description = '{err} - request: {request}'.format(
-                    err=err.description,
-                    request=self.message_text
+                description = "{err} - request: {request}".format(
+                    err=err.description, request=self.message_text
                 )
                 raise CommandNotFound(message=description)
 
     def __str__(self):
         """String representation of Message object."""
-        if hasattr(self, 'message_text'):
+        if hasattr(self, "message_text"):
             return self.message_text
 
         new_message = self.command
@@ -111,12 +110,12 @@ class Message(object):
 
         for variable_field in self.variable_fields:
             new_message += str(variable_field)
-            new_message += '|'
+            new_message += "|"
 
         if acs_system.is_error_detection_enabled:
             if self.sequence_number:
-                new_message += f'AY{self.sequence_number}'
-            new_message += 'AZ'
+                new_message += f"AY{self.sequence_number}"
+            new_message += "AZ"
             if not self.checksum:
                 self.checksum = generate_checksum(new_message)
             new_message += self.checksum
@@ -137,17 +136,17 @@ class Message(object):
             return languages.get(name=language).alpha_2
         except (ValueError, AttributeError):
             # return default language
-            return current_app.config.get('SIP2_DEFAULT_LANGUAGE')
+            return current_app.config.get("SIP2_DEFAULT_LANGUAGE")
 
     @property
     def language(self):
         """Shortcut for sip2 language code."""
-        return self.get_fixed_field_value('language')
+        return self.get_fixed_field_value("language")
 
     @property
     def summary(self):
         """Shortcut for sip2 summary."""
-        return self.get_fixed_field_value('summary')
+        return self.get_fixed_field_value("summary")
 
     def _parse_request(self):
         """Parse the request sent by the selfcheck."""
@@ -156,25 +155,28 @@ class Message(object):
         error_txt = txt[-9:]
         field_sequence_id = error_txt[:2]
         field_checksum_id = error_txt[-6:-4]
-        if field_sequence_id == 'AY':
+        if field_sequence_id == "AY":
             # process sequence_number
             self.sequence_number = error_txt[2:3]
-        if field_checksum_id == 'AZ':
+        if field_checksum_id == "AZ":
             self.checksum = error_txt[-4:]
-        if acs_system.is_error_detection_enabled and self.sequence_number \
-                and self.checksum:
+        if (
+            acs_system.is_error_detection_enabled
+            and self.sequence_number
+            and self.checksum
+        ):
             txt = txt[:-9]
 
         # extract fixed fields from request
         for fixed_field in self.message_type.fixed_fields:
             # get fixed field value
-            value = txt[:fixed_field.length]
+            value = txt[: fixed_field.length]
             self.fixed_fields.append(FixedFieldMessage(fixed_field, value))
-            txt = txt[fixed_field.length:]
+            txt = txt[fixed_field.length :]
         if not txt:
             return
 
-        for part in filter(None, txt.split('|')):
+        for part in filter(None, txt.split("|")):
             field_id = part[:2]
             field_value = part[2:]
             field = MessageTypeVariableField.find_by_field_id(field_id)
@@ -184,9 +186,7 @@ class Message(object):
     def get_fixed_field_by_name(self, field_name):
         """Get the FixedFieldMessage object by field name."""
         for f in self.fixed_fields:
-            if f.field.field_id == MessageTypeFixedField.get(
-                field_name
-            ).field_id:
+            if f.field.field_id == MessageTypeFixedField.get(field_name).field_id:
                 return f
 
     def get_variable_field_by_name(self, field_name):
@@ -196,9 +196,7 @@ class Message(object):
     def get_variable_fields_by_name(self, field_name):
         """Get list of VariableFieldMessage object by field name."""
         for f in self.variable_fields:
-            if f.field.field_id == MessageTypeVariableField.get(
-                field_name
-            ).field_id:
+            if f.field.field_id == MessageTypeVariableField.get(field_name).field_id:
                 yield f
 
     def get_fixed_field_value(self, field_name):
@@ -237,7 +235,7 @@ class Message(object):
             self.variable_fields.append(
                 FieldMessage(
                     field=MessageTypeVariableField.get(field_name),
-                    field_value=str(field_value)
+                    field_value=str(field_value),
                 )
             )
 
@@ -249,38 +247,37 @@ class Message(object):
     def add_fixed_field(self, field, field_value):
         """Add fixed field to message."""
         self.fixed_fields.append(
-            FixedFieldMessage(
-                field=field,
-                field_value=str(field_value)
-            )
+            FixedFieldMessage(field=field, field_value=str(field_value))
         )
 
     def dumps(self):
         """Dumps message as dict."""
         data = {
-            '_sip2': str(self),
-            'message_type': {
-                'command': self.message_type.command,
-                'label': self.message_type.label
-            }}
+            "_sip2": str(self),
+            "message_type": {
+                "command": self.message_type.command,
+                "label": self.message_type.label,
+            },
+        }
         # TODO: `_sip2` field is only use in backend. Try to mask it on
         #       view or logging
         for fixed_field in self.fixed_fields:
             data[fixed_field.field.field_id] = fixed_field.field_value
 
         for variable_field in self.variable_fields:
-            if variable_field.field.name not in ['login_uid',
-                                                 'login_pwd',
-                                                 'patron_pwd']:
+            if variable_field.field.name not in [
+                "login_uid",
+                "login_pwd",
+                "patron_pwd",
+            ]:
                 if variable_field.field.is_multiple:
                     field_list = data.get(variable_field.field.name, [])
                     field_list.append(variable_field.field_value)
                     data[variable_field.field.name] = field_list
                 else:
-                    data[variable_field.field.name] = \
-                        variable_field.field_value
+                    data[variable_field.field.name] = variable_field.field_value
         if self.sequence_number:
-            data['sequence_number'] = self.sequence_number
+            data["sequence_number"] = self.sequence_number
         if self.checksum:
-            data['checksum'] = self.checksum
+            data["checksum"] = self.checksum
         return data

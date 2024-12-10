@@ -27,18 +27,19 @@ from invenio_sip2 import InvenioSIP2
 def test_version():
     """Test version import."""
     from invenio_sip2 import __version__
+
     assert __version__
 
 
 def test_init():
     """Test extension initialization."""
-    app = Flask('testapp')
+    app = Flask("testapp")
     ext = InvenioSIP2(app)
-    assert 'invenio-sip2' in app.extensions
+    assert "invenio-sip2" in app.extensions
     assert ext.app is app
 
-    app = Flask('testapp')
+    app = Flask("testapp")
     ext = InvenioSIP2()
-    assert 'invenio-sip2' not in app.extensions
+    assert "invenio-sip2" not in app.extensions
     ext.init_app(app)
-    assert 'invenio-sip2' in app.extensions
+    assert "invenio-sip2" in app.extensions

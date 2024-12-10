@@ -21,6 +21,6 @@ from invenio_sip2.views.rest import api_blueprint
 from invenio_sip2.views.views import blueprint
 
 __all__ = (
-    'blueprint',
-    'api_blueprint',
+    "blueprint",
+    "api_blueprint",
 )

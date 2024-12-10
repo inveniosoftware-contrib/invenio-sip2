@@ -22,56 +22,54 @@ from flask import Blueprint, jsonify
 from invenio_sip2.decorators import need_permission
 from invenio_sip2.records import Client, Server
 
-api_blueprint = Blueprint(
-    'api_sip2',
-    __name__,
-    url_prefix='/monitoring/sip2'
-)
+api_blueprint = Blueprint("api_sip2", __name__, url_prefix="/monitoring/sip2")
 
 
-@api_blueprint.route('/status', methods=['GET'])
-@need_permission('api-monitoring')
+@api_blueprint.route("/status", methods=["GET"])
+@need_permission("api-monitoring")
 def status():
     """Display status for all SIP2 server."""
     try:
         return jsonify(Monitoring.status())
     except Exception as error:
-        return jsonify({'ERROR': str(error)})
+        return jsonify({"ERROR": str(error)})
 
 
-@api_blueprint.route('/servers', methods=['GET'])
-@need_permission('api-monitoring')
+@api_blueprint.route("/servers", methods=["GET"])
+@need_permission("api-monitoring")
 def get_servers():
     """Display all running SIP2 servers."""
     try:
-        return jsonify({'servers': Server.get_all_records()})
+        return jsonify({"servers": Server.get_all_records()})
     except Exception as error:
-        return jsonify({'ERROR': str(error)})
+        return jsonify({"ERROR": str(error)})
 
 
-@api_blueprint.route('/servers/<string:server_id>', methods=['GET'])
-@need_permission('api-monitoring')
+@api_blueprint.route("/servers/<string:server_id>", methods=["GET"])
+@need_permission("api-monitoring")
 def get_server(server_id):
     """Display all running SIP2 servers."""
     try:
         server = Server.get_record_by_id(server_id)
-        server['clients'] = Monitoring.get_clients_by_server_id(server_id)
-        return jsonify({
-            'id': server.id,
-            'metadata': server,
-        })
+        server["clients"] = Monitoring.get_clients_by_server_id(server_id)
+        return jsonify(
+            {
+                "id": server.id,
+                "metadata": server,
+            }
+        )
     except Exception as error:
-        return jsonify({'ERROR': str(error)})
+        return jsonify({"ERROR": str(error)})
 
 
-@api_blueprint.route('/clients', methods=['GET'])
-@need_permission('api-monitoring')
+@api_blueprint.route("/clients", methods=["GET"])
+@need_permission("api-monitoring")
 def get_clients():
     """Display all connected clients to server."""
     try:
-        return jsonify({'clients': Client.get_all_records()})
+        return jsonify({"clients": Client.get_all_records()})
     except Exception as error:
-        return jsonify({'ERROR': str(error)})
+        return jsonify({"ERROR": str(error)})
 
 
 class Monitoring:
@@ -82,20 +80,21 @@ class Monitoring:
         """Check status for all servers."""
         servers = cls.get_servers()
         result = {
-            'servers': len(servers),
-            'clients': len(Client.get_all_records()),
-            'status': 'green'
+            "servers": len(servers),
+            "clients": len(Client.get_all_records()),
+            "status": "green",
         }
 
-        if result['servers']:
+        if result["servers"]:
             info = {}
             for server in servers:
-                info[server.id] = {'status': server.get('status')}
-                info[server.id]['nb_client'] = \
-                    cls.get_number_client_by_server(server.id)
-                if info[server.id]['status'] == 'down':
-                    result['status'] = 'red'
-                result['servers_info'] = info
+                info[server.id] = {"status": server.get("status")}
+                info[server.id]["nb_client"] = cls.get_number_client_by_server(
+                    server.id
+                )
+                if info[server.id]["status"] == "down":
+                    result["status"] = "red"
+                result["servers_info"] = info
         return result
 
     @classmethod

@@ -27,20 +27,22 @@ class MessageTypeFixedField(object):
         """Constructor."""
         self.field_id = name
         self.name = name
-        self.label = field.get('label')
-        self.length = field.get('length')
-        self.callback = field.get('callback')
-        self.fill = field.get('fill', ' ')
+        self.label = field.get("label")
+        self.length = field.get("length")
+        self.callback = field.get("callback")
+        self.fill = field.get("fill", " ")
 
     def __str__(self):
         """String representation of fixed field."""
-        return 'MessageTypeFixedField() field_id={field_id} ' \
-               'length={length} fill={fill} label={label}' \
-            .format(
+        return (
+            "MessageTypeFixedField() field_id={field_id} "
+            "length={length} fill={fill} label={label}".format(
                 field_id=self.field_id,
                 length=self.length,
                 fill=self.fill,
-                label=self.label)
+                label=self.label,
+            )
+        )
 
     @classmethod
     def get(cls, name):
@@ -58,27 +60,28 @@ class MessageTypeVariableField(object):
 
     def __init__(self, name, field):
         """Constructor."""
-        self.field_id = field.get('field_id')
+        self.field_id = field.get("field_id")
         self.name = name
-        self.label = field.get('label')
-        self.length = field.get('length')
-        self.multiple = field.get('multiple', False)
-        self.callback = field.get('callback')
-        self.fill = field.get('fill', ' ')
+        self.label = field.get("label")
+        self.length = field.get("length")
+        self.multiple = field.get("multiple", False)
+        self.callback = field.get("callback")
+        self.fill = field.get("fill", " ")
 
         MessageTypeVariableField.field_id_map[self.field_id] = self
 
     def __str__(self):
         """String representation of variable field."""
-        return 'MessageTypeVariableField() field_id={field_id} ' \
-               'length={length} fill={fill} label={label}'\
-            .format(
+        return (
+            "MessageTypeVariableField() field_id={field_id} "
+            "length={length} fill={fill} label={label}".format(
                 field_id=self.field_id,
                 length=self.length,
                 fill=self.fill,
                 multiple=self.multiple,
-                label=self.label
+                label=self.label,
             )
+        )
 
     @property
     def is_multiple(self):
@@ -98,7 +101,8 @@ class MessageTypeVariableField(object):
         """Find variable field by field id."""
         variable_field = cls.field_id_map.get(field_id)
         if variable_field is None:
-            msg = "field id '{field_id}' not in [{field_id_map}]" \
-                .format(field_id=field_id, field_id_map=cls.field_id_map)
+            msg = "field id '{field_id}' not in [{field_id_map}]".format(
+                field_id=field_id, field_id_map=cls.field_id_map
+            )
             raise UnknownFieldIdMessageError(message=msg)
         return variable_field

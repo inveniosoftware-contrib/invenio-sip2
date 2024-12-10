@@ -21,12 +21,12 @@ from flask import abort
 from flask_login import current_user
 from invenio_access.permissions import Permission, SystemRoleNeed
 
-admin_user = Permission(SystemRoleNeed('admin'))
+admin_user = Permission(SystemRoleNeed("admin"))
 
 
 def deny_all():
     """Deny all permission."""
-    return type('Deny', (), {'can': lambda self: False})()
+    return type("Deny", (), {"can": lambda self: False})()
 
 
 def check_permission(permission):
@@ -42,7 +42,7 @@ def check_permission(permission):
 
 def default_permission_factory(action):
     """Default api permission factory."""
-    is_admin_user = ['api-monitoring']
+    is_admin_user = ["api-monitoring"]
 
     if action in is_admin_user:
         return admin_user

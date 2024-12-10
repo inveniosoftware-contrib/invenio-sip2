@@ -36,27 +36,34 @@ def selfcheck():
 
 # TODO: create CLI to manage database
 
-@selfcheck.command('start')
-@click.argument('name')
+
+@selfcheck.command("start")
+@click.argument("name")
 @click.option(
-    '-h', '--host', 'host', default='0.0.0.0',
-    help='Host address of the server.'
+    "-h", "--host", "host", default="0.0.0.0", help="Host address of the server."
 )
 @click.option(
-    '-p', '--port', 'port', type=click.INT, default=3004,
-    help='Port that the server listen.'
+    "-p",
+    "--port",
+    "port",
+    type=click.INT,
+    default=3004,
+    help="Port that the server listen.",
 )
 @click.option(
-    '-r', '--remote-app', 'remote',
-    help='remote ILS application name in your config',
-    required=True
+    "-r",
+    "--remote-app",
+    "remote",
+    help="remote ILS application name in your config",
+    required=True,
 )
 @with_appcontext
 def start_socket_server(name, host, port, remote):
     """Start sockets server with unique name."""
     try:
-        server = SocketServer(name=name, port=port, host=host, remote=remote,
-                              process_id=os.getpid())
+        server = SocketServer(
+            name=name, port=port, host=host, remote=remote, process_id=os.getpid()
+        )
         server_thread = threading.Thread(target=server.run)
         server_thread.run()
 
@@ -65,9 +72,9 @@ def start_socket_server(name, host, port, remote):
         raise e
 
 
-@selfcheck.command('stop')
-@click.argument('name')
-@click.option('-d', '--delete', 'delete', is_flag=True, default=False)
+@selfcheck.command("stop")
+@click.argument("name")
+@click.option("-d", "--delete", "delete", is_flag=True, default=False)
 @with_appcontext
 def stop_server(name, delete):
     """Stop sip2 server by unique name.
@@ -79,14 +86,14 @@ def stop_server(name, delete):
         if server:
             if server.is_running:
                 try:
-                    pid = server.get('process_id')
-                    p = psutil.Process(server.get('process_id'))
+                    pid = server.get("process_id")
+                    p = psutil.Process(server.get("process_id"))
                     click.echo(f"stop {server.get('name')} (pid:{pid})")
                     p.terminate()
                 except NoSuchProcess as ex:
                     server.down()
             else:
-                click.echo('server already stopped')
+                click.echo("server already stopped")
 
             if delete:
                 server.delete()

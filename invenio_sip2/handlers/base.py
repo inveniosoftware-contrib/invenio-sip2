@@ -51,11 +51,10 @@ def base_validate_patron_handler(remote, patron_identifier, **kwargs):
     returns: True if patron is valid else False
     """
     handlers = acs_system.sip2_handlers.patron_handlers[remote]
-    return handlers['validate_patron'](patron_identifier, **kwargs)
+    return handlers["validate_patron"](patron_identifier, **kwargs)
 
 
-def base_authorize_patron_handler(remote, patron_identifier, password,
-                                  **kwargs):
+def base_authorize_patron_handler(remote, patron_identifier, password, **kwargs):
     """Handle authorize patron functionality.
 
     :param remote: remote ils
@@ -64,7 +63,7 @@ def base_authorize_patron_handler(remote, patron_identifier, password,
     returns: True if patron password is valid else False
     """
     handlers = acs_system.sip2_handlers.patron_handlers[remote]
-    return handlers['authorize_patron'](patron_identifier, password, **kwargs)
+    return handlers["authorize_patron"](patron_identifier, password, **kwargs)
 
 
 def base_enable_patron_handler(remote, patron_identifier, **kwargs):
@@ -75,7 +74,7 @@ def base_enable_patron_handler(remote, patron_identifier, **kwargs):
     returns: login response
     """
     handlers = acs_system.sip2_handlers.patron_handlers[remote]
-    return handlers['enable_patron'](patron_identifier, **kwargs)
+    return handlers["enable_patron"](patron_identifier, **kwargs)
 
 
 def base_patron_handler(remote, patron_identifier, **kwargs):
@@ -86,7 +85,7 @@ def base_patron_handler(remote, patron_identifier, **kwargs):
     returns: Patron information
     """
     handlers = acs_system.sip2_handlers.patron_handlers[remote]
-    return handlers['account'](patron_identifier, **kwargs)
+    return handlers["account"](patron_identifier, **kwargs)
 
 
 def base_patron_status_handler(remote, patron_identifier, **kwargs):
@@ -97,10 +96,10 @@ def base_patron_status_handler(remote, patron_identifier, **kwargs):
     returns: Patron status
     """
     handlers = acs_system.sip2_handlers.patron_handlers[remote]
-    return handlers['patron_status'](patron_identifier, **kwargs)
+    return handlers["patron_status"](patron_identifier, **kwargs)
 
 
-def base_item_handler(remote, item_identifier,  **kwargs):
+def base_item_handler(remote, item_identifier, **kwargs):
     """Handle item information functionality.
 
     :param remote: remote ils
@@ -108,11 +107,12 @@ def base_item_handler(remote, item_identifier,  **kwargs):
     returns: Item information
     """
     handlers = acs_system.sip2_handlers.item_handlers[remote]
-    return handlers['item'](item_identifier, **kwargs)
+    return handlers["item"](item_identifier, **kwargs)
 
 
-def base_circulation_handlers(remote, handler, user_id,
-                              item_or_patron_identifier, *args, **kwargs):
+def base_circulation_handlers(
+    remote, handler, user_id, item_or_patron_identifier, *args, **kwargs
+):
     """Handle checkout functionality.
 
     :param remote: remote ils
@@ -123,14 +123,20 @@ def base_circulation_handlers(remote, handler, user_id,
     returns: Circulation handler
     """
     handlers = acs_system.sip2_handlers.circulation_handlers[remote]
-    return handlers[handler](
-        user_id, item_or_patron_identifier, *args, **kwargs
-    )
+    return handlers[handler](user_id, item_or_patron_identifier, *args, **kwargs)
 
 
-def base_fee_paid_handler(remote, user_id, patron_identifier, fee_type,
-                          payment_type, currency_type, fee_amount, *args,
-                          **kwargs):
+def base_fee_paid_handler(
+    remote,
+    user_id,
+    patron_identifier,
+    fee_type,
+    payment_type,
+    currency_type,
+    fee_amount,
+    *args,
+    **kwargs,
+):
     """Handle checkout functionality.
 
     :param remote: remote ils
@@ -144,6 +150,12 @@ def base_fee_paid_handler(remote, user_id, patron_identifier, fee_type,
     """
     handler = acs_system.sip2_handlers.fee_paid_handler[remote]
     return handler(
-        user_id, patron_identifier, fee_type, payment_type, currency_type,
-        fee_amount, *args,  **kwargs
+        user_id,
+        patron_identifier,
+        fee_type,
+        payment_type,
+        currency_type,
+        fee_amount,
+        *args,
+        **kwargs,
     )
