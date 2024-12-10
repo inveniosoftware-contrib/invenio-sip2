@@ -38,4 +38,5 @@ def make_api_handler(func, with_data=True):
             return func(args[0], *args[1:], **kwargs)
         else:
             return func(*args, **kwargs)
+
     return inner

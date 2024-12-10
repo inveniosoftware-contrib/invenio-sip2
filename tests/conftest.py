@@ -21,9 +21,11 @@ See https://pytest-invenio.readthedocs.io/ for documentation on which test
 fixtures are available.
 """
 
+
 from __future__ import absolute_import, print_function
 
 import os
+
 # import shutil
 import signal
 import socket
@@ -39,32 +41,43 @@ from flask.cli import ScriptInfo
 from invenio_access import ActionRoles, authenticated_user, superuser_access
 from invenio_access.ext import InvenioAccess
 from invenio_accounts.ext import InvenioAccounts
-from invenio_accounts.models import Role
+from invenio_accounts.models import Role, User
 from invenio_accounts.testutils import create_test_user
 from invenio_db.ext import InvenioDB
 from invenio_i18n import Babel
 from invenio_i18n.ext import InvenioI18N
-from utils import remote_authorize_patron_handler, remote_checkin_handler, \
-    remote_checkout_handler, remote_enable_patron_handler, \
-    remote_fee_paid_handler, remote_handler, remote_hold_handler, \
-    remote_item_information_handler, remote_login_handler, \
-    remote_patron_account_handler, remote_patron_status_handler, \
-    remote_renew_handler, remote_system_status_handler, \
-    remote_validate_patron_handler
+from sqlalchemy import func
 
 from invenio_sip2 import InvenioSIP2
 from invenio_sip2.views.rest import api_blueprint
 from invenio_sip2.views.views import blueprint
 
+from .utils import (
+    remote_authorize_patron_handler,
+    remote_checkin_handler,
+    remote_checkout_handler,
+    remote_enable_patron_handler,
+    remote_fee_paid_handler,
+    remote_handler,
+    remote_hold_handler,
+    remote_item_information_handler,
+    remote_login_handler,
+    remote_patron_account_handler,
+    remote_patron_status_handler,
+    remote_renew_handler,
+    remote_system_status_handler,
+    remote_validate_patron_handler,
+)
+
 sys.path.append(os.path.dirname(__file__))
 
 pytest_plugins = [
-    'fixtures.messages',
-    'fixtures.servers',
+    "fixtures.messages",
+    "fixtures.servers",
 ]
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope="module")
 def celery_config():
     """Override pytest-invenio fixture.
 
@@ -73,11 +86,11 @@ def celery_config():
     return {}
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope="module")
 def base_app(request):
     """Flask application fixture."""
     instance_path = tempfile.mkdtemp()
-    app = Flask('testapp', instance_path=instance_path)
+    app = Flask("testapp", instance_path=instance_path)
     app.config.update(
         ACCOUNTS_USE_CELERY=False,
         CELERY_ALWAYS_EAGER=True,
@@ -93,16 +106,17 @@ def base_app(request):
         SECURITY_RESET_PASSWORD_WITHIN="2 seconds",
         DB_VERSIONING=False,
         DB_VERSIONING_USER_MODEL=None,
-        SQLALCHEMY_DATABASE_URI=os.environ.get('SQLALCHEMY_DATABASE_URI',
-                                               'sqlite:///test.db'),
+        SQLALCHEMY_DATABASE_URI=os.environ.get(
+            "SQLALCHEMY_DATABASE_URI", "sqlite:///test.db"
+        ),
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
-        SERVER_NAME='localhost:5000',
+        SERVER_NAME="localhost:5000",
         TESTING=True,
         WTF_CSRF_ENABLED=False,
-        CACHE_REDIS_URL='redis://localhost:6379/0',
-        SIP2_DATASTORE_HANDLER='invenio_sip2.datastore:Sip2RedisDatastore',
-        SIP2_DATASTORE_REDIS_URL='redis://localhost:6379/1',
-        SIP2_LOGGING_FS_LOGFILE='./log/sip2.log',
+        CACHE_REDIS_URL="redis://localhost:6379/0",
+        SIP2_DATASTORE_HANDLER="invenio_sip2.datastore:Sip2RedisDatastore",
+        SIP2_DATASTORE_REDIS_URL="redis://localhost:6379/1",
+        SIP2_LOGGING_FS_LOGFILE="./log/sip2.log",
         SIP2_ERROR_DETECTION=True,
         SIP2_REMOTE_ACTION_HANDLERS=dict(
             test_ils=dict(
@@ -128,9 +142,9 @@ def base_app(request):
                 fee_paid_handler=remote_fee_paid_handler,
             ),
             test_invalid=dict(
-                login_handler='utils.remote_login_handler',
-            )
-        )
+                login_handler="utils.remote_login_handler",
+            ),
+        ),
     )
     Babel(app)
     InvenioDB(app)
@@ -149,22 +163,21 @@ def _init_app(app_):
     return app_
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope="module")
 def app(base_app):
     """Flask application fixture."""
     return _init_app(base_app)
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope="module")
 def dummy_socket_server(app):
     """Start server socket."""
     with app.app_context():
         # Start socket server
-        cmd = 'invenio selfcheck start test_server -h 0.0.0.0 -p 3006 -r test'
+        cmd = "invenio selfcheck start test_server -h 0.0.0.0 -p 3006 -r test"
         dummy_server = subprocess.Popen(
-            cmd,
-            stdout=subprocess.PIPE, stderr=STDOUT, preexec_fn=os.setsid,
-            shell=True)
+            cmd, stdout=subprocess.PIPE, stderr=STDOUT, preexec_fn=os.setsid, shell=True
+        )
         time.sleep(10)
         yield dummy_server
 
@@ -172,13 +185,13 @@ def dummy_socket_server(app):
     os.killpg(dummy_server.pid, signal.SIGTERM)
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope="module")
 def selfcheck_client():
     """Test socket server."""
     # This is fake test client to attempt a connect and disconnect
     fake_client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     fake_client.settimeout(10)
-    fake_client.connect(('127.0.0.1', 3006))
+    fake_client.connect(("127.0.0.1", 3006))
     yield fake_client
 
     fake_client.close()
@@ -194,39 +207,43 @@ def script_info(app):
 def users(db, app):
     """Create users."""
     # create users
-    admin = create_test_user(
-        email='admin@test.com',
-        password='123456',
-        active=True
-    )
-    librarian = create_test_user(
-        email='librarian@test.com',
-        password='123456',
-        active=True
-    )
-    patron = create_test_user(
-        email='patron@test.com',
-        password='123456',
-        active=True
-    )
+    datastore = app.extensions["security"].datastore
+    if not (
+        admin := User.query.filter(
+            func.lower(User.email) == func.lower("admin@test.com")
+        ).first()
+    ):
+        admin = create_test_user(email="admin@test.com", password="123456", active=True)
+        with db.session.begin_nested():
+            # Give role to admin
+            admin_role = Role(name="admin")
+            db.session.add(ActionRoles(action=superuser_access.value, role=admin_role))
+            db.session.add(ActionRoles(action="api-monitoring", role=admin_role))
+            datastore.add_role_to_user(admin, admin_role)
+        db.session.commit()
+    if not (
+        librarian := User.query.filter(
+            func.lower(User.email) == func.lower("librarian@test.com")
+        ).first()
+    ):
+        librarian = create_test_user(
+            email="librarian@test.com", password="123456", active=True
+        )
+        with db.session.begin_nested():
+            # Give role to librarian
+            librarian_role = Role(name="librarian")
+            db.session.add(
+                ActionRoles(action=authenticated_user.value, role=librarian_role)
+            )
+            datastore.add_role_to_user(librarian, librarian_role)
+        db.session.commit()
+    if not (
+        patron := User.query.filter(
+            func.lower(User.email) == func.lower("patron@test.com")
+        ).first()
+    ):
+        patron = create_test_user(
+            email="patron@test.com", password="123456", active=True
+        )
 
-    with db.session.begin_nested():
-        datastore = app.extensions['security'].datastore
-        # Give role to admin
-        admin_role = Role(name='admin')
-        db.session.add(
-            ActionRoles(action=superuser_access.value, role=admin_role)
-        )
-        db.session.add(
-            ActionRoles(action='api-monitoring', role=admin_role)
-        )
-        datastore.add_role_to_user(admin, admin_role)
-        # Give role to librarian
-        librarian_role = Role(name='librarian')
-        db.session.add(
-            ActionRoles(action=authenticated_user.value, role=librarian_role)
-        )
-        datastore.add_role_to_user(librarian, librarian_role)
-    db.session.commit()
-
-    return {'admin': admin, 'librarian': librarian, 'user': patron}
+    return {"admin": admin, "librarian": librarian, "user": patron}

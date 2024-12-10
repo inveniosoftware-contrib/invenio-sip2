@@ -25,9 +25,4 @@ from invenio_sip2.version import __version__
 
 datastore = LocalProxy(lambda: current_sip2.datastore)
 
-__all__ = (
-    '__version__',
-    'current_datastore',
-    'current_sip2',
-    'InvenioSIP2'
-)
+__all__ = ("__version__", "current_datastore", "current_sip2", "InvenioSIP2")

@@ -24,32 +24,36 @@ from dateutil import parser
 from flask import current_app
 from pycountry import languages
 
-from invenio_sip2.models import SelfcheckCirculationStatus, \
-    SelfcheckLanguage, SelfcheckMediaType, SelfcheckSecurityMarkerType
+from invenio_sip2.models import (
+    SelfcheckCirculationStatus,
+    SelfcheckLanguage,
+    SelfcheckMediaType,
+    SelfcheckSecurityMarkerType,
+)
 from invenio_sip2.proxies import current_logger as logger
 from invenio_sip2.proxies import current_sip2 as acs_system
 
 
 def convert_bool_to_char(value=False):
     """Convert boolean to SIP2 char representation."""
-    return 'Y' if value else 'N'
+    return "Y" if value else "N"
 
 
-def convert_to_char(value='unknown'):
+def convert_to_char(value="unknown"):
     """Convert value to SIP2 char representation."""
     if isinstance(value, str):
-        return 'U'
-    return 'Y' if value else 'N'
+        return "U"
+    return "Y" if value else "N"
 
 
-def decode_char_to_bool(value='N'):
+def decode_char_to_bool(value="N"):
     """Decode SIP2 char representation to boolean."""
-    return value == 'Y'
+    return value == "Y"
 
 
 def parse_circulation_date(date):
     """Converts a date of string format to a formatted date utc aware."""
-    date_format = current_app.config.get('SIP2_CIRCULATION_DATE_FORMAT')
+    date_format = current_app.config.get("SIP2_CIRCULATION_DATE_FORMAT")
     try:
         if isinstance(date, datetime):
             if date.tzinfo is None:
@@ -57,8 +61,8 @@ def parse_circulation_date(date):
             return date.strftime(date_format)
         return date_string_to_utc(date).strftime(date_format)
     except Exception:
-        logger.warning(f'parse circulation date error for: [{date}]')
-        return date or ''
+        logger.warning(f"parse circulation date error for: [{date}]")
+        return date or ""
 
 
 def date_string_to_utc(date):
@@ -94,7 +98,7 @@ def get_security_marker_type(marker_type=None):
     try:
         return getattr(SelfcheckSecurityMarkerType, marker_type)
     except AttributeError:
-        return current_app.config.get('SIP2_DEFAULT_SECURITY_MARKER')
+        return current_app.config.get("SIP2_DEFAULT_SECURITY_MARKER")
 
 
 def get_media_type(media_type=None):
@@ -121,7 +125,7 @@ def generate_checksum(message):
     """
     # Calculate checksum
     checksum = sum([b for b in message.encode(acs_system.text_encoding)])
-    return format((-checksum & 0xFFFF), 'X')
+    return format((-checksum & 0xFFFF), "X")
 
 
 def verify_checksum(message_str):
@@ -137,7 +141,7 @@ def verify_checksum(message_str):
 
     # check minimum length of message
     # It should be 8 for request ACS resend and 11 for all other messaged
-    minimum_len = 8 if message_str[:2] == '97' else 11
+    minimum_len = 8 if message_str[:2] == "97" else 11
     if len(message_str) >= minimum_len:
         # sum all the byte values of each character in the message including
         # the checksum identifier
@@ -161,8 +165,7 @@ def verify_sequence_number(client, message):
     # we need to return true in following cases :
     # 1. there is no last request message
     # 2. the message type is a resend request message
-    if not client.last_request_message \
-            or message.command == '97':
+    if not client.last_request_message or message.command == "97":
         return True
 
     # get current sequence from tag AY
@@ -170,6 +173,7 @@ def verify_sequence_number(client, message):
     # get sequence number from last request message
     last_sequence_number = client.last_sequence_number
 
-    return last_sequence_number and \
-        (int(sequence)-1 == int(last_sequence_number) or
-            (int(last_sequence_number) == 9 and int(sequence) == 0))
+    return last_sequence_number and (
+        int(sequence) - 1 == int(last_sequence_number)
+        or (int(last_sequence_number) == 9 and int(sequence) == 0)
+    )

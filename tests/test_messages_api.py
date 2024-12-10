@@ -27,16 +27,23 @@ def test_messages_api(app, patron_information_message):
     """Test invenio-sip2 Message api."""
     # instantiate message class with wrong a message
     with pytest.raises(CommandNotFound):
-        message = Message(request='bad sip2 message')
+        message = Message(request="bad sip2 message")
 
     # use well-formed message
     message = Message(request=patron_information_message)
-    patron_id = message.get_field_values('patron_id')
+    patron_id = message.get_field_values("patron_id")
     data = message.dumps()
-    assert data['patron_id'] in patron_id
-    for key in ['_sip2', 'message_type', 'institution_id', 'patron_id',
-                'checksum', 'sequence_number', 'transaction_date']:
+    assert data["patron_id"] in patron_id
+    for key in [
+        "_sip2",
+        "message_type",
+        "institution_id",
+        "patron_id",
+        "checksum",
+        "sequence_number",
+        "transaction_date",
+    ]:
         assert data[key]
     # test unknown message field
     with pytest.raises(UnknownFieldIdMessageError):
-        field = message.get_field_values('message_type')
+        field = message.get_field_values("message_type")

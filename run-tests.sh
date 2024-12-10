@@ -84,13 +84,12 @@ function tests () {
 if [ $# -eq 0 ]
   then
     tests
-    tests_exit_code=$?
-    exit "$tests_exit_code"
+    exit "$?"
 fi
 
 if [ "$1" = "docker-services" ]
   then
-    eval "$(docker-services-cli up --db ${DB:-postgresql} --cache ${CACHE:-redis} --mq ${MQ:-redis} --env)"
+    docker-services-cli up --db ${DB:-postgresql} --cache ${CACHE:-redis} --mq ${MQ:-redis} --env
     tests
     tests_exit_code=$?
     docker-services-cli down

@@ -30,7 +30,7 @@ def check_selfcheck_authentication(func):
 
     @wraps(func)
     def inner(*args, **kwargs):
-        client = kwargs.pop('client')
+        client = kwargs.pop("client")
         # TODO: maybe we can always call remote api to authenticate client
         if client and client.is_authenticated:
             return func(*args, client)
@@ -45,11 +45,10 @@ def need_permission(actions):
         @wraps(func)
         def decorate_view(*args, **kwargs):
             if not current_user.is_authenticated:
-                return jsonify({'status': 'error: Unauthorized'}), 401
-            check_permission(
-                current_app.config["SIP2_PERMISSIONS_FACTORY"](actions)
-            )
+                return jsonify({"status": "error: Unauthorized"}), 401
+            check_permission(current_app.config["SIP2_PERMISSIONS_FACTORY"](actions))
             return func(*args, **kwargs)
+
         return decorate_view
 
     return decorator

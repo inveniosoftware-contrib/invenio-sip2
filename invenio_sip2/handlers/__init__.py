@@ -17,26 +17,36 @@
 
 """Handlers for customizing sip2 api."""
 
-from invenio_sip2.handlers.api_handlers import authorize_patron_handler, \
-    checkin_handler, checkout_handler, enable_patron_handler, \
-    fee_paid_handler, hold_handler, item_handler, patron_handler, \
-    patron_status_handler, renew_handler, selfcheck_login_handler, \
-    system_status_handler, validate_patron_handler
+from invenio_sip2.handlers.api_handlers import (
+    authorize_patron_handler,
+    checkin_handler,
+    checkout_handler,
+    enable_patron_handler,
+    fee_paid_handler,
+    hold_handler,
+    item_handler,
+    patron_handler,
+    patron_status_handler,
+    renew_handler,
+    selfcheck_login_handler,
+    system_status_handler,
+    validate_patron_handler,
+)
 from invenio_sip2.handlers.utils import make_api_handler
 
 __all__ = (
-    'make_api_handler',
-    'selfcheck_login_handler',
-    'system_status_handler',
-    'validate_patron_handler',
-    'authorize_patron_handler',
-    'enable_patron_handler',
-    'patron_handler',
-    'patron_status_handler',
-    'item_handler',
-    'checkout_handler',
-    'checkin_handler',
-    'hold_handler',
-    'renew_handler',
-    'fee_paid_handler'
+    "make_api_handler",
+    "selfcheck_login_handler",
+    "system_status_handler",
+    "validate_patron_handler",
+    "authorize_patron_handler",
+    "enable_patron_handler",
+    "patron_handler",
+    "patron_status_handler",
+    "item_handler",
+    "checkout_handler",
+    "checkin_handler",
+    "hold_handler",
+    "renew_handler",
+    "fee_paid_handler",
 )

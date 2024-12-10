@@ -24,11 +24,11 @@ from utils import user_login, user_logout
 def test_monitoring_status(app, users, server, dummy_client):
     """Test monitoring status."""
     with app.test_client() as client:
-        res = client.get(url_for('api_sip2.status'))
+        res = client.get(url_for("api_sip2.status"))
         assert res.status_code == 401
 
-        user_login(client, 'admin', users)
-        res = client.get(url_for('api_sip2.status'))
+        user_login(client, "admin", users)
+        res = client.get(url_for("api_sip2.status"))
         assert res.status_code == 200
         user_logout(client)
 
@@ -36,11 +36,11 @@ def test_monitoring_status(app, users, server, dummy_client):
 def test_monitoring_servers(app, users):
     """Test monitoring servers."""
     with app.test_client() as client:
-        res = client.get(url_for('api_sip2.get_servers'))
+        res = client.get(url_for("api_sip2.get_servers"))
         assert res.status_code == 401
 
-        user_login(client, 'admin', users)
-        res = client.get(url_for('api_sip2.get_servers'))
+        user_login(client, "admin", users)
+        res = client.get(url_for("api_sip2.get_servers"))
         assert res.status_code == 200
         user_logout(client)
 
@@ -48,26 +48,25 @@ def test_monitoring_servers(app, users):
 def test_monitoring_clients(app, users):
     """Test monitoring servers."""
     with app.test_client() as client:
-        res = client.get(url_for('api_sip2.get_clients'))
+        res = client.get(url_for("api_sip2.get_clients"))
         assert res.status_code == 401
 
-        user_login(client, 'admin', users)
-        res = client.get(url_for('api_sip2.get_clients'))
+        user_login(client, "admin", users)
+        res = client.get(url_for("api_sip2.get_clients"))
         assert res.status_code == 200
         user_logout(client)
 
 
 def test_get_server(app, users, server):
     """Test monitoring servers."""
+    print("--->", users)
     with app.test_client() as client:
 
-        server_url = url_for(
-            'api_sip2.get_server', server_id=server.id
-        )
+        server_url = url_for("api_sip2.get_server", server_id=server.id)
         res = client.get(server_url)
         assert res.status_code == 401
 
-        user_login(client, 'admin', users)
+        user_login(client, "admin", users)
         res = client.get(server_url)
         assert res.status_code == 200
         user_logout(client)

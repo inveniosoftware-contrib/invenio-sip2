@@ -19,4 +19,4 @@
 
 from invenio_sip2.records.record import Client, Server
 
-__all__ = ('Client', 'Server')
+__all__ = ("Client", "Server")

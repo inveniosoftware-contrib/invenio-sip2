@@ -25,37 +25,38 @@ class SupportedMessages:
     """Class to define supported mesages from handler config."""
 
     handlers = [
-        'patron_status',
-        'checkout',
-        'checkin',
-        'block_patron',
-        'system_status',
-        'request_resend',
-        'login',
-        'account',
-        'end_patron_session',
-        'fee_paid',
-        'item',
-        'item_status_update',
-        'enable_patron',
-        'hold',
-        'renew',
-        'renew_all',
+        "patron_status",
+        "checkout",
+        "checkin",
+        "block_patron",
+        "system_status",
+        "request_resend",
+        "login",
+        "account",
+        "end_patron_session",
+        "fee_paid",
+        "item",
+        "item_status_update",
+        "enable_patron",
+        "hold",
+        "renew",
+        "renew_all",
     ]
 
     def __init__(self):
         """Constructor."""
         self.supported_messages = {
-            'request_resend': True,
-            'end_patron_session': True,
+            "request_resend": True,
+            "end_patron_session": True,
         }
 
     def __str__(self):
         """Sip2 string representation."""
-        supported_messages_text = ''
+        supported_messages_text = ""
         for handler in self.handlers:
-            supported_messages_text += 'Y' \
-                if handler in self.supported_messages else 'N'
+            supported_messages_text += (
+                "Y" if handler in self.supported_messages else "N"
+            )
         return supported_messages_text
 
     def add_supported_message(self, handler):
@@ -67,20 +68,20 @@ class SupportedMessages:
 class PatronStatusTypes(Enum):
     """Enum class to list all possible patron status types."""
 
-    CHARGE_PRIVILEGES_DENIED = 'charge_privileges_denied'
-    RENEWAL_PRIVILEGES_DENIED = 'renewal_privileges_denied'
-    RECALL_PRIVILEGES_DENIED = 'recall_privileges_denied'
-    HOLD_PRIVILEGES_DENIED = 'hold_privileges_denied'
-    CARD_REPORTED_LOST = 'card_reported_lost'
-    TOO_MANY_ITEMS_CHARGED = 'too_many_items_charged'
-    TOO_MANY_ITEMS_OVERDUE = 'too_many_items_overdue'
-    TOO_MANY_RENEWALS = 'too_many_renewals'
-    TOO_MANY_CLAIMS_OF_ITEMS_RETURNED = 'too_many_claims_of_items_returned'
-    TOO_MANY_ITEMS_LOST = 'too_many_items_lost'
-    EXCESSIVE_OUTSTANDING_FINES = 'excessive_outstanding_fines'
-    EXCESSIVE_OUTSTANDING_FEES = 'excessive_outstanding_fees'
-    RECALL_OVERDUE = 'recall_overdue'
-    TOO_MANY_ITEMS_BILLED = 'too_many_items_billed'
+    CHARGE_PRIVILEGES_DENIED = "charge_privileges_denied"
+    RENEWAL_PRIVILEGES_DENIED = "renewal_privileges_denied"
+    RECALL_PRIVILEGES_DENIED = "recall_privileges_denied"
+    HOLD_PRIVILEGES_DENIED = "hold_privileges_denied"
+    CARD_REPORTED_LOST = "card_reported_lost"
+    TOO_MANY_ITEMS_CHARGED = "too_many_items_charged"
+    TOO_MANY_ITEMS_OVERDUE = "too_many_items_overdue"
+    TOO_MANY_RENEWALS = "too_many_renewals"
+    TOO_MANY_CLAIMS_OF_ITEMS_RETURNED = "too_many_claims_of_items_returned"
+    TOO_MANY_ITEMS_LOST = "too_many_items_lost"
+    EXCESSIVE_OUTSTANDING_FINES = "excessive_outstanding_fines"
+    EXCESSIVE_OUTSTANDING_FEES = "excessive_outstanding_fees"
+    RECALL_OVERDUE = "recall_overdue"
+    TOO_MANY_ITEMS_BILLED = "too_many_items_billed"
 
 
 class PatronStatus(object):
@@ -92,10 +93,11 @@ class PatronStatus(object):
 
     def __str__(self):
         """Sip2 string representation."""
-        patron_status_text = ''
+        patron_status_text = ""
         for status_type in PatronStatusTypes:
-            patron_status_text += 'Y' \
-                if self.patron_status_types.get(status_type) else ' '
+            patron_status_text += (
+                "Y" if self.patron_status_types.get(status_type) else " "
+            )
         return patron_status_text
 
     def add_patron_status_type(self, patron_status_type):
@@ -107,7 +109,7 @@ class PatronStatus(object):
         raise exception if patron status type does not exist.
         """
         if patron_status_type not in PatronStatusTypes:
-            raise Exception(msg='patron status type does not exist')
+            raise Exception(msg="patron status type does not exist")
 
         self.patron_status_types[patron_status_type] = True
 
@@ -115,8 +117,15 @@ class PatronStatus(object):
 class SelfcheckEnablePatron(dict):
     """Class representing patron information handler response."""
 
-    def __init__(self, patron_id, institution_id, patron_name='',
-                 patron_status=None, language='und', **kwargs):
+    def __init__(
+        self,
+        patron_id,
+        institution_id,
+        patron_name="",
+        patron_status=None,
+        language="und",
+        **kwargs,
+    ):
         """Constructor.
 
         :param patron_id - patron identifier (e.g. id, barcode, ...)
@@ -127,12 +136,12 @@ class SelfcheckEnablePatron(dict):
         :param kwargs - optional fields
         """
         # required properties
-        self['patron_id'] = patron_id
-        self['patron_name'] = patron_name
-        self['patron_status'] = patron_status or PatronStatus()
-        self['institution_id'] = institution_id
-        self['language'] = language
-        self['screen_messages'] = []
+        self["patron_id"] = patron_id
+        self["patron_name"] = patron_name
+        self["patron_status"] = patron_status or PatronStatus()
+        self["institution_id"] = institution_id
+        self["language"] = language
+        self["screen_messages"] = []
 
         # optional properties
         for key, value in kwargs.items():
@@ -143,8 +152,15 @@ class SelfcheckEnablePatron(dict):
 class SelfcheckPatronStatus(dict):
     """Class representing patron information handler response."""
 
-    def __init__(self, patron_id, institution_id, patron_name='',
-                 patron_status=None, language='und', **kwargs):
+    def __init__(
+        self,
+        patron_id,
+        institution_id,
+        patron_name="",
+        patron_status=None,
+        language="und",
+        **kwargs,
+    ):
         """Constructor.
 
         :param patron_id - patron identifier (e.g. id, barcode, ...)
@@ -155,12 +171,12 @@ class SelfcheckPatronStatus(dict):
         :param kwargs - optional fields
         """
         # required properties
-        self['patron_id'] = patron_id
-        self['patron_name'] = patron_name
-        self['patron_status'] = patron_status or PatronStatus()
-        self['institution_id'] = institution_id
-        self['language'] = language
-        self['screen_messages'] = []
+        self["patron_id"] = patron_id
+        self["patron_name"] = patron_name
+        self["patron_status"] = patron_status or PatronStatus()
+        self["institution_id"] = institution_id
+        self["language"] = language
+        self["screen_messages"] = []
 
         # optional properties
         for key, value in kwargs.items():
@@ -171,8 +187,15 @@ class SelfcheckPatronStatus(dict):
 class SelfcheckPatronInformation(dict):
     """Class representing patron information handler response."""
 
-    def __init__(self, patron_id, institution_id, patron_name='',
-                 patron_status=None, language='und', **kwargs):
+    def __init__(
+        self,
+        patron_id,
+        institution_id,
+        patron_name="",
+        patron_status=None,
+        language="und",
+        **kwargs,
+    ):
         """Constructor.
 
         :param patron_id - patron identifier (e.g. id, barcode, ...)
@@ -183,18 +206,18 @@ class SelfcheckPatronInformation(dict):
         :param kwargs - optional fields
         """
         # required properties
-        self['patron_id'] = patron_id
-        self['patron_name'] = patron_name
-        self['patron_status'] = patron_status or PatronStatus()
-        self['institution_id'] = institution_id
-        self['language'] = language
-        self['hold_items'] = []
-        self['overdue_items'] = []
-        self['charged_items'] = []
-        self['fine_items'] = []
-        self['recall_items'] = []
-        self['unavailable_hold_items'] = []
-        self['screen_messages'] = []
+        self["patron_id"] = patron_id
+        self["patron_name"] = patron_name
+        self["patron_status"] = patron_status or PatronStatus()
+        self["institution_id"] = institution_id
+        self["language"] = language
+        self["hold_items"] = []
+        self["overdue_items"] = []
+        self["charged_items"] = []
+        self["fine_items"] = []
+        self["recall_items"] = []
+        self["unavailable_hold_items"] = []
+        self["screen_messages"] = []
 
         # optional properties
         for key, value in kwargs.items():
@@ -204,49 +227,56 @@ class SelfcheckPatronInformation(dict):
     @property
     def patron_id(self):
         """Shortcut for patron pid."""
-        return self.get('patron_id')
+        return self.get("patron_id")
 
     @property
     def patron_name(self):
         """Shortcut for patron pid."""
-        return self.get('patron_name')
+        return self.get("patron_name")
 
     @property
     def hold_items_count(self):
         """Shortcut for hold items count."""
-        return len(self.get('hold_items', []))
+        return len(self.get("hold_items", []))
 
     @property
     def overdue_items_count(self):
         """Shortcut for overdue items count."""
-        return len(self.get('overdue_items', []))
+        return len(self.get("overdue_items", []))
 
     @property
     def charged_items_count(self):
         """Shortcut for charged items count."""
-        return len(self.get('charged_items', []))
+        return len(self.get("charged_items", []))
 
     @property
     def fine_items_count(self):
         """Shortcut for fine items count."""
-        return len(self.get('fine_items', []))
+        return len(self.get("fine_items", []))
 
     @property
     def recall_items_count(self):
         """Shortcut for recall items count."""
-        return len(self.get('recall_items', []))
+        return len(self.get("recall_items", []))
 
     @property
     def unavailable_items_count(self):
         """Shortcut for unavailable items count."""
-        return len(self.get('unavailable_items', []))
+        return len(self.get("unavailable_items", []))
 
 
 class SelfcheckItemInformation(dict):
     """Class representing item information handler response."""
 
-    def __init__(self, item_id, title_id=None, circulation_status=None,
-                 fee_type=None, security_marker=None, **kwargs):
+    def __init__(
+        self,
+        item_id,
+        title_id=None,
+        circulation_status=None,
+        fee_type=None,
+        security_marker=None,
+        **kwargs,
+    ):
         """Constructor.
 
         :param patron_id - patron identifier (e.g. id, barcode, ...)
@@ -256,14 +286,14 @@ class SelfcheckItemInformation(dict):
         :param kwargs - optional fields
         """
         # required properties
-        self['item_id'] = item_id
-        self['title_id'] = title_id or ''
-        self['circulation_status'] = circulation_status or \
-            SelfcheckCirculationStatus.OTHER
-        self['fee_type'] = fee_type or SelfcheckFeeType.OTHER
-        self['security_marker'] = security_marker or \
-            SelfcheckSecurityMarkerType.OTHER
-        self['screen_messages'] = []
+        self["item_id"] = item_id
+        self["title_id"] = title_id or ""
+        self["circulation_status"] = (
+            circulation_status or SelfcheckCirculationStatus.OTHER
+        )
+        self["fee_type"] = fee_type or SelfcheckFeeType.OTHER
+        self["security_marker"] = security_marker or SelfcheckSecurityMarkerType.OTHER
+        self["screen_messages"] = []
 
         # optional properties
         for key, value in kwargs.items():
@@ -274,8 +304,15 @@ class SelfcheckItemInformation(dict):
 class SelfcheckCheckin(dict):
     """Class representing checkin handler response."""
 
-    def __init__(self, permanent_location, checkin=False, alert=False,
-                 magnetic_media='unknown', resensitize='unknown',  **kwargs):
+    def __init__(
+        self,
+        permanent_location,
+        checkin=False,
+        alert=False,
+        magnetic_media="unknown",
+        resensitize="unknown",
+        **kwargs,
+    ):
         """Constructor.
 
         :param permanent_location - permanent_location of the item
@@ -286,12 +323,12 @@ class SelfcheckCheckin(dict):
         :param kwargs - optional fields
         """
         # required properties
-        self['checkin'] = checkin
-        self['alert'] = alert
-        self['magnetic_media'] = magnetic_media
-        self['resensitize'] = resensitize
-        self['permanent_location'] = permanent_location
-        self['screen_messages'] = []
+        self["checkin"] = checkin
+        self["alert"] = alert
+        self["magnetic_media"] = magnetic_media
+        self["resensitize"] = resensitize
+        self["permanent_location"] = permanent_location
+        self["screen_messages"] = []
 
         # optional properties
         for key, value in kwargs.items():
@@ -301,29 +338,36 @@ class SelfcheckCheckin(dict):
     @property
     def is_success(self):
         """Shortcut for checkin."""
-        return self.get('checkin')
+        return self.get("checkin")
 
     @property
     def resensitize(self):
         """Shortcut for resensitize."""
-        return self.get('resensitize')
+        return self.get("resensitize")
 
     @property
     def has_magnetic_media(self):
         """Shortcut for desensitize."""
-        return self.get('magnetic_media')
+        return self.get("magnetic_media")
 
     @property
     def sound_alert(self):
         """Shortcut for alert."""
-        return self.get('alert')
+        return self.get("alert")
 
 
 class SelfcheckCheckout(dict):
     """Class representing checkout handler response."""
 
-    def __init__(self, title_id, checkout=False, renewal=False,
-                 magnetic_media='unknown', desensitize='unknown',  **kwargs):
+    def __init__(
+        self,
+        title_id,
+        checkout=False,
+        renewal=False,
+        magnetic_media="unknown",
+        desensitize="unknown",
+        **kwargs,
+    ):
         """Constructor.
 
         :param title_id - title_id (e.g. title, identifier, ...)
@@ -334,12 +378,12 @@ class SelfcheckCheckout(dict):
         :param kwargs - optional fields
         """
         # required properties
-        self['checkout'] = checkout
-        self['renewal'] = renewal
-        self['magnetic_media'] = magnetic_media
-        self['desensitize'] = desensitize
-        self['title_id'] = title_id
-        self['screen_messages'] = []
+        self["checkout"] = checkout
+        self["renewal"] = renewal
+        self["magnetic_media"] = magnetic_media
+        self["desensitize"] = desensitize
+        self["title_id"] = title_id
+        self["screen_messages"] = []
 
         # optional properties
         for key, value in kwargs.items():
@@ -349,27 +393,27 @@ class SelfcheckCheckout(dict):
     @property
     def is_success(self):
         """Shortcut for checkout ok."""
-        return self.get('checkout')
+        return self.get("checkout")
 
     @property
     def is_renewal(self):
         """Shortcut for renewal ok."""
-        return self.get('renewal')
+        return self.get("renewal")
 
     @property
     def due_date(self):
         """Shortcut for due date."""
-        return self.get('due_date', '')
+        return self.get("due_date", "")
 
     @property
     def desensitize(self):
         """Shortcut for desensitize."""
-        return self.get('desensitize')
+        return self.get("desensitize")
 
     @property
     def has_magnetic_media(self):
         """Shortcut for desensitize."""
-        return self.get('magnetic_media')
+        return self.get("magnetic_media")
 
 
 class SelfcheckHold(dict):
@@ -383,9 +427,9 @@ class SelfcheckHold(dict):
         :param kwargs - optional fields
         """
         # required properties
-        self['hold'] = hold
-        self['available'] = available
-        self['screen_messages'] = []
+        self["hold"] = hold
+        self["available"] = available
+        self["screen_messages"] = []
 
         # optional properties
         for key, value in kwargs.items():
@@ -395,19 +439,26 @@ class SelfcheckHold(dict):
     @property
     def is_success(self):
         """Shortcut for hold ok."""
-        return self.get('hold')
+        return self.get("hold")
 
     @property
     def is_available(self):
         """Shortcut for available."""
-        return self.get('available')
+        return self.get("available")
 
 
 class SelfcheckRenew(dict):
     """Class representing renew handler response."""
 
-    def __init__(self, title_id, success=False, renewal=False,
-                 magnetic_media='unknown', desensitize='unknown',  **kwargs):
+    def __init__(
+        self,
+        title_id,
+        success=False,
+        renewal=False,
+        magnetic_media="unknown",
+        desensitize="unknown",
+        **kwargs,
+    ):
         """Constructor.
 
         :param title_id: title_id (e.g. title, identifier, ...)
@@ -423,13 +474,13 @@ class SelfcheckRenew(dict):
         :param kwargs: optional fields
         """
         # required properties
-        self['success'] = success
-        self['renewal'] = renewal
-        self['magnetic_media'] = magnetic_media
-        self['desensitize'] = desensitize
-        self['title_id'] = title_id
-        self['due_date'] = acs_system.sip2_current_date
-        self['screen_messages'] = []
+        self["success"] = success
+        self["renewal"] = renewal
+        self["magnetic_media"] = magnetic_media
+        self["desensitize"] = desensitize
+        self["title_id"] = title_id
+        self["due_date"] = acs_system.sip2_current_date
+        self["screen_messages"] = []
 
         # optional properties
         for key, value in kwargs.items():
@@ -439,27 +490,27 @@ class SelfcheckRenew(dict):
     @property
     def is_success(self):
         """Shortcut for success operation."""
-        return self.get('success')
+        return self.get("success")
 
     @property
     def is_renewal(self):
         """Shortcut for renewal ok."""
-        return self.get('renewal')
+        return self.get("renewal")
 
     @property
     def due_date(self):
         """Shortcut for due date."""
-        return self.get('due_date', '')
+        return self.get("due_date", "")
 
     @property
     def desensitize(self):
         """Shortcut for desensitize."""
-        return self.get('desensitize')
+        return self.get("desensitize")
 
     @property
     def has_magnetic_media(self):
         """Shortcut for desensitize."""
-        return self.get('magnetic_media')
+        return self.get("magnetic_media")
 
 
 class SelfcheckFeePaid(dict):
@@ -474,8 +525,8 @@ class SelfcheckFeePaid(dict):
         :param kwargs: optional fields
         """
         # required properties
-        self['payment_accepted'] = accepted
-        self['screen_messages'] = []
+        self["payment_accepted"] = accepted
+        self["screen_messages"] = []
 
         # optional properties
         for key, value in kwargs.items():
@@ -485,41 +536,41 @@ class SelfcheckFeePaid(dict):
     @property
     def is_accepted(self):
         """Shortcut for payment_accepted operation."""
-        return self.get('payment_accepted', False)
+        return self.get("payment_accepted", False)
 
 
 class SelfcheckLanguage(Enum):
     """Enum class to list all available language."""
 
     # SIP2 supported Language
-    UNKNOWN = '000'
-    ENGLISH = '001'
-    FRENCH = '002'
-    GERMAN = '003'
-    ITALIAN = '004'
-    DUTCH = '005'
-    SWEDISH = '006'
-    FINNISH = '007'
-    SPANISH = '008'
-    DANISH = '009'
-    PORTUGUESE = '010'
-    CANADIAN_FRENCH = '011'
-    NORWEGIAN = '012'
-    HEBREW = '013'
-    JAPANESE = '014'
-    RUSSIAN = '015'
-    ARABIC = '016'
-    POLISH = '017'
-    GREEK = '018'
-    CHINESE = '019'
-    KOREAN = '020'
-    NORTH_AMERICAN_SPANISH = '021'
-    TAMIL = '022'
-    MALAY = '023'
-    UNITED_KINGDOM = '024'
-    ICELANDIC = '025'
-    BELGIAN = '026'
-    TAIWANESE = '027'
+    UNKNOWN = "000"
+    ENGLISH = "001"
+    FRENCH = "002"
+    GERMAN = "003"
+    ITALIAN = "004"
+    DUTCH = "005"
+    SWEDISH = "006"
+    FINNISH = "007"
+    SPANISH = "008"
+    DANISH = "009"
+    PORTUGUESE = "010"
+    CANADIAN_FRENCH = "011"
+    NORWEGIAN = "012"
+    HEBREW = "013"
+    JAPANESE = "014"
+    RUSSIAN = "015"
+    ARABIC = "016"
+    POLISH = "017"
+    GREEK = "018"
+    CHINESE = "019"
+    KOREAN = "020"
+    NORTH_AMERICAN_SPANISH = "021"
+    TAMIL = "022"
+    MALAY = "023"
+    UNITED_KINGDOM = "024"
+    ICELANDIC = "025"
+    BELGIAN = "026"
+    TAIWANESE = "027"
 
     # ISO 639-2 common Language mapping
     und = UNKNOWN
@@ -553,83 +604,84 @@ class SelfcheckLanguage(Enum):
 class SelfcheckSecurityMarkerType(object):
     """Class to handle all available security marker type."""
 
-    OTHER = '00'
-    NONE = '01'
-    TATTLE_TAPE_SECURITY_STRIP = '02'
-    WHISPHER_TAPE = '03'
+    OTHER = "00"
+    NONE = "01"
+    TATTLE_TAPE_SECURITY_STRIP = "02"
+    WHISPHER_TAPE = "03"
 
 
 class SelfcheckFeeType(object):
     """Class to handle all available fee type."""
 
-    OTHER = '01'
-    ADMINISTRATIVE = '02'
-    DAMAGE = '03'
-    OVERDUE = '04'
-    PROCESSING = '05'
-    RENTAL = '06'
-    REPLACEMENT = '07'
-    COMPUTER_ACCESS_CHARGE = '08'
-    HOLD_FEE = '09'
+    OTHER = "01"
+    ADMINISTRATIVE = "02"
+    DAMAGE = "03"
+    OVERDUE = "04"
+    PROCESSING = "05"
+    RENTAL = "06"
+    REPLACEMENT = "07"
+    COMPUTER_ACCESS_CHARGE = "08"
+    HOLD_FEE = "09"
 
 
 class SelfcheckPaymentType(object):
     """Class to handle all available payment type."""
 
-    CASH = '00'
-    VISA = '01'
-    CREDIT_CARD = '02'
+    CASH = "00"
+    VISA = "01"
+    CREDIT_CARD = "02"
 
 
 class SelfcheckMediaType(object):
     """Class to handle all available media type."""
 
-    OTHER = '000'
-    BOOK = '001'
-    MAGAZINE = '002'
-    BOUND_JOURNAL = '003'
-    AUDIO = '004'
-    VIDEO = '005'
-    CD_OR_CDROM = '006'
-    DISKETTE = '007'
-    BOOK_WHIT_DISKETTE = '008'
-    BOOK_WHIT_CD = '009'
-    BOOK_WHIT_AUDIO_TAPE = '010'
+    OTHER = "000"
+    BOOK = "001"
+    MAGAZINE = "002"
+    BOUND_JOURNAL = "003"
+    AUDIO = "004"
+    VIDEO = "005"
+    CD_OR_CDROM = "006"
+    DISKETTE = "007"
+    BOOK_WHIT_DISKETTE = "008"
+    BOOK_WHIT_CD = "009"
+    BOOK_WHIT_AUDIO_TAPE = "010"
 
 
 class SelfcheckCirculationStatus(object):
     """Class to handle all available circulation status of an item."""
 
-    OTHER = '01'
-    ON_ORDER = '02'
-    AVAILABLE = '03'
-    CHARGED = '04'
-    CHARGED_RECALL = '05'  # not to be recalled until earliest recall date
-    IN_PROCESS = '06'
-    RECALLED = '07'
-    WAITING_ON_HOLD_SHELF = '08'
-    WAITING_TO_RESHELF = '09'
-    IN_TRANSIT = '10'
-    CLAIMED_RETURNED = '11'
-    LOST = '12'
-    MISSING = '13'
+    OTHER = "01"
+    ON_ORDER = "02"
+    AVAILABLE = "03"
+    CHARGED = "04"
+    CHARGED_RECALL = "05"  # not to be recalled until earliest recall date
+    IN_PROCESS = "06"
+    RECALLED = "07"
+    WAITING_ON_HOLD_SHELF = "08"
+    WAITING_TO_RESHELF = "09"
+    IN_TRANSIT = "10"
+    CLAIMED_RETURNED = "11"
+    LOST = "12"
+    MISSING = "13"
 
 
 class SelfcheckSummary:
     """Class representing summary."""
 
     fields = [
-        'hold_items',
-        'overdue_items',
-        'charged_items',
-        'fine_items',
-        'recall_items',
-        'unavailable_hold_items',
+        "hold_items",
+        "overdue_items",
+        "charged_items",
+        "fine_items",
+        "recall_items",
+        "unavailable_hold_items",
     ]
 
     def __init__(self, text):
         """Init."""
         from .utils import decode_char_to_bool
+
         self.hold_items = decode_char_to_bool(text[0])
         self.overdue_items = decode_char_to_bool(text[1])
         self.charged_items = decode_char_to_bool(text[2])

@@ -23,10 +23,10 @@ from invenio_i18n import gettext as _
 from invenio_sip2.records import Server
 
 blueprint = Blueprint(
-    'invenio_sip2',
+    "invenio_sip2",
     __name__,
-    template_folder='../templates',
-    static_folder='../static',
+    template_folder="../templates",
+    static_folder="../static",
 )
 
 
@@ -35,5 +35,6 @@ def monitoring():
     """Render a basic view."""
     return render_template(
         "invenio_sip2/monitoring.html",
-        module_name=_('Invenio-SIP2'),
-        servers=list(Server.get_all_records()))
+        module_name=_("Invenio-SIP2"),
+        servers=list(Server.get_all_records()),
+    )

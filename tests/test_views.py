@@ -23,4 +23,4 @@ def test_view_monitoring(app):
     with app.test_client() as client:
         res = client.get("/sip2/monitoring")
         assert res.status_code == 200
-        assert 'Automated circulation system monitoring' in str(res.data)
+        assert "Automated circulation system monitoring" in str(res.data)

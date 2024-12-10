@@ -33,17 +33,17 @@ def test_datastore_interface(app, server_data):
     """Test datastore interface."""
     ds = Datastore()
     with pytest.raises(NotImplementedError):
-        ds.add('key', 'value')
+        ds.add("key", "value")
     with pytest.raises(NotImplementedError):
-        ds.get('id_')
+        ds.get("id_")
     with pytest.raises(NotImplementedError):
-        ds.update('key', 'value')
+        ds.update("key", "value")
     with pytest.raises(NotImplementedError):
-        ds.delete('key')
+        ds.delete("key")
     with pytest.raises(NotImplementedError):
         ds.all()
     with pytest.raises(NotImplementedError):
-        ds.search('query')
+        ds.search("query")
     with pytest.raises(NotImplementedError):
         ds.flush()
 
@@ -55,8 +55,8 @@ def test_redis_datastore(app, server_data):
         # clear datastore
         datastore.flush()
         server = Server(server_data)
-        datastore.add(server, 'key_1')
-        data = datastore.get(server.id, 'server')
+        datastore.add(server, "key_1")
+        data = datastore.get(server.id, "server")
         assert data
         datastore.flush()
         assert not datastore.get(server.id)
@@ -65,10 +65,10 @@ def test_redis_datastore(app, server_data):
 def test_record_metadata(app, server_data, dummy_client_data):
     """Record metadata tests"""
     with app.app_context():
-        server = Server.create(server_data, id_='key_1')
+        server = Server.create(server_data, id_="key_1")
         assert server.id
         assert server.count() == 1
-        data = Server.find_server(server_name=server_data.get('server_name'))
+        data = Server.find_server(server_name=server_data.get("server_name"))
         assert data.id == server.id
         assert not server.is_running
         server.up()

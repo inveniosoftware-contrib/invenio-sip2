@@ -1,9 +1,9 @@
-[tool.poetry]
+[project]
 name = "invenio-sip2"
 version = "0.6.23"
 description = "Invenio module that add a SIP2 communication for library self-check service"
 readme = "README.rst"
-authors = ["Laurent Dubois <laurent.dubois@uclouvain.be>"]
+authors = [{name = "Laurent Dubois",email = "<laurent.dubois@uclouvain.be>"}]
 license = "GNU Affero General Public License v3.0"
 repository = "https://github.com/inveniosoftware-contrib/invenio-sip2"
 documentation = "https://invenio-sip2.readthedocs.io"
@@ -16,47 +16,55 @@ classifiers = [
     "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Development Status :: 3 - Alpha",
 ]
+requires-python = ">=3.9, <3.13"
 
-[tool.poetry.dependencies]
-python = ">=3.7,<3.10"
-invenio-base = ">=1.3.0,<2.0.0"
-invenio-access = ">=2.0.0,<3.0.0"
-invenio-i18n = ">=2.0.0,<3.0.0"
-jsonpickle = ">=1.2"
-psutil = ">=5.9.0"
-pycountry = ">=19.7.15"
-python-dateutil = ">=2.8.2"
-# Pinned due to before_first_request deprecation https://flask.palletsprojects.com/en/2.2.x/api/#flask.Flask.before_first_request
-Flask = ">=2.2.0,<2.3.0"
+dependencies = [
+    "invenio-base (>=2.0,<3.0)",
+    "invenio-access (>=2.0.0,<5.0.0)",
+    "invenio-i18n (>=2.0.0,<4.0.0)",
+    "jsonpickle (>=1.2)",
+    "psutil",
+    "pycountry (>=19.7.15)",
+    "python-dateutil",
+    "Flask (>=2.2.0,<4.0)",
+    "SQLAlchemy (>=1.2.18,<3.0)",
+    "SQLAlchemy-Utils (>=0.33.1,<0.39)"
+]
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 pytest-black-ng = ">=0.4.0"
-pytest-invenio = ">=2.1.6,<3.0.0"
-Sphinx = ">=4.5.0"
-pydocstyle = ">=6.1.1,<6.2"
+pytest-invenio = ">=3.0.0,<4.0.0"
+pydocstyle = ">=6.1.1"
 autoflake = ">=1.3.1"
-mock = ">=4.0.3"
+Sphinx = ">=4.5.0"
+mock = ">=4.0.0"
 
 [build-system]
 requires = ["poetry_core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
-[tool.poetry.plugins."invenio_base.apps"]
+[project.entry-points."invenio_base.apps"]
 invenio_sip2 = "invenio_sip2:InvenioSIP2"
 
-[tool.poetry.plugins."invenio_base.api_apps"]
+[project.entry-points."invenio_base.api_apps"]
 invenio_sip2 = "invenio_sip2:InvenioSIP2"
 
-[tool.poetry.plugins."invenio_base.blueprints"]
+[project.entry-points."invenio_base.blueprints"]
 invenio_sip2 = "invenio_sip2.views.views:blueprint"
 
-[tool.poetry.plugins."invenio_base.api_blueprints"]
+[project.entry-points."invenio_base.api_blueprints"]
 invenio_sip2 = "invenio_sip2.views.rest:api_blueprint"
 
-[tool.poetry.plugins."flask.commands"]
+[project.entry-points."flask.commands"]
 selfcheck = "invenio_sip2.cli:selfcheck"
+
+[tool.isort]
+profile = "black"
+
+[tool.pytest]
+addopts = "--color=yes --black --isort --pydocstyle --doctest-glob=\"*.rst\" --doctest-modules --cov=invenio_sip2 --cov-report=term-missing --ignore=docs/conf.py"
+testpaths = "docs tests invenio_sip2"

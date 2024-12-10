@@ -39,29 +39,29 @@ class SocketServer:
 
     selector = selectors.DefaultSelector()
 
-    def __init__(self, name, host='0.0.0.0', port=3004, **kwargs):
+    def __init__(self, name, host="0.0.0.0", port=3004, **kwargs):
         """Constructor."""
         self.server_name = name
         self.host = host
         self.port = port
-        self.remote_app = kwargs.pop('remote')
-        self.process_id = kwargs.pop('process_id')
+        self.remote_app = kwargs.pop("remote")
+        self.process_id = kwargs.pop("process_id")
         self.server = Server.create(data=vars(self))
-        self.server['process_id'] = self.process_id
+        self.server["process_id"] = self.process_id
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         # Avoid bind() exception: OSError: [Errno 48] Address already in use
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         sock.bind((self.host, self.port))
         sock.listen()
-        logger.info('listening on {host}, {port}'.format(
-            port=self.port,
-            host=self.host
-        ))
+        logger.info(
+            "listening on {host}, {port}".format(port=self.port, host=self.host)
+        )
         signal.signal(signal.SIGINT, self.handler_stop_signals)
         signal.signal(signal.SIGTERM, self.handler_stop_signals)
         sock.setblocking(False)
         self.selector.register(
-            sock, selectors.EVENT_READ | selectors.EVENT_WRITE, data=None)
+            sock, selectors.EVENT_READ | selectors.EVENT_WRITE, data=None
+        )
 
     def run(self):
         """Run socket server."""
@@ -77,31 +77,24 @@ class SocketServer:
                         try:
                             message.process_events(mask)
                         except (UnicodeDecodeError, CommandNotFound) as err:
-                            logger.debug(
-                                err,
-                                exc_info=True
-                            )
+                            logger.debug(err, exc_info=True)
                             message.close()
                         except RuntimeError as e:
                             logger.debug(
-                                f'message cannot be processed: {e}',
-                                exc_info=True
+                                f"message cannot be processed: {e}", exc_info=True
                             )
                             message.close()
                         except Exception as ex:
                             logger.error(
-                                f'message cannot be processed: {ex}',
-                                exc_info=True
+                                f"message cannot be processed: {ex}", exc_info=True
                             )
                             message.close()
         except Exception as e:
             logger.error(
-                'SIP2 server closed prematurely ({host}, {port}: {msg}'.format(
-                    port=self.port,
-                    host=self.host,
-                    msg=e
+                "SIP2 server closed prematurely ({host}, {port}: {msg}".format(
+                    port=self.port, host=self.host, msg=e
                 ),
-                exc_info=True
+                exc_info=True,
             )
         finally:
             self.close()
@@ -109,13 +102,10 @@ class SocketServer:
     def accept_wrapper(self, sock):
         """Accept connection wrapper."""
         connection, address = sock.accept()  # Should be ready to read
-        logger.info('accepted connection from {address}'.format(
-            address=address
-        ))
+        logger.info("accepted connection from {address}".format(address=address))
         connection.setblocking(False)
 
-        message = SocketEventListener(
-            self.server, self.selector, connection, address)
+        message = SocketEventListener(self.server, self.selector, connection, address)
         self.selector.register(connection, selectors.EVENT_READ, data=message)
 
     def close(self):
@@ -140,8 +130,8 @@ class SocketEventListener:
         self.selector = selector
         self.sock = sock
         self.addr = addr
-        self._recv_buffer = b''
-        self._send_buffer = b''
+        self._recv_buffer = b""
+        self._send_buffer = b""
         self.request = None
         self.response = None
         self.message = None
@@ -154,25 +144,23 @@ class SocketEventListener:
     def dumps(self):
         """Dumps record."""
         data = {
-            'server': {
-                'id': self.server.id
-            },
-            'ip_address': self.addr[0],
-            'socket': self.addr[1],
+            "server": {"id": self.server.id},
+            "ip_address": self.addr[0],
+            "socket": self.addr[1],
         }
         if self.request:
-            data['last_request'] = self.request.dumps()
+            data["last_request"] = self.request.dumps()
         if self.response:
-            data['last_response'] = self.response.dumps()
+            data["last_response"] = self.response.dumps()
         return data
 
     def _set_selector_events_mask(self, mode):
         """Set selector to listen for events: mode is 'r', 'w', or 'rw'."""
-        if mode == 'r':
+        if mode == "r":
             events = selectors.EVENT_READ
-        elif mode == 'w':
+        elif mode == "w":
             events = selectors.EVENT_WRITE
-        elif mode == 'rw':
+        elif mode == "rw":
             events = selectors.EVENT_READ | selectors.EVENT_WRITE
         else:
             raise ValueError(f"Invalid events mask mode {repr(mode)}.")
@@ -188,39 +176,44 @@ class SocketEventListener:
             pass
         else:
             if data:
-                log_prefix = f'request from {self.client.terminal} ' \
-                    f'({self.client.get("ip_address")}, ' \
+                log_prefix = (
+                    f"request from {self.client.terminal} "
+                    f'({self.client.get("ip_address")}, '
                     f'{self.client.get("socket")})'
+                )
                 request_msg = data.decode(encoding=self.message_encoding)
                 # strip the line terminator
-                request_msg = \
-                    request_msg[:len(request_msg) - len(self.line_terminator)]
+                request_msg = request_msg[
+                    : len(request_msg) - len(self.line_terminator)
+                ]
                 try:
                     self.request = Message(request=request_msg)
-                    request = self.request.dumps() if logger.level == \
-                        logging.DEBUG else request_msg
+                    request = (
+                        self.request.dumps()
+                        if logger.level == logging.DEBUG
+                        else request_msg
+                    )
 
-                    logger.info(f'{log_prefix}: {request}')
+                    logger.info(f"{log_prefix}: {request}")
 
                     if self.validate_message(request_msg):
                         self._recv_buffer += data
                     else:
                         logger.error(
-                            f'invalid checksum for: {request_msg}',
-                            exc_info=True
+                            f"invalid checksum for: {request_msg}", exc_info=True
                         )
                         # prepare request selcheck resend message
                         self.response = Message(
-                            message_type=current_sip2.sip2_message_types
-                            .get_by_command('96')
+                            message_type=current_sip2.sip2_message_types.get_by_command(
+                                "96"
+                            )
                         )
                         # Set selector to listen for write events
                         self._set_selector_events_mask("w")
                 except CommandNotFound as e:
-                    raise CommandNotFound(
-                        message=f'{log_prefix} - {e.description}')
+                    raise CommandNotFound(message=f"{log_prefix} - {e.description}")
                 except Exception as err:
-                    logger.info('{log_prefix} - {request_msg}')
+                    logger.info("{log_prefix} - {request_msg}")
                     raise Exception(err)
             else:
                 raise RuntimeError("Peer closed.")
@@ -263,36 +256,37 @@ class SocketEventListener:
                 response = self.response.dumps()
             else:
                 response = str(self.response)
-            logger.info(f'send to {self.client.terminal} '
-                        f'({self.client.get("ip_address")}, '
-                        f'{self.client.get("socket")}): {response}')
+            logger.info(
+                f"send to {self.client.terminal} "
+                f'({self.client.get("ip_address")}, '
+                f'{self.client.get("socket")}): {response}'
+            )
             self._write()
 
     def close(self):
         """Close the connection with selfcheck client."""
-        logger.info('closing connection to {address}'.format(
-            address=self.addr
-        ))
+        logger.info("closing connection to {address}".format(address=self.addr))
         try:
             self.selector.unregister(self.sock)
         except Exception as e:
             current_app.logger.error(
-                'error: selector unregistered for {terminal}:{terminal_ip} '
-                'on {server}'.format(
+                "error: selector unregistered for {terminal}:{terminal_ip} "
+                "on {server}".format(
                     terminal=self.client.terminal,
-                    terminal_ip=self.client.get('ip_address'),
-                    server=self.server.get('server_name')
-                ), e
+                    terminal_ip=self.client.get("ip_address"),
+                    server=self.server.get("server_name"),
+                ),
+                e,
             )
         try:
             self.sock.close()
         except OSError as e:
             current_app.logger.error(
-                'error: socket closing exception for {terminal}:{terminal_ip} '
-                'on {server}'.format(
+                "error: socket closing exception for {terminal}:{terminal_ip} "
+                "on {server}".format(
                     terminal=self.client.terminal,
-                    terminal_ip=self.client.get('ip_address'),
-                    server=self.server.get('server_name')
+                    terminal_ip=self.client.get("ip_address"),
+                    server=self.server.get("server_name"),
                 )
             )
         finally:
@@ -302,11 +296,8 @@ class SocketEventListener:
 
     def process_request(self):
         """Processing of selfcheck message."""
-        self.response = current_sip2.sip2.execute(
-            self.request,
-            client=self.client
-        )
-        if self.request.command != '97':
+        self.response = current_sip2.sip2.execute(self.request, client=self.client)
+        if self.request.command != "97":
             self.client.update(self.dumps())
 
         # Set selector to listen for write events, we're done reading.
@@ -325,19 +316,22 @@ class SocketEventListener:
         if not self.error_detection:
             if self.request.sequence_number and self.request.checksum:
                 logger.warning(
-                    'error detection is disabled but the request message '
-                    'contains sequence number and checksum: {message}'.format(
+                    "error detection is disabled but the request message "
+                    "contains sequence number and checksum: {message}".format(
                         message=self.request
-                    ))
+                    )
+                )
             return True
         if self.request.checksum:
-            return True \
-                if self.request.command == '97' \
-                else verify_sequence_number(self.client, self.request) \
+            return (
+                True
+                if self.request.command == "97"
+                else verify_sequence_number(self.client, self.request)
                 and verify_checksum(request_msg)
+            )
 
         logger.warning(
-            'error detection is enabled but the request message '
-            'hasn\'t checksum: {message}'.format(
-                message=self.request))
+            "error detection is enabled but the request message "
+            "hasn't checksum: {message}".format(message=self.request)
+        )
         return True
