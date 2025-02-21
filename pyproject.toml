@@ -1,6 +1,6 @@
 [project]
 name = "invenio-sip2"
-version = "0.6.23"
+version = "0.6.24"
 description = "Invenio module that add a SIP2 communication for library self-check service"
 readme = "README.rst"
 authors = [{name = "Laurent Dubois",email = "<laurent.dubois@uclouvain.be>"}]
