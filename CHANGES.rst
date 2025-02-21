@@ -17,6 +17,14 @@
 Changes
 =======
 
+
+Version 0.6.24 (released 2025-02-21)
+
+Minor change:
+
+* Updates dependencies.
+* Allows python versions 3.9 - 3.12
+
 Version 0.6.23 (released 2024-05-08)
 
 Minor change:
