@@ -15,12 +15,13 @@ classifiers = [
     "Programming Language :: Python",
     "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
     "Topic :: Software Development :: Libraries :: Python Modules",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Development Status :: 3 - Alpha",
 ]
-requires-python = ">=3.9, <3.13"
+requires-python = ">=3.9.2, <3.13"
 
 dependencies = [
     "invenio-base (>=2.0,<3.0)",
@@ -31,8 +32,8 @@ dependencies = [
     "pycountry (>=19.7.15)",
     "python-dateutil",
     "Flask (>=2.2.0,<4.0)",
-    "SQLAlchemy (>=1.2.18,<3.0)",
-    "SQLAlchemy-Utils (>=0.33.1,<0.39)"
+    "SQLAlchemy (>=1.4.0,<3.0)",
+    "SQLAlchemy-Utils (>=0.33.1)"
 ]
 
 [tool.poetry.group.dev.dependencies]
