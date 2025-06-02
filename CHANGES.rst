@@ -18,6 +18,14 @@ Changes
 =======
 
 
+Version 0.6.25 (released 2025-06-02)
+
+Minor change:
+
+* Bumps dependencies.
+* Allows python versions 3.9.2 - 3.12.
+* Unrestricts sqlalchemy-utils.
+
 Version 0.6.24 (released 2025-02-21)
 
 Minor change:

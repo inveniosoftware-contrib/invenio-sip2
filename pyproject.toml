@@ -1,6 +1,6 @@
 [project]
 name = "invenio-sip2"
-version = "0.6.24"
+version = "0.6.25"
 description = "Invenio module that add a SIP2 communication for library self-check service"
 readme = "README.rst"
 authors = [{name = "Laurent Dubois",email = "<laurent.dubois@uclouvain.be>"}]
@@ -25,8 +25,9 @@ requires-python = ">=3.9.2, <3.13"
 
 dependencies = [
     "invenio-base (>=2.0,<3.0)",
-    "invenio-access (>=2.0.0,<5.0.0)",
+    "invenio-access (>=4.0.0,<6.0.0)",
     "invenio-i18n (>=2.0.0,<4.0.0)",
+    "invenio-admin (>=1.5.2,<2.0.0)",
     "jsonpickle (>=1.2)",
     "psutil",
     "pycountry (>=19.7.15)",
