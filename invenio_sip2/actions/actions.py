@@ -270,9 +270,10 @@ class PatronInformation(Action):
         current_logger.debug(f"[PatronInformation]: handler response: {patron_account}")
         # TODO: better way to begin session
         # start patron session
+        lang = patron_account.get("language", message.i18n_language)
         client["patron_session"] = {
             "patron_id": patron_id,
-            "language": message.i18n_language,
+            "language": lang,
         }
         # prepare message based on required fields
         response_message = self.prepare_message_response(
