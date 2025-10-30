@@ -67,3 +67,36 @@ def add_sequence_number(func):
         return result
 
     return wrapper
+
+
+def extract_and_add_language_parameter(func):
+    """Decorator to extract and add language.
+
+    Extracts the language from the client and injects it into the wrapped
+    function as a `language` argument.
+    """
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        # Try to retrieve the `client` argument:
+        # 1. from keyword arguments
+        # 2. or from positional arguments by looking for an object
+        #    that has a method named `get_current_patron_session`
+        client = kwargs.get("client") or next(
+            (a for a in args if hasattr(a, "get_current_patron_session")), None
+        )
+
+        if client is None:
+            raise ValueError("Client not found")
+
+        # Try to get the language from the patron session first,
+        # otherwise fall back to the client's `library_language`
+        patron_session = client.get_current_patron_session()
+        language = (patron_session or {}).get("language") or client.get(
+            "library_language"
+        )
+
+        # Call the original function, injecting the language
+        return func(*args, language=language, **kwargs)
+
+    return wrapper

@@ -21,7 +21,11 @@ from flask import current_app
 
 from invenio_sip2.actions.base import Action
 from invenio_sip2.api import Message
-from invenio_sip2.decorators import add_sequence_number, check_selfcheck_authentication
+from invenio_sip2.decorators import (
+    add_sequence_number,
+    check_selfcheck_authentication,
+    extract_and_add_language_parameter,
+)
 from invenio_sip2.errors import SelfcheckCirculationError, SelfcheckError
 from invenio_sip2.handlers import (
     authorize_patron_handler,
@@ -88,17 +92,22 @@ class AutomatedCirculationSystemStatus(Action):
     """Action to get status from automated circulation system."""
 
     @check_selfcheck_authentication
+    @extract_and_add_language_parameter
     @add_sequence_number
-    def execute(self, message, client):
+    def execute(self, message, client, language):
         """Execute automated circulation system status action.
 
         :param message: message receive from the client
         :param client: the client
+        :param language: the client language
         :return: message class representing the response of the current action
         """
         # TODO : calculate system status from remote app
         status = system_status_handler(
-            client.remote_app, client.terminal, institution_id=client.institution_id
+            client.remote_app,
+            client.terminal,
+            institution_id=client.institution_id,
+            language=language,
         )
         current_logger.debug(
             f"[AutomatedCirculationSystemStatus]: " f"handler response: {status}"
@@ -163,22 +172,29 @@ class PatronEnable(Action):
     """Action to enable patron on automated circulation system."""
 
     @check_selfcheck_authentication
+    @extract_and_add_language_parameter
     @add_sequence_number
-    def execute(self, message, client):
+    def execute(self, message, client, language):
         """Execute enable patron action.
 
         :param message: message receive from the client
         :param client: the client
+        :param language: the client language
         :return: message class representing the response of the current action
         """
         patron_id = message.get_field_value("patron_id")
-
         is_valid_patron = validate_patron_handler(
-            client.remote_app, patron_id, institution_id=client.institution_id
+            client.remote_app,
+            patron_id,
+            institution_id=client.institution_id,
+            language=language,
         )
 
         enabled_patron = enable_patron_handler(
-            client.remote_app, patron_id, institution_id=client.institution_id
+            client.remote_app,
+            patron_id,
+            institution_id=client.institution_id,
+            language=language,
         )
         current_logger.debug(f"[PatronEnable]: handler response: {enabled_patron}")
         # prepare message based on required fields
@@ -223,17 +239,22 @@ class PatronStatus(Action):
     """Action to get patron status from automated circulation system."""
 
     @check_selfcheck_authentication
+    @extract_and_add_language_parameter
     @add_sequence_number
-    def execute(self, message, client):
+    def execute(self, message, client, language):
         """Execute patron status action.
 
         :param message: message receive from the client
         :param client: the client
+        :param language: the client language
         :return: message class representing the response of the current action
         """
         patron_id = message.get_field_value("patron_id")
         patron_status = patron_status_handler(
-            client.remote_app, patron_id, institution_id=client.institution_id
+            client.remote_app,
+            patron_id,
+            institution_id=client.institution_id,
+            language=language,
         )
         current_logger.debug(f"[PatronStatus]: handler response: {patron_status}")
         response_message = self.prepare_message_response(
@@ -265,19 +286,23 @@ class PatronInformation(Action):
         """
         patron_id = message.get_field_value("patron_id")
         patron_account = patron_handler(
-            client.remote_app, patron_id, institution_id=client.institution_id
+            client.remote_app,
+            patron_id,
+            institution_id=client.institution_id,
+            language=message.i18n_language,
         )
         current_logger.debug(f"[PatronInformation]: handler response: {patron_account}")
         # TODO: better way to begin session
         # start patron session
+        patron_language = patron_account.get("language", message.i18n_language)
         client["patron_session"] = {
             "patron_id": patron_id,
-            "language": message.i18n_language,
+            "language": patron_language,
         }
         # prepare message based on required fields
         response_message = self.prepare_message_response(
             patron_status=str(patron_account.get("patron_status")),
-            language=get_language_code(patron_account.get("language")),
+            language=get_language_code(patron_language),
             transaction_date=acs_system.sip2_current_date,
             hold_items_count=str(patron_account.hold_items_count),
             overdue_items_count=str(patron_account.overdue_items_count),
@@ -350,19 +375,16 @@ class ItemInformation(Action):
     """Action to get item information from automated circulation system."""
 
     @check_selfcheck_authentication
+    @extract_and_add_language_parameter
     @add_sequence_number
-    def execute(self, message, client):
+    def execute(self, message, client, language):
         """Execute item information action.
 
         :param message: message receive from the client
         :param client: the client
+        :param language: the client language
         :return: message class representing the response of the current action
         """
-        patron_session = client.get_current_patron_session()
-        if patron_session:
-            language = patron_session.get("language")
-        else:
-            language = client.library_language
         item_identifier = message.get_field_value("item_id")
         item_information = item_handler(
             client.remote_app,
@@ -401,12 +423,14 @@ class BlockPatron(Action):
     """Action to block patron."""
 
     @check_selfcheck_authentication
+    @extract_and_add_language_parameter
     @add_sequence_number
-    def execute(self, message, client, **kwargs):
+    def execute(self, message, client, language, **kwargs):
         """Execute block patron action.
 
         :param message: message receive from the client
         :param client: the client
+        :param language: the client language
         :return: message class representing the response of the current action
         """
         # TODO: implements action
@@ -417,21 +441,17 @@ class Checkin(Action):
     """Action to checkin an item."""
 
     @check_selfcheck_authentication
+    @extract_and_add_language_parameter
     @add_sequence_number
-    def execute(self, message, client, **kwargs):
+    def execute(self, message, client, language, **kwargs):
         """Execute checkin action.
 
         :param message: message receive from the client
         :param client: the client
+        :param language: the client language
         :return: message class representing the response of the current action
         """
-        patron_session = client.get_current_patron_session()
-        if patron_session:
-            language = patron_session.get("language")
-        else:
-            language = client.library_language
         item_id = message.get_field_value("item_id")
-
         try:
             # TODO: give the client to reduce the number of parameters.
             checkin = checkin_handler(
@@ -478,19 +498,16 @@ class Checkout(Action):
     """Action to checkout an item."""
 
     @check_selfcheck_authentication
+    @extract_and_add_language_parameter
     @add_sequence_number
-    def execute(self, message, client, **kwargs):
+    def execute(self, message, client, language, **kwargs):
         """Execute checkout action.
 
         :param message: message receive from the client
         :param client: the client
+        :param language: the client language
         :return: message class representing the response of the current action
         """
-        patron_session = client.get_current_patron_session()
-        if patron_session:
-            language = patron_session.get("language")
-        else:
-            language = client.library_language
         item_id = message.get_field_value("item_id")
         patron_id = message.get_field_value("patron_id")
 
@@ -537,19 +554,16 @@ class FeePaid(Action):
     """Action to paid fee."""
 
     @check_selfcheck_authentication
+    @extract_and_add_language_parameter
     @add_sequence_number
-    def execute(self, message, client, **kwargs):
+    def execute(self, message, client, language, **kwargs):
         """Execute fee paid action.
 
         :param message: message receive from the client
         :param client: the client
+        :param language: the client language
         :return: message class representing the response of the current action
         """
-        patron_session = client.get_current_patron_session()
-        if patron_session:
-            language = patron_session.get("language")
-        else:
-            language = client.library_language
         patron_id = message.get_field_value("patron_id")
         try:
             fee_paid = fee_paid_handler(
@@ -591,15 +605,16 @@ class Hold(Action):
     """Action to hold an item."""
 
     @check_selfcheck_authentication
+    @extract_and_add_language_parameter
     @add_sequence_number
-    def execute(self, message, client, **kwargs):
+    def execute(self, message, client, language, **kwargs):
         """Execute hold action.
 
         :param message: message receive from the client
         :param client: the client
+        :param language: the client language
         :return: message class representing the response of the current action
         """
-        patron_session = client.get_current_patron_session()
         item_id = message.get_field_value("item_id")
         patron_id = message.get_field_value("patron_id")
 
@@ -611,7 +626,7 @@ class Hold(Action):
                 patron_id=patron_id,
                 institution_id=client.institution_id,
                 terminal=client.terminal,
-                language=patron_session.get("language"),
+                language=language,
             )
         except SelfcheckCirculationError as error:
             hold = error.data
@@ -647,15 +662,16 @@ class Renew(Action):
     """Action to renew an item."""
 
     @check_selfcheck_authentication
+    @extract_and_add_language_parameter
     @add_sequence_number
-    def execute(self, message, client, **kwargs):
+    def execute(self, message, client, language, **kwargs):
         """Execute renew action.
 
         :param message: message receive from the client
         :param client: the client
+        :param language: the client language
         :return: message class representing the response of the current action
         """
-        patron_session = client.get_current_patron_session()
         item_id = message.get_field_value("item_id")
         patron_id = message.get_field_value("patron_id")
 
@@ -667,7 +683,7 @@ class Renew(Action):
                 patron_id=patron_id,
                 intitution_id=client.institution_id,
                 terminal=client.terminal,
-                language=patron_session.get("language"),
+                language=language,
             )
         except SelfcheckCirculationError as error:
             renew = error.data
@@ -707,12 +723,14 @@ class RenewAll(Action):
     """Action to renew all items."""
 
     @check_selfcheck_authentication
+    @extract_and_add_language_parameter
     @add_sequence_number
-    def execute(self, message, client, **kwargs):
+    def execute(self, message, client, language, **kwargs):
         """Execute renew all action.
 
         :param message: message receive from the client
         :param client: the client
+        :param language: the client language
         :return: message class representing the response of the current action
         """
         # TODO: implements action
@@ -723,12 +741,14 @@ class ItemStatusUpdate(Action):
     """Action to update item status."""
 
     @check_selfcheck_authentication
+    @extract_and_add_language_parameter
     @add_sequence_number
-    def execute(self, message, client, **kwargs):
+    def execute(self, message, client, language, **kwargs):
         """Execute item status action.
 
         :param message: message receive from the client
         :param client: the client
+        :param language: the client language
         :return: message class representing the response of the current action
         """
         # TODO: implements action
