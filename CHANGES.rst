@@ -18,6 +18,13 @@ Changes
 =======
 
 
+Version 0.6.26 (released 2025-10-31)
+
+Minor change:
+* Adds decorator to inject language from the current patron session or client.
+* Sends the language to action handler when if possible.
+* Bumps dependencies.
+
 Version 0.6.25 (released 2025-06-02)
 
 Minor change:

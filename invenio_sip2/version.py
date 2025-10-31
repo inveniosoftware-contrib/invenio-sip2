@@ -17,4 +17,4 @@
 
 """Version information for Invenio-SIP2."""
 
-__version__ = "0.6.25"
+__version__ = "0.6.26"
