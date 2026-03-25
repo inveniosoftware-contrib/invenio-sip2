@@ -46,4 +46,4 @@ def test_messages_api(app, patron_information_message):
         assert data[key]
     # test unknown message field
     with pytest.raises(UnknownFieldIdMessageError):
-        field = message.get_field_values("message_type")
+        message.get_field_values("message_type")

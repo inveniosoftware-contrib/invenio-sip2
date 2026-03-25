@@ -77,9 +77,7 @@ class SelfCheckLogin(Action):
             selfcheck_password,
             terminal_ip=client.get("ip_address"),
         )
-        current_logger.debug(
-            f"[SelfCheckLogin]: handler response: " f"{selfcheck_user}"
-        )
+        current_logger.debug(f"[SelfCheckLogin]: handler response: {selfcheck_user}")
         if selfcheck_user:
             language = selfcheck_user.get("library_language", acs_system.sip2_language)
             selfcheck_user["library_language"] = ensure_i18n_language(language)
@@ -110,7 +108,7 @@ class AutomatedCirculationSystemStatus(Action):
             language=language,
         )
         current_logger.debug(
-            f"[AutomatedCirculationSystemStatus]: " f"handler response: {status}"
+            f"[AutomatedCirculationSystemStatus]: handler response: {status}"
         )
         client["status"] = status
         # prepare message based on required fields

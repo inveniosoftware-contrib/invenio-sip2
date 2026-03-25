@@ -26,7 +26,7 @@ from invenio_sip2.cli import selfcheck, start_socket_server
 
 def test_basic_cli():
     """Test version import."""
-    res = CliRunner().invoke(selfcheck)
+    res = CliRunner().invoke(selfcheck, ["--help"])
     assert res.exit_code == 0
 
 

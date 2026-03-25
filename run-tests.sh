@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
-# -*- coding: utf-8 -*-
-#
 # INVENIO-SIP2
-# Copyright (C) 2020 UCLouvain
+# Copyright (C) 2020-2026 UCLouvain, RERO+
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as published by
@@ -63,35 +61,31 @@ success_msg+exit() {
 # Displays program name
 msg "PROGRAM: ${PROGRAM}"
 
-function tests () {
-  set -e
-  info_msg "Test pydocstyle:"
-  pydocstyle invenio_sip2 tests docs
-
-  info_msg "Test isort:"
-  isort invenio_sip2 tests --check-only --diff
-
-  info_msg "Test useless imports:"
-  autoflake --recursive --remove-all-unused-imports --ignore-init-module-imports --check-diff --quiet .
-
-  info_msg "Sphinx-build:"
-  sphinx-build -qnNW docs docs/_build/html
-
-  info_msg "Tests:"
-  poetry run pytest
+pip_audit_exceptions=""
+add_exceptions() {
+  pip_audit_exceptions="$pip_audit_exceptions --ignore-vuln $1"
 }
 
-if [ $# -eq 0 ]
-  then
-    tests
-    exit "$?"
-fi
+function tests () {
+  set -e
+  info_msg "Check vulnerabilities:"
 
-if [ "$1" = "docker-services" ]
-  then
-    docker-services-cli up --db ${DB:-postgresql} --cache ${CACHE:-redis} --mq ${MQ:-redis} --env
-    tests
-    tests_exit_code=$?
-    docker-services-cli down
-    exit "$tests_exit_code"
-fi
+  # pygments 2.19.2  CVE-2026-4539
+  add_exceptions "CVE-2026-4539"
+  pip-audit ${pip_audit_exceptions}
+
+  info_msg "Ruff check:"
+  ruff check
+
+  info_msg "Ruff format check:"
+  ruff format --check
+
+  info_msg "Tests:"
+  pytest
+}
+
+docker-services-cli up --db ${DB:-postgresql} --cache ${CACHE:-redis} --mq ${MQ:-redis} --env
+tests
+tests_exit_code=$?
+docker-services-cli down
+exit "$tests_exit_code"

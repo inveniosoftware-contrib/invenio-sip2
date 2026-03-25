@@ -2,15 +2,13 @@
 name = "invenio-sip2"
 version = "0.6.26"
 description = "Invenio module that add a SIP2 communication for library self-check service"
-readme = "README.rst"
-authors = [{name = "Laurent Dubois",email = "<laurent.dubois@uclouvain.be>"}]
-license = "GNU Affero General Public License v3.0"
-repository = "https://github.com/inveniosoftware-contrib/invenio-sip2"
-documentation = "https://invenio-sip2.readthedocs.io"
+readme = "README.md"
+authors = [{name = "Laurent Dubois", email = "laurent.dubois@uclouvain.be"}]
+license = "AGPL-3.0-or-later"
+requires-python = ">=3.9.2, <3.15"
 classifiers = [
     "Environment :: Web Environment",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: GNU Affero General Public License v3",
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
@@ -21,33 +19,26 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Development Status :: 3 - Alpha",
 ]
-requires-python = ">=3.9.2, <3.13"
 
 dependencies = [
-    "invenio-base (>=2.0,<3.0)",
-    "invenio-access (>=4.0.0,<6.0.0)",
-    "invenio-i18n (>=2.0.0,<4.0.0)",
-    "invenio-admin (>=1.5.2,<2.0.0)",
-    "jsonpickle (>=1.2)",
+    "invenio-base>=2.0,<3.0",
+    "invenio-access>=4.0.0,<6.0.0",
+    "invenio-i18n>=2.0.0,<4.0.0",
+    "jsonpickle>=1.2",
     "psutil",
-    "pycountry (>=19.7.15)",
+    "pycountry>=19.7.15",
     "python-dateutil",
-    "Flask (>=2.2.0,<4.0)",
-    "SQLAlchemy (>=1.4.0,<3.0)",
-    "SQLAlchemy-Utils (>=0.33.1)"
+    "Flask>=2.2.0,<4.0",
+    "poethepoet",
 ]
 
-[tool.poetry.group.dev.dependencies]
-pytest-black-ng = ">=0.4.0"
-pytest-invenio = ">=3.0.0,<4.0.0"
-pydocstyle = ">=6.1.1"
-autoflake = ">=1.3.1"
-Sphinx = ">=4.5.0"
-mock = ">=4.0.0"
-
-[build-system]
-requires = ["poetry_core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+[dependency-groups]
+dev = [
+    "pytest-invenio>=3.0.0",
+    "mock>=4.0.0",
+    "ruff>=0.12.3",
+    "pip-audit",
+]
 
 [project.entry-points."invenio_base.apps"]
 invenio_sip2 = "invenio_sip2:InvenioSIP2"
@@ -64,9 +55,34 @@ invenio_sip2 = "invenio_sip2.views.rest:api_blueprint"
 [project.entry-points."flask.commands"]
 selfcheck = "invenio_sip2.cli:selfcheck"
 
-[tool.isort]
-profile = "black"
+[tool.poe.tasks]
+format = {cmd = "ruff format .", help = "Formats all files"}
+lint = {cmd = "ruff check", help = "Checks linting"}
+run_tests = {cmd = "./run-tests.sh", help = "Runs all tests"}
+tests = {cmd = "pytest", help = "pytest"}
+tests_debug = {cmd = "pytest -s -vv --no-cov", help = "pytest -s -vv --no-cov"}
 
-[tool.pytest]
-addopts = "--color=yes --black --isort --pydocstyle --doctest-glob=\"*.rst\" --doctest-modules --cov=invenio_sip2 --cov-report=term-missing --ignore=docs/conf.py"
-testpaths = "docs tests invenio_sip2"
+[tool.pytest.ini_options]
+addopts = "--color=yes --cov=invenio_sip2 --cov-report=term-missing"
+testpaths = ["tests", "invenio_sip2"]
+
+[tool.ruff]
+extend-exclude = ["config.py", "conf.py"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "pep257"
+
+[tool.coverage.run]
+relative_files = true
+
+[tool.coverage.report]
+precision = 2
+
+[build-system]
+requires = ["setuptools"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+
+[tool.uv]
+package = true

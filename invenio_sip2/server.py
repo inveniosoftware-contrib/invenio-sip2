@@ -17,7 +17,6 @@
 
 """Invenio-SIP2 socket server management."""
 
-
 import contextlib
 import logging
 import selectors
@@ -178,8 +177,8 @@ class SocketEventListener:
             if data:
                 log_prefix = (
                     f"request from {self.client.terminal} "
-                    f'({self.client.get("ip_address")}, '
-                    f'{self.client.get("socket")})'
+                    f"({self.client.get('ip_address')}, "
+                    f"{self.client.get('socket')})"
                 )
                 request_msg = data.decode(encoding=self.message_encoding)
                 # strip the line terminator
@@ -258,8 +257,8 @@ class SocketEventListener:
                 response = str(self.response)
             logger.info(
                 f"send to {self.client.terminal} "
-                f'({self.client.get("ip_address")}, '
-                f'{self.client.get("socket")}): {response}'
+                f"({self.client.get('ip_address')}, "
+                f"{self.client.get('socket')}): {response}"
             )
             self._write()
 
@@ -280,7 +279,7 @@ class SocketEventListener:
             )
         try:
             self.sock.close()
-        except OSError as e:
+        except OSError:
             current_app.logger.error(
                 "error: socket closing exception for {terminal}:{terminal_ip} "
                 "on {server}".format(

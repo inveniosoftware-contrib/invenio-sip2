@@ -253,7 +253,6 @@ class _SIP2(object):
 
 
 class _Sip2MessageType(object):
-
     message_types = {}
 
     def __init__(self, message_type_config):
@@ -270,7 +269,6 @@ class _Sip2MessageType(object):
 
 
 class _MessageType(object):
-
     def __init__(self, command, **kwargs):
         self.command = command
         self.required_fields = []

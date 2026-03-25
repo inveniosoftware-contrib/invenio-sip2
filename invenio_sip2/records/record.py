@@ -17,7 +17,6 @@
 
 """API for manipulating the client."""
 
-
 import contextlib
 from copy import deepcopy
 from datetime import datetime, timezone
