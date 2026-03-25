@@ -90,7 +90,7 @@ def stop_server(name, delete):
                     p = psutil.Process(server.get("process_id"))
                     click.echo(f"stop {server.get('name')} (pid:{pid})")
                     p.terminate()
-                except NoSuchProcess as ex:
+                except NoSuchProcess:
                     server.down()
             else:
                 click.echo("server already stopped")

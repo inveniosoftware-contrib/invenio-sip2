@@ -67,9 +67,7 @@ app.config.update(
     # No permission checking
     RECORDS_REST_DEFAULT_READ_PERMISSION_FACTORY=None,
     SQLALCHEMY_TRACK_MODIFICATIONS=True,
-    SQLALCHEMY_DATABASE_URI=os.getenv(
-        "SQLALCHEMY_DATABASE_URI", "sqlite:///app.db"
-    ),
+    SQLALCHEMY_DATABASE_URI=os.getenv("SQLALCHEMY_DATABASE_URI", "sqlite:///app.db"),
 )
 Babel(app)
 InvenioDB(app)

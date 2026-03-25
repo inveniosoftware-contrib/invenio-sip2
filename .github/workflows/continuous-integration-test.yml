@@ -1,92 +1,75 @@
-name: Continuous-Integration
+# INVENIO-SIP2
+# Copyright (C) 2020-2026 UCLouvain, RERO+
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, version 3 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+name: CI
 
 on:
   push:
-    branches: master
+    branches: [master]
   pull_request:
     branches: [master, dev]
   workflow_dispatch:
-    inputs:
-      reason:
-        description: 'Reason'
-        required: false
-        default: 'Manual trigger'
 
 jobs:
-  Tests:
+  test:
     runs-on: ubuntu-latest
 
-    # Service containers to run with `container-job`
     services:
-      # Label used to access the service container
       redis:
-        # Docker Hub image
         image: redis
-        # Set health checks to wait until redis has started
         options: >-
           --health-cmd "redis-cli ping"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
         ports:
-          # Maps port 6379 on service container to the host
           - 6379:6379
 
     strategy:
       matrix:
-          python-version: ["3.9", "3.10", "3.11", "3.12"]
-          requirements-level: [min, pypi]
-          cache-service: [redis]
-#          services: [release, devel]
-#          include:
-#          - services: release
-#            EXTRAS: "all"
-#            REQUIREMENTS: "release"
-#            REQUIREMENTS_LEVEL: "pypi"
-##          - services: lowest
-##            EXTRAS: "all"
-##            REQUIREMENTS: "lowest"
-##            REQUIREMENTS_LEVEL: "min"
-#          - services: devel
-#            EXTRAS: "all"
-#            REQUIREMENTS: "devel"
-#            REQUIREMENTS_LEVEL: "dev"
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
 
     env:
-      CACHE: ${{ matrix.cache-service }}
-      ES_VERSION: ${{matrix.ES_VERSION}}
-      EXTRAS: all #,${{ matrix.EXTRAS }}
+      CACHE: redis
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+      - name: Cancel Previous Runs
+        uses: styfle/cancel-workflow-action@0.13.0
+        with:
+          access_token: ${{ github.token }}
+
+      - uses: actions/checkout@v6
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
+        run: uv python install ${{ matrix.python-version }}
 
       - name: Install dependencies
-        run: |
-          docker --version
-          poetry install
+        run: uv sync
 
       - name: Run tests
-        run: |
-          poetry run ./run-tests.sh
-        continue-on-error: false
+        run: uv run poe run_tests
 
-      - name: Upload Coverage ${{ matrix.python-version }}
-        if: ${{ matrix.requirements-level == 'pypi' }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          COVERALLS_SERVICE_NAME: github
-#          COVERALLS_FLAG_NAME: test-${{ matrix.services }}
-#          COVERALLS_PARALLEL: true
-        run: |
-          pip install --upgrade coveralls
-          coveralls
-
+      - name: Upload Coverage
+        if: ${{ matrix.python-version == '3.12' }}
+        uses: coverallsapp/github-action@v2
+        with:
+          format: cobertura
+          file: ./coverage.xml
+          github-token: ${{ secrets.GITHUB_TOKEN }}

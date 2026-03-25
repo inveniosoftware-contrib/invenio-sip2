@@ -72,13 +72,13 @@ def selfckeck_system_status_message(system_status_message):
 @pytest.fixture(scope="module")
 def enable_patron_message():
     """Enable patron message."""
-    return "2520200717    190253AOinstitution_id|AApatron_identifier|" "AC|ADpatron_pwd"
+    return "2520200717    190253AOinstitution_id|AApatron_identifier|AC|ADpatron_pwd"
 
 
 @pytest.fixture(scope="module")
 def patron_status_message():
     """Patron status message."""
-    return "2300220201124    162421AOinstitution_id|AApatron_identifier|" "ADpatron_pwd"
+    return "2300220201124    162421AOinstitution_id|AApatron_identifier|ADpatron_pwd"
 
 
 @pytest.fixture(scope="module")
@@ -111,7 +111,7 @@ def selfckeck_patron_information_message(patron_information_message):
 @pytest.fixture(scope="module")
 def end_patron_session_message():
     """End patron session message."""
-    return "3520200717    192847AOinstitution_id|AApatron_identifier|" "ADpatron_pwd"
+    return "3520200717    192847AOinstitution_id|AApatron_identifier|ADpatron_pwd"
 
 
 @pytest.fixture(scope="module")

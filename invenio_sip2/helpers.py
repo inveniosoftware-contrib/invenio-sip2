@@ -78,7 +78,6 @@ class MessageTypeVariableField(object):
                 field_id=self.field_id,
                 length=self.length,
                 fill=self.fill,
-                multiple=self.multiple,
                 label=self.label,
             )
         )

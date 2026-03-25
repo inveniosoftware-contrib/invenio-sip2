@@ -61,7 +61,6 @@ def test_get_server(app, users, server):
     """Test monitoring servers."""
     print("--->", users)
     with app.test_client() as client:
-
         server_url = url_for("api_sip2.get_server", server_id=server.id)
         res = client.get(server_url)
         assert res.status_code == 401
