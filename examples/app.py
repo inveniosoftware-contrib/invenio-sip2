@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # INVENIO-SIP2
 # Copyright (C) 2020 UCLouvain
@@ -54,8 +53,8 @@ SPHINX-END
 import os
 
 from flask import Flask
-from invenio_i18n import Babel
 from invenio_db.ext import InvenioDB
+from invenio_i18n import Babel
 
 from invenio_sip2 import InvenioSIP2
 from invenio_sip2.views.views import blueprint

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # INVENIO-SIP2
 # Copyright (C) 2020 UCLouvain
@@ -16,8 +15,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 """Module test."""
-
-from __future__ import absolute_import, print_function
 
 from flask import Flask
 

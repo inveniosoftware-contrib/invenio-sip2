@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # INVENIO-SIP2
 # Copyright (C) 2020 UCLouvain
@@ -37,20 +36,20 @@ from invenio_sip2.actions.actions import (
 )
 
 __all__ = (
-    AutomatedCirculationSystemStatus,
-    BlockPatron,
-    Checkin,
-    Checkout,
-    EndPatronSession,
-    FeePaid,
-    Hold,
-    ItemInformation,
-    ItemStatusUpdate,
-    PatronEnable,
-    PatronInformation,
-    PatronStatus,
-    Renew,
-    RenewAll,
-    RequestResend,
-    SelfCheckLogin,
+    "AutomatedCirculationSystemStatus",
+    "BlockPatron",
+    "Checkin",
+    "Checkout",
+    "EndPatronSession",
+    "FeePaid",
+    "Hold",
+    "ItemInformation",
+    "ItemStatusUpdate",
+    "PatronEnable",
+    "PatronInformation",
+    "PatronStatus",
+    "Renew",
+    "RenewAll",
+    "RequestResend",
+    "SelfCheckLogin",
 )

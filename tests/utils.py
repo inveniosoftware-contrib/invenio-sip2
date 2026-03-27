@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # INVENIO-SIP2
 # Copyright (C) 2020 UCLouvain
@@ -51,6 +50,7 @@ def user_login(client, username, users):
         # needed for Identity/Permissions loading
         login_user(user)
         return user
+    return None
 
 
 def user_logout(client):

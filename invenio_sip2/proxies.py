@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # INVENIO-SIP2
 # Copyright (C) 2020 UCLouvain

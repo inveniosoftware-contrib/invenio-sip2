@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # INVENIO-SIP2
 # Copyright (C) 2020 UCLouvain
@@ -93,9 +92,10 @@ class Sip2RedisDatastore(Datastore):
         """
         query = id_
         if record_type:
-            query = "{record_type}:{id}*".format(record_type=record_type, id=id_)
+            query = f"{record_type}:{id_}*"
         for key in self._query(query):
             return jsonpickle.decode(self.datastore.get(key))
+        return None
 
     def add(self, record, id_=None, **kwargs):
         """Store the object.
@@ -132,7 +132,7 @@ class Sip2RedisDatastore(Datastore):
         """
         query = "*"
         if record_type:
-            query = "{record_type}:*".format(record_type=record_type)
+            query = f"{record_type}:*"
 
         for key in self._query(query):
             yield jsonpickle.decode(self.datastore.get(key))
@@ -143,11 +143,9 @@ class Sip2RedisDatastore(Datastore):
 
     def search(self, search_term="*", index_type="*", filter_query=None):
         """Search object in th datastore."""
-        search_key = "{record_type}:{search_term}".format(
-            record_type=index_type, search_term=search_term
-        )
+        search_key = f"{index_type}:{search_term}"
         if filter_query:
-            search_key += "_{filter}".format(filter=filter_query)
+            search_key += f"_{filter_query}"
 
         return [
             jsonpickle.decode(self.datastore.get(key))

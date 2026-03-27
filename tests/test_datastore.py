@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # INVENIO-SIP2
 # Copyright (C) 2020 UCLouvain
@@ -16,8 +15,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 """Invenio-sip2 datastore test."""
-
-from __future__ import absolute_import, print_function
 
 from unittest.mock import patch
 
@@ -88,4 +85,6 @@ def test_record_metadata(app, server_data, dummy_client_data):
             Server.create(server_data)
         server.down()
         assert not server.is_running
+        assert Server.get_record_by_id("nonexistent_id") is None
+        assert Server.find_server(server_name="nonexistent_server") is None
         server.delete()

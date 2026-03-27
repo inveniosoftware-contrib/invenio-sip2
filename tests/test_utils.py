@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # INVENIO-SIP2
 # Copyright (C) 2020 UCLouvain
@@ -16,8 +15,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 """Invenio-sip1 actions test."""
-
-from __future__ import absolute_import, print_function
 
 from invenio_sip2.utils import (
     convert_to_char,

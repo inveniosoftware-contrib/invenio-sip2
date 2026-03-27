@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # INVENIO-SIP2
 # Copyright (C) 2020 UCLouvain
@@ -17,10 +16,12 @@
 
 """SIP2 helpers."""
 
+from typing import ClassVar
+
 from invenio_sip2.errors import UnknownFieldIdMessageError
 
 
-class MessageTypeFixedField(object):
+class MessageTypeFixedField:
     """SIP2 Message type fixed field helper class."""
 
     def __init__(self, name, field):
@@ -35,13 +36,8 @@ class MessageTypeFixedField(object):
     def __str__(self):
         """String representation of fixed field."""
         return (
-            "MessageTypeFixedField() field_id={field_id} "
-            "length={length} fill={fill} label={label}".format(
-                field_id=self.field_id,
-                length=self.length,
-                fill=self.fill,
-                label=self.label,
-            )
+            f"MessageTypeFixedField() field_id={self.field_id} "
+            f"length={self.length} fill={self.fill} label={self.label}"
         )
 
     @classmethod
@@ -49,14 +45,14 @@ class MessageTypeFixedField(object):
         """Get fixed field by name."""
         try:
             return getattr(cls, name)
-        except AttributeError:
-            raise UnknownFieldIdMessageError(message=name)
+        except AttributeError as e:
+            raise UnknownFieldIdMessageError(message=name) from e
 
 
-class MessageTypeVariableField(object):
+class MessageTypeVariableField:
     """SIP2 Message type variable field helper class."""
 
-    field_id_map = {}
+    field_id_map: ClassVar[dict] = {}
 
     def __init__(self, name, field):
         """Constructor."""
@@ -73,13 +69,8 @@ class MessageTypeVariableField(object):
     def __str__(self):
         """String representation of variable field."""
         return (
-            "MessageTypeVariableField() field_id={field_id} "
-            "length={length} fill={fill} label={label}".format(
-                field_id=self.field_id,
-                length=self.length,
-                fill=self.fill,
-                label=self.label,
-            )
+            f"MessageTypeVariableField() field_id={self.field_id} "
+            f"length={self.length} fill={self.fill} label={self.label}"
         )
 
     @property
@@ -92,16 +83,14 @@ class MessageTypeVariableField(object):
         """Get variable field by name."""
         try:
             return getattr(cls, name)
-        except AttributeError:
-            raise UnknownFieldIdMessageError
+        except AttributeError as e:
+            raise UnknownFieldIdMessageError from e
 
     @classmethod
     def find_by_field_id(cls, field_id):
         """Find variable field by field id."""
         variable_field = cls.field_id_map.get(field_id)
         if variable_field is None:
-            msg = "field id '{field_id}' not in [{field_id_map}]".format(
-                field_id=field_id, field_id_map=cls.field_id_map
-            )
+            msg = f"field id '{field_id}' not in [{cls.field_id_map}]"
             raise UnknownFieldIdMessageError(message=msg)
         return variable_field

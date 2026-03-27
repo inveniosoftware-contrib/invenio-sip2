@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # INVENIO-SIP2
 # Copyright (C) 2020 UCLouvain
@@ -36,7 +35,6 @@ def make_api_handler(func, with_data=True):
     def inner(*args, **kwargs):
         if with_data:
             return func(args[0], *args[1:], **kwargs)
-        else:
-            return func(*args, **kwargs)
+        return func(*args, **kwargs)
 
     return inner

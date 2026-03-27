@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # INVENIO-SIP2
 # Copyright (C) 2020 UCLouvain
@@ -21,7 +20,7 @@ from invenio_sip2.api import Message
 from invenio_sip2.proxies import current_sip2 as acs_system
 
 
-class Action(object):
+class Action:
     """An action object used for automated circulation system."""
 
     def __init__(self, command, response, message, **kwargs):
@@ -60,7 +59,7 @@ class Action(object):
 
     def execute(self, **kwargs):
         """Execute actions."""
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def __str__(self):
         """String representation of Action class."""

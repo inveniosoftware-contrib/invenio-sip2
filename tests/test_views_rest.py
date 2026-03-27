@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # INVENIO-SIP2
 # Copyright (C) 2021 UCLouvain
@@ -19,6 +18,8 @@
 
 from flask import url_for
 from utils import user_login, user_logout
+
+from invenio_sip2.views.rest import Monitoring
 
 
 def test_monitoring_status(app, users, server, dummy_client):
@@ -59,7 +60,6 @@ def test_monitoring_clients(app, users):
 
 def test_get_server(app, users, server):
     """Test monitoring servers."""
-    print("--->", users)
     with app.test_client() as client:
         server_url = url_for("api_sip2.get_server", server_id=server.id)
         res = client.get(server_url)
@@ -69,3 +69,9 @@ def test_get_server(app, users, server):
         res = client.get(server_url)
         assert res.status_code == 200
         user_logout(client)
+
+
+def test_get_clients_by_server_id_not_found(app):
+    """Test Monitoring.get_clients_by_server_id returns None for unknown server."""
+    with app.app_context():
+        assert Monitoring.get_clients_by_server_id("nonexistent_server_id") is None

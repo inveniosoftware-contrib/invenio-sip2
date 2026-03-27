@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # INVENIO-SIP2
 # Copyright (C) 2020 UCLouvain
@@ -31,7 +30,7 @@ def status():
     """Display status for all SIP2 server."""
     try:
         return jsonify(Monitoring.status())
-    except Exception as error:
+    except (OSError, KeyError) as error:
         return jsonify({"ERROR": str(error)})
 
 
@@ -41,7 +40,7 @@ def get_servers():
     """Display all running SIP2 servers."""
     try:
         return jsonify({"servers": Server.get_all_records()})
-    except Exception as error:
+    except (OSError, KeyError) as error:
         return jsonify({"ERROR": str(error)})
 
 
@@ -58,7 +57,7 @@ def get_server(server_id):
                 "metadata": server,
             }
         )
-    except Exception as error:
+    except (OSError, KeyError) as error:
         return jsonify({"ERROR": str(error)})
 
 
@@ -68,7 +67,7 @@ def get_clients():
     """Display all connected clients to server."""
     try:
         return jsonify({"clients": Client.get_all_records()})
-    except Exception as error:
+    except (OSError, KeyError) as error:
         return jsonify({"ERROR": str(error)})
 
 
@@ -114,3 +113,4 @@ class Monitoring:
         server = Server.get_record_by_id(server_id)
         if server:
             return server.get_clients()
+        return None

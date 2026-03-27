@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # INVENIO-SIP2
 # Copyright (C) 2020 UCLouvain
@@ -17,11 +16,21 @@
 
 """Server test."""
 
-from __future__ import absolute_import, print_function
-
 import socket
+from unittest.mock import MagicMock
 
 import pytest
+
+from invenio_sip2.server import SocketEventListener
+
+
+def test_set_selector_events_mask_invalid_mode():
+    """Test _set_selector_events_mask raises ValueError for invalid mode."""
+    listener = object.__new__(SocketEventListener)
+    listener.selector = MagicMock()
+    listener.sock = MagicMock()
+    with pytest.raises(ValueError, match="Invalid events mask mode"):
+        listener._set_selector_events_mask("invalid")  # noqa: SLF001
 
 
 @pytest.mark.skip(reason="Remove this when github actions problem is fixed")

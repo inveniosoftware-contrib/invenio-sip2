@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # INVENIO-SIP2
 # Copyright (C) 2020 UCLouvain
@@ -16,8 +15,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 """Test models."""
-
-from __future__ import absolute_import, print_function
 
 import pytest
 
@@ -113,5 +110,5 @@ def test_selfcheck_patron_status():
     assert str(patron_status)[13] == "Y"
 
     # try to add unknown patron status type
-    with pytest.raises(Exception):
+    with pytest.raises(TypeError):
         patron_status.add_patron_status_type("unknown_patron_status_type")

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # INVENIO-SIP2
 # Copyright (C) 2020 UCLouvain
@@ -60,16 +59,11 @@ def selfcheck():
 @with_appcontext
 def start_socket_server(name, host, port, remote):
     """Start sockets server with unique name."""
-    try:
-        server = SocketServer(
-            name=name, port=port, host=host, remote=remote, process_id=os.getpid()
-        )
-        server_thread = threading.Thread(target=server.run)
-        server_thread.run()
-
-    except Exception as e:
-        # TODO: log error
-        raise e
+    server = SocketServer(
+        name=name, port=port, host=host, remote=remote, process_id=os.getpid()
+    )
+    server_thread = threading.Thread(target=server.run)
+    server_thread.run()
 
 
 @selfcheck.command("stop")
@@ -81,22 +75,18 @@ def stop_server(name, delete):
 
     This command only works on the same server or container.
     """
-    try:
-        server = Server.find_server(server_name=name)
-        if server:
-            if server.is_running:
-                try:
-                    pid = server.get("process_id")
-                    p = psutil.Process(server.get("process_id"))
-                    click.echo(f"stop {server.get('name')} (pid:{pid})")
-                    p.terminate()
-                except NoSuchProcess:
-                    server.down()
-            else:
-                click.echo("server already stopped")
+    server = Server.find_server(server_name=name)
+    if server:
+        if server.is_running:
+            try:
+                pid = server.get("process_id")
+                p = psutil.Process(server.get("process_id"))
+                click.echo(f"stop {server.get('name')} (pid:{pid})")
+                p.terminate()
+            except NoSuchProcess:
+                server.down()
+        else:
+            click.echo("server already stopped")
 
-            if delete:
-                server.delete()
-    except Exception as e:
-        # TODO: log error
-        raise e
+        if delete:
+            server.delete()

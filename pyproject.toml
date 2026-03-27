@@ -5,7 +5,7 @@ description = "Invenio module that add a SIP2 communication for library self-che
 readme = "README.md"
 authors = [{name = "Laurent Dubois", email = "laurent.dubois@uclouvain.be"}]
 license = "AGPL-3.0-or-later"
-requires-python = ">=3.9.2, <3.15"
+requires-python = ">=3.10, <3.15"
 classifiers = [
     "Environment :: Web Environment",
     "Intended Audience :: Developers",
@@ -68,6 +68,69 @@ testpaths = ["tests", "invenio_sip2"]
 
 [tool.ruff]
 extend-exclude = ["config.py", "conf.py"]
+
+[tool.ruff.lint]
+extend-select = ["ALL"]
+ignore = [
+    "ANN",     # missing type annotations
+    "COM812",  # managed by formatter
+    # Docstring style preferences
+    "D401",    # imperative mood — established style in this codebase
+    # Logging format style — intentional choice
+    "G001",    # logging str.format
+    "G004",    # logging f-string
+    # TODO formatting — too heavyweight for this project size
+    "TD002",   # TODO author requirement
+    "TD003",   # TODO issue link requirement
+    "FIX002",  # TODO resolution requirement
+    "ERA001",  # commented-out code
+    # Exception handling — too pedantic
+    "EM101",   # exception string literal
+    "EM102",   # exception f-string literal
+    "TRY003",  # long exception messages outside exception class
+    # Boolean args — value object design pattern
+    "FBT002",  # boolean default positional argument
+    "FBT003",  # boolean positional value in function call
+    # API design
+    "C901",    # too complex (borderline 11 > 10)
+    "PLR0913", # too many arguments — legitimate function signatures
+    "PLR2004", # magic values — SIP2 protocol constants and HTTP codes
+    "RET504",  # unnecessary assignment before return — preserves TODO intent
+    # Security — intentional design decisions
+    "S301",    # jsonpickle — intentional internal Redis store
+    "S104",    # 0.0.0.0 — intentional SIP2 server binding
+    # Naming — would be a breaking API change
+    "N818",    # exception name without Error suffix
+    # Import structure — circular import workaround in models.py
+    "PLC0415", # import not at top-level
+    # Unused arguments — pervasive interface/contract patterns throughout codebase
+    "ARG002",  # unused method argument
+    "ARG003",  # unused class method argument
+    "ARG005",  # unused lambda argument
+    "FURB171", # single-item container membership test
+]
+
+[tool.ruff.lint.per-file-ignores]
+"examples/*.py" = [
+    "INP001",  # not a package, standalone script
+    "S106",    # hardcoded SECRET_KEY is intentional in examples
+]
+"tests/*.py" = [
+    "S101",    # asserts allowed in tests
+    "S106",    # hardcoded passwords allowed in tests
+    "S602",    # subprocess shell=True allowed in tests
+    "S607",    # partial executable path allowed in tests
+    "ARG",     # unused arguments allowed in test fixtures
+    "FBT",     # boolean positional args allowed in tests
+    "INP001",  # pytest discovers tests without __init__.py
+    "PLR2004", # magic values allowed in tests
+    "PLR0915", # too many statements — test functions can be long
+    "PLC0415", # imports not at top level allowed (fixtures)
+    "PTH",     # os.path in tests is idiomatic and clear
+    "PT",      # pytest style rules — test flexibility
+    "T201",    # print allowed in tests
+    "D400",    # docstring period — not enforced in tests
+]
 
 [tool.ruff.lint.pydocstyle]
 convention = "pep257"
