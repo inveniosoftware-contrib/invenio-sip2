@@ -17,6 +17,7 @@
 """Models for Invenio-SIP2."""
 
 from enum import Enum
+from typing import ClassVar
 
 from invenio_sip2.proxies import current_sip2 as acs_system
 
@@ -24,7 +25,7 @@ from invenio_sip2.proxies import current_sip2 as acs_system
 class SupportedMessages:
     """Class to define supported mesages from handler config."""
 
-    handlers = [
+    handlers: ClassVar[list] = [
         "patron_status",
         "checkout",
         "checkin",
@@ -84,7 +85,7 @@ class PatronStatusTypes(Enum):
     TOO_MANY_ITEMS_BILLED = "too_many_items_billed"
 
 
-class PatronStatus(object):
+class PatronStatus:
     """Class to define patron status."""
 
     def __init__(self):
@@ -108,8 +109,8 @@ class PatronStatus(object):
         Add ``patron_status_type`` indicates that the condition is true.
         raise exception if patron status type does not exist.
         """
-        if patron_status_type not in PatronStatusTypes:
-            raise Exception(msg="patron status type does not exist")
+        if not isinstance(patron_status_type, PatronStatusTypes):
+            raise TypeError("patron status type does not exist")
 
         self.patron_status_types[patron_status_type] = True
 
@@ -576,7 +577,7 @@ class SelfcheckLanguage(Enum):
     und = UNKNOWN
     eng = ENGLISH
     fre = FRENCH
-    fra = FRENCH
+    fra = FRENCH  # noqa: PIE796
     ger = GERMAN
     ita = ITALIAN
     dut = DUTCH
@@ -592,16 +593,16 @@ class SelfcheckLanguage(Enum):
     pol = POLISH
     gre = GREEK
     chi = CHINESE
-    zho = CHINESE
+    zho = CHINESE  # noqa: PIE796
     kor = KOREAN
     tam = TAMIL
     may = MALAY
-    msa = MALAY
+    msa = MALAY  # noqa: PIE796
     ice = ICELANDIC
-    isl = ICELANDIC
+    isl = ICELANDIC  # noqa: PIE796
 
 
-class SelfcheckSecurityMarkerType(object):
+class SelfcheckSecurityMarkerType:
     """Class to handle all available security marker type."""
 
     OTHER = "00"
@@ -610,7 +611,7 @@ class SelfcheckSecurityMarkerType(object):
     WHISPHER_TAPE = "03"
 
 
-class SelfcheckFeeType(object):
+class SelfcheckFeeType:
     """Class to handle all available fee type."""
 
     OTHER = "01"
@@ -624,7 +625,7 @@ class SelfcheckFeeType(object):
     HOLD_FEE = "09"
 
 
-class SelfcheckPaymentType(object):
+class SelfcheckPaymentType:
     """Class to handle all available payment type."""
 
     CASH = "00"
@@ -632,7 +633,7 @@ class SelfcheckPaymentType(object):
     CREDIT_CARD = "02"
 
 
-class SelfcheckMediaType(object):
+class SelfcheckMediaType:
     """Class to handle all available media type."""
 
     OTHER = "000"
@@ -648,7 +649,7 @@ class SelfcheckMediaType(object):
     BOOK_WHIT_AUDIO_TAPE = "010"
 
 
-class SelfcheckCirculationStatus(object):
+class SelfcheckCirculationStatus:
     """Class to handle all available circulation status of an item."""
 
     OTHER = "01"
@@ -669,7 +670,7 @@ class SelfcheckCirculationStatus(object):
 class SelfcheckSummary:
     """Class representing summary."""
 
-    fields = [
+    fields: ClassVar[list] = [
         "hold_items",
         "overdue_items",
         "charged_items",

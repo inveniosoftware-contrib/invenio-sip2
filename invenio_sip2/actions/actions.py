@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # INVENIO-SIP2
 # Copyright (C) 2020 UCLouvain
@@ -462,11 +461,8 @@ class Checkin(Action):
             )
         except SelfcheckCirculationError as error:
             checkin = error.data
-            current_app.logger.error(
-                "[{terminal}] {message}".format(
-                    terminal=client.terminal, message=error
-                ),
-                exc_info=True,
+            current_app.logger.exception(
+                f"[{client.terminal}] checkin error",
             )
 
         current_logger.debug(f"[Checkin]: handler response: {checkin}")
@@ -521,7 +517,7 @@ class Checkout(Action):
             )
         except SelfcheckCirculationError as error:
             checkout = error.data
-            current_app.logger.error("{message}".format(message=error), exc_info=True)
+            current_app.logger.exception("checkout error")
 
         current_logger.debug(f"[Checkout]: handler response: {checkout}")
 
@@ -578,7 +574,7 @@ class FeePaid(Action):
             )
         except SelfcheckError as error:
             fee_paid = error.data
-            current_app.logger.error("{message}".format(message=error), exc_info=True)
+            current_app.logger.exception("fee paid error")
 
         current_logger.debug(f"[Fee paid]: handler response: {fee_paid}")
 
@@ -628,11 +624,8 @@ class Hold(Action):
             )
         except SelfcheckCirculationError as error:
             hold = error.data
-            current_app.logger.error(
-                "[{terminal}] {message}".format(
-                    terminal=client.terminal, message=error
-                ),
-                exc_info=True,
+            current_app.logger.exception(
+                f"[{client.terminal}] hold error",
             )
 
         current_logger.debug(f"[Hold]: handler response: {hold}")
@@ -685,11 +678,8 @@ class Renew(Action):
             )
         except SelfcheckCirculationError as error:
             renew = error.data
-            current_app.logger.error(
-                "[{terminal}] {message}".format(
-                    terminal=client.terminal, message=error
-                ),
-                exc_info=True,
+            current_app.logger.exception(
+                f"[{client.terminal}] renew error",
             )
 
         current_logger.debug(f"[Renew]: handler response: {renew}")

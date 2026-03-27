@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # INVENIO-SIP2
 # Copyright (C) 2020 UCLouvain
@@ -60,7 +59,7 @@ def parse_circulation_date(date):
                 date = date.replace(tzinfo=pytz.utc)
             return date.strftime(date_format)
         return date_string_to_utc(date).strftime(date_format)
-    except Exception:
+    except (ValueError, AttributeError):
         logger.warning(f"parse circulation date error for: [{date}]")
         return date or ""
 
@@ -89,8 +88,7 @@ def ensure_i18n_language(language):
     """Ensure that the given language is an i18n language."""
     if len(language) > 2:
         return languages.lookup(language).alpha_2
-    else:
-        return language
+    return language
 
 
 def get_security_marker_type(marker_type=None):
@@ -124,7 +122,7 @@ def generate_checksum(message):
     :returns checksum string
     """
     # Calculate checksum
-    checksum = sum([b for b in message.encode(acs_system.text_encoding)])
+    checksum = sum(message.encode(acs_system.text_encoding))
     return format((-checksum & 0xFFFF), "X")
 
 
@@ -145,7 +143,7 @@ def verify_checksum(message_str):
     if len(message_str) >= minimum_len:
         # sum all the byte values of each character in the message including
         # the checksum identifier
-        value = sum([b for b in message.encode(acs_system.text_encoding)])
+        value = sum(message.encode(acs_system.text_encoding))
         # add the checksum hex value
         value += checksum
 

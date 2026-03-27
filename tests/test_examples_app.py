@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # INVENIO-SIP2
 # Copyright (C) 2020 UCLouvain
@@ -46,7 +45,7 @@ def example_app():
     webapp = subprocess.Popen(
         "FLASK_APP=app.py flask run --debugger -p 5000",
         stdout=subprocess.PIPE,
-        preexec_fn=os.setsid,
+        start_new_session=True,
         shell=True,
     )
     time.sleep(10)

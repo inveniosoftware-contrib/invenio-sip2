@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # INVENIO-SIP2
 # Copyright (C) 2020 UCLouvain
@@ -36,7 +35,7 @@ class Sip2RecordMetadata(dict):
 
         :param data: Dict with record metadata.
         """
-        super(Sip2RecordMetadata, self).__init__(data or {})
+        super().__init__(data or {})
 
     @classmethod
     def create(cls, data, id_=None, **kwargs):
@@ -45,7 +44,8 @@ class Sip2RecordMetadata(dict):
         :param data: Dict with metadata.
         :param id_: Specify a UUID to use for the new record.
         """
-        assert cls.record_type
+        if not cls.record_type:
+            raise ValueError(f"{cls.__name__} must define a record_type")
         # TODO: check if record already exist and raise exception
         id_ = id_ or str(uuid4())
 
@@ -63,7 +63,7 @@ class Sip2RecordMetadata(dict):
 
     def get_key(self):
         """Get generated key for Sip2RecordMetadata object."""
-        return "{record_type}:{id}".format(record_type=self.record_type, id=self.id)
+        return f"{self.record_type}:{self.id}"
 
     def update(self, data):
         """Update instance with dictionary data.
@@ -71,7 +71,7 @@ class Sip2RecordMetadata(dict):
         :param data: Dict with metadata.
         """
         if self.id:
-            super(Sip2RecordMetadata, self).update(data)
+            super().update(data)
             data["updated"] = datetime.now(timezone.utc).isoformat()
             datastore.update(self)
 
@@ -89,6 +89,7 @@ class Sip2RecordMetadata(dict):
         data = datastore.get(id_, cls.record_type)
         if data:
             return cls(data)
+        return None
 
     @classmethod
     def get_all_records(cls):
@@ -127,7 +128,7 @@ class Server(Sip2RecordMetadata):
 
     def get_clients(self):
         """Return clients."""
-        filter_query = "server:{server_id}".format(server_id=self.id)
+        filter_query = f"server:{self.id}"
         return self.search(index_type=Client.record_type, filter_query=filter_query)
 
     def down(self):
@@ -165,9 +166,7 @@ class Server(Sip2RecordMetadata):
         if server:
             # check if server running
             if server.is_running:
-                raise ServerAlreadyRunning(
-                    "server already running {id}".format(id=server.id)
-                )
+                raise ServerAlreadyRunning(f"server already running {server.id}")
             return server
 
         return super().create(data, id_=id_)
@@ -181,6 +180,7 @@ class Server(Sip2RecordMetadata):
             if kwargs.items() <= server.items():
                 # true only if `first` is a subset of `second`
                 return cls(server)
+        return None
 
 
 class Client(Sip2RecordMetadata):
@@ -190,9 +190,7 @@ class Client(Sip2RecordMetadata):
 
     def get_key(self):
         """Get generated key for Client object."""
-        return "{record_type}:{id}_server:{server_id}".format(
-            record_type=self.record_type, id=self.id, server_id=self.server_id
-        )
+        return f"{self.record_type}:{self.id}_server:{self.server_id}"
 
     @property
     def server_id(self):

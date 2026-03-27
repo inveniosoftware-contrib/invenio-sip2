@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # INVENIO-SIP2
 # Copyright (C) 2020 UCLouvain
@@ -25,4 +24,4 @@ from invenio_sip2.version import __version__
 
 datastore = LocalProxy(lambda: current_sip2.datastore)
 
-__all__ = ("__version__", "current_datastore", "current_sip2", "InvenioSIP2")
+__all__ = ("InvenioSIP2", "__version__", "current_datastore", "current_sip2")

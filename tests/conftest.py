@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # INVENIO-SIP2
 # Copyright (C) 2020 UCLouvain
@@ -20,8 +19,6 @@
 See https://pytest-invenio.readthedocs.io/ for documentation on which test
 fixtures are available.
 """
-
-from __future__ import absolute_import, print_function
 
 import os
 
@@ -117,33 +114,33 @@ def base_app(request):
         SIP2_DATASTORE_REDIS_URL="redis://localhost:6379/1",
         SIP2_LOGGING_FS_LOGFILE="./log/sip2.log",
         SIP2_ERROR_DETECTION=True,
-        SIP2_REMOTE_ACTION_HANDLERS=dict(
-            test_ils=dict(
-                login_handler=remote_login_handler,
-                logout_handler=remote_handler,
-                system_status_handler=remote_system_status_handler,
-                patron_handlers=dict(
-                    validate_patron=remote_validate_patron_handler,
-                    authorize_patron=remote_authorize_patron_handler,
-                    enable_patron=remote_enable_patron_handler,
-                    patron_status=remote_patron_status_handler,
-                    account=remote_patron_account_handler,
-                ),
-                item_handlers=dict(
-                    item=remote_item_information_handler,
-                ),
-                circulation_handlers=dict(
-                    checkout=remote_checkout_handler,
-                    checkin=remote_checkin_handler,
-                    hold=remote_hold_handler,
-                    renew=remote_renew_handler,
-                ),
-                fee_paid_handler=remote_fee_paid_handler,
-            ),
-            test_invalid=dict(
-                login_handler="utils.remote_login_handler",
-            ),
-        ),
+        SIP2_REMOTE_ACTION_HANDLERS={
+            "test_ils": {
+                "login_handler": remote_login_handler,
+                "logout_handler": remote_handler,
+                "system_status_handler": remote_system_status_handler,
+                "patron_handlers": {
+                    "validate_patron": remote_validate_patron_handler,
+                    "authorize_patron": remote_authorize_patron_handler,
+                    "enable_patron": remote_enable_patron_handler,
+                    "patron_status": remote_patron_status_handler,
+                    "account": remote_patron_account_handler,
+                },
+                "item_handlers": {
+                    "item": remote_item_information_handler,
+                },
+                "circulation_handlers": {
+                    "checkout": remote_checkout_handler,
+                    "checkin": remote_checkin_handler,
+                    "hold": remote_hold_handler,
+                    "renew": remote_renew_handler,
+                },
+                "fee_paid_handler": remote_fee_paid_handler,
+            },
+            "test_invalid": {
+                "login_handler": "utils.remote_login_handler",
+            },
+        },
     )
     Babel(app)
     InvenioDB(app)
@@ -175,7 +172,11 @@ def dummy_socket_server(app):
         # Start socket server
         cmd = "invenio selfcheck start test_server -h 0.0.0.0 -p 3006 -r test"
         dummy_server = subprocess.Popen(
-            cmd, stdout=subprocess.PIPE, stderr=STDOUT, preexec_fn=os.setsid, shell=True
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=STDOUT,
+            start_new_session=True,
+            shell=True,
         )
         time.sleep(10)
         yield dummy_server

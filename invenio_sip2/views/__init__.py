@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # INVENIO-SIP2
 # Copyright (C) 2021 UCLouvain
@@ -21,6 +20,6 @@ from invenio_sip2.views.rest import api_blueprint
 from invenio_sip2.views.views import blueprint
 
 __all__ = (
-    "blueprint",
     "api_blueprint",
+    "blueprint",
 )

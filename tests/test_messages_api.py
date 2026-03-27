@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # INVENIO-SIP2
 # Copyright (C) 2020 UCLouvain
@@ -21,6 +20,15 @@ import pytest
 
 from invenio_sip2.api import Message
 from invenio_sip2.errors import CommandNotFound, UnknownFieldIdMessageError
+
+
+def test_messages_api_not_found(app):
+    """Test Message methods return None/empty when fields are absent."""
+    message = Message()
+    assert message.get_fixed_field_by_name("language") is None
+    assert message.get_fixed_field_value("language") is None
+    assert message.get_field_value("patron_id") is None
+    assert message.get_field_values("patron_id") == []
 
 
 def test_messages_api(app, patron_information_message):

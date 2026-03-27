@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # INVENIO-SIP2
 # Copyright (C) 2020 UCLouvain
@@ -52,9 +51,7 @@ class SocketServer:
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         sock.bind((self.host, self.port))
         sock.listen()
-        logger.info(
-            "listening on {host}, {port}".format(port=self.port, host=self.host)
-        )
+        logger.info(f"listening on {self.host}, {self.port}")
         signal.signal(signal.SIGINT, self.handler_stop_signals)
         signal.signal(signal.SIGTERM, self.handler_stop_signals)
         sock.setblocking(False)
@@ -83,16 +80,14 @@ class SocketServer:
                                 f"message cannot be processed: {e}", exc_info=True
                             )
                             message.close()
-                        except Exception as ex:
+                        except (OSError, ValueError) as ex:
                             logger.error(
                                 f"message cannot be processed: {ex}", exc_info=True
                             )
                             message.close()
-        except Exception as e:
+        except OSError as e:
             logger.error(
-                "SIP2 server closed prematurely ({host}, {port}: {msg}".format(
-                    port=self.port, host=self.host, msg=e
-                ),
+                f"SIP2 server closed prematurely ({self.host}, {self.port}: {e}",
                 exc_info=True,
             )
         finally:
@@ -101,7 +96,7 @@ class SocketServer:
     def accept_wrapper(self, sock):
         """Accept connection wrapper."""
         connection, address = sock.accept()  # Should be ready to read
-        logger.info("accepted connection from {address}".format(address=address))
+        logger.info(f"accepted connection from {address}")
         connection.setblocking(False)
 
         message = SocketEventListener(self.server, self.selector, connection, address)
@@ -162,7 +157,7 @@ class SocketEventListener:
         elif mode == "rw":
             events = selectors.EVENT_READ | selectors.EVENT_WRITE
         else:
-            raise ValueError(f"Invalid events mask mode {repr(mode)}.")
+            raise ValueError(f"Invalid events mask mode {mode!r}.")
         self.selector.modify(self.sock, events, data=self)
 
     def _read(self):
@@ -210,10 +205,11 @@ class SocketEventListener:
                         # Set selector to listen for write events
                         self._set_selector_events_mask("w")
                 except CommandNotFound as e:
-                    raise CommandNotFound(message=f"{log_prefix} - {e.description}")
-                except Exception as err:
+                    msg = f"{log_prefix} - {e.description}"
+                    raise CommandNotFound(message=msg) from e
+                except (OSError, ValueError) as err:
                     logger.info("{log_prefix} - {request_msg}")
-                    raise Exception(err)
+                    raise RuntimeError(err) from err
             else:
                 raise RuntimeError("Peer closed.")
 
@@ -251,7 +247,7 @@ class SocketEventListener:
             if not self.response_created:
                 self.create_response()
 
-            if self.response and logger.level in [logging.DEBUG]:
+            if self.response and logger.level == logging.DEBUG:
                 response = self.response.dumps()
             else:
                 response = str(self.response)
@@ -264,23 +260,22 @@ class SocketEventListener:
 
     def close(self):
         """Close the connection with selfcheck client."""
-        logger.info("closing connection to {address}".format(address=self.addr))
+        logger.info(f"closing connection to {self.addr}")
         try:
             self.selector.unregister(self.sock)
-        except Exception as e:
-            current_app.logger.error(
+        except OSError:
+            current_app.logger.exception(
                 "error: selector unregistered for {terminal}:{terminal_ip} "
                 "on {server}".format(
                     terminal=self.client.terminal,
                     terminal_ip=self.client.get("ip_address"),
                     server=self.server.get("server_name"),
                 ),
-                e,
             )
         try:
             self.sock.close()
         except OSError:
-            current_app.logger.error(
+            current_app.logger.exception(
                 "error: socket closing exception for {terminal}:{terminal_ip} "
                 "on {server}".format(
                     terminal=self.client.terminal,
@@ -316,9 +311,7 @@ class SocketEventListener:
             if self.request.sequence_number and self.request.checksum:
                 logger.warning(
                     "error detection is disabled but the request message "
-                    "contains sequence number and checksum: {message}".format(
-                        message=self.request
-                    )
+                    f"contains sequence number and checksum: {self.request}"
                 )
             return True
         if self.request.checksum:
@@ -331,6 +324,6 @@ class SocketEventListener:
 
         logger.warning(
             "error detection is enabled but the request message "
-            "hasn't checksum: {message}".format(message=self.request)
+            f"hasn't checksum: {self.request}"
         )
         return True

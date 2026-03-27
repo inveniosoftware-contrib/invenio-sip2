@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # INVENIO-SIP2
 # Copyright (C) 2020 UCLouvain
@@ -43,7 +42,7 @@ def preprocess_field_value(func):
     return inner
 
 
-class FieldMessage(object):
+class FieldMessage:
     """SIP2 variable field message class."""
 
     def __init__(self, field=None, field_value=""):
@@ -71,7 +70,7 @@ class FixedFieldMessage(FieldMessage):
         return self.field_value
 
 
-class Message(object):
+class Message:
     """SIP2 message."""
 
     def __init__(self, **kwargs):
@@ -93,10 +92,8 @@ class Message(object):
                 )
                 self._parse_request()
             except CommandNotFound as err:
-                description = "{err} - request: {request}".format(
-                    err=err.description, request=self.message_text
-                )
-                raise CommandNotFound(message=description)
+                description = f"{err.description} - request: {self.message_text}"
+                raise CommandNotFound(message=description) from err
 
     def __str__(self):
         """String representation of Message object."""
@@ -188,6 +185,7 @@ class Message(object):
         for f in self.fixed_fields:
             if f.field.field_id == MessageTypeFixedField.get(field_name).field_id:
                 return f
+        return None
 
     def get_variable_field_by_name(self, field_name):
         """Get the VariableFieldMessage object by field name."""
@@ -204,18 +202,18 @@ class Message(object):
         fixed_field = self.get_fixed_field_by_name(field_name)
         if fixed_field:
             return fixed_field.field_value
+        return None
 
     def get_field_value(self, field_name):
         """Get single variable field value by field name."""
         field = self.get_variable_field_by_name(field_name)
         if field:
             return field.field_value
+        return None
 
     def get_field_values(self, field_name):
         """Get list of variable field value by field name."""
-        fields = self.get_variable_fields_by_name(field_name)
-        if fields:
-            return [field.field_value for field in fields]
+        return [f.field_value for f in self.get_variable_fields_by_name(field_name)]
 
     @preprocess_field_value
     def add_field(self, field, field_value):
@@ -223,11 +221,10 @@ class Message(object):
         if field_value is not None:
             if isinstance(field, MessageTypeFixedField):
                 self.add_fixed_field(field, field_value)
+            elif field.is_multiple:
+                self.add_variable_fields(field.name, field_value)
             else:
-                if field.is_multiple:
-                    self.add_variable_fields(field.name, field_value)
-                else:
-                    self.add_variable_field(field.name, field_value)
+                self.add_variable_field(field.name, field_value)
 
     def add_variable_field(self, field_name, field_value):
         """Add variable field to message."""

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # INVENIO-SIP2
 # Copyright (C) 2020 UCLouvain
@@ -21,6 +20,7 @@ import logging
 from copy import deepcopy
 from datetime import datetime, timezone
 from logging.handlers import RotatingFileHandler
+from typing import ClassVar
 
 from flask import current_app
 from invenio_base.utils import obj_or_import_string
@@ -55,7 +55,7 @@ def load_variable_field(app):
         )
 
 
-class InvenioSIP2(object):
+class InvenioSIP2:
     """Invenio-SIP2 extension."""
 
     def __init__(self, app=None):
@@ -129,9 +129,7 @@ class InvenioSIP2(object):
     def get_logging_formatter(cls):
         """Return logging formatter."""
         log_format = (
-            "%(asctime)s - %(name)s ({version}) - %(levelname)s - %(message)s".format(
-                version=__version__
-            )
+            f"%(asctime)s - %(name)s ({__version__}) - %(levelname)s - %(message)s"
         )
         return logging.Formatter(log_format)
 
@@ -230,7 +228,7 @@ class InvenioSIP2(object):
         return self._state.supported_messages[remote_app]
 
 
-class _SIP2(object):
+class _SIP2:
     """SIP2 action machine."""
 
     def __init__(self, action_config):
@@ -248,12 +246,12 @@ class _SIP2(object):
             action = self.actions[msg.command]
             logger.debug(f"[_SIP2] execute action: {action}")
             return action.execute(msg, **kwargs)
-        except Exception:
-            pass
+        except (KeyError, AttributeError):
+            logger.exception("[_SIP2] failed to execute action for message: %s", msg)
 
 
-class _Sip2MessageType(object):
-    message_types = {}
+class _Sip2MessageType:
+    message_types: ClassVar[dict] = {}
 
     def __init__(self, message_type_config):
         """Constructor."""
@@ -263,12 +261,12 @@ class _Sip2MessageType(object):
     def get_by_command(self, command):
         try:
             return self.message_types[command]
-        except Exception:
+        except KeyError as e:
             err_msg = f"Command '{command}' not found"
-            raise CommandNotFound(message=err_msg)
+            raise CommandNotFound(message=err_msg) from e
 
 
-class _MessageType(object):
+class _MessageType:
     def __init__(self, command, **kwargs):
         self.command = command
         self.required_fields = []
@@ -299,7 +297,7 @@ class _MessageType(object):
             setattr(self, key, value)
 
 
-class _Sip2State(object):
+class _Sip2State:
     """SIP2 state storing registered action handlers."""
 
     def __init__(self, app):
@@ -331,7 +329,7 @@ class _Sip2State(object):
 
             # register patron handlers
             patron_handlers = {}
-            for k, v in conf.get("patron_handlers", dict()).items():
+            for k, v in conf.get("patron_handlers", {}).items():
                 patron_handlers[k] = handlers.make_api_handler(v, with_data=True)
                 supported_messages.add_supported_message(k)
 
@@ -340,7 +338,7 @@ class _Sip2State(object):
 
             # register item handlers
             item_handlers = {}
-            for k, v in conf.get("item_handlers", dict()).items():
+            for k, v in conf.get("item_handlers", {}).items():
                 item_handlers[k] = handlers.make_api_handler(v, with_data=True)
                 supported_messages.add_supported_message(k)
 
@@ -349,7 +347,7 @@ class _Sip2State(object):
 
             # register circulation handlers
             circulation_handlers = {}
-            for k, v in conf.get("circulation_handlers", dict()).items():
+            for k, v in conf.get("circulation_handlers", {}).items():
                 circulation_handlers[k] = handlers.make_api_handler(v, with_data=True)
                 supported_messages.add_supported_message(k)
 

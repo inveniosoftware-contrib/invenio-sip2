@@ -65,13 +65,13 @@ pip_audit_exceptions=""
 add_exceptions() {
   pip_audit_exceptions="$pip_audit_exceptions --ignore-vuln $1"
 }
+# pytest       8.4.2   CVE-2025-71176 9.0.3
+add_exceptions "CVE-2025-71176"
 
 function tests () {
   set -e
   info_msg "Check vulnerabilities:"
 
-  # pygments 2.19.2  CVE-2026-4539
-  add_exceptions "CVE-2026-4539"
   pip-audit ${pip_audit_exceptions}
 
   info_msg "Ruff check:"

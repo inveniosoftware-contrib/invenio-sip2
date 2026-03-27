@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # INVENIO-SIP2
 # Copyright (C) 2020 UCLouvain
@@ -17,15 +16,28 @@
 
 """Invenio-sip2 actions test."""
 
-from __future__ import absolute_import, print_function
+from unittest import mock
+from unittest.mock import MagicMock
 
-import mock
 import pytest
 
 from invenio_sip2.actions.base import Action
 from invenio_sip2.api import Message
+from invenio_sip2.decorators import check_selfcheck_authentication
 from invenio_sip2.errors import CommandNotFound
 from invenio_sip2.proxies import current_sip2
+
+
+def test_check_selfcheck_authentication_unauthenticated():
+    """Test decorator returns None when client is not authenticated."""
+
+    @check_selfcheck_authentication
+    def dummy_action(*args, client):
+        return "success"
+
+    unauthenticated_client = MagicMock()
+    unauthenticated_client.is_authenticated = False
+    assert dummy_action(client=unauthenticated_client) is None
 
 
 def test_sip2_actions_interface(app):
@@ -48,7 +60,6 @@ def test_sip2_actions_interface(app):
 )
 def test_sip2_login_failed(app, dummy_client, failed_login_message):
     """Test login action failed."""
-
     response = current_sip2.sip2.execute(
         Message(request=failed_login_message), client=dummy_client
     )

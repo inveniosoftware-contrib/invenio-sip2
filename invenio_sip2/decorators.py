@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # INVENIO-SIP2
 # Copyright (C) 2021 UCLouvain
@@ -34,6 +33,7 @@ def check_selfcheck_authentication(func):
         # TODO: maybe we can always call remote api to authenticate client
         if client and client.is_authenticated:
             return func(*args, client)
+        return None
 
     return inner
 
