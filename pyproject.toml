@@ -21,14 +21,14 @@ classifiers = [
 ]
 
 dependencies = [
-    "invenio-base>=2.0,<3.0",
-    "invenio-access>=4.0.0,<6.0.0",
-    "invenio-i18n>=2.0.0,<4.0.0",
+    "invenio-base>=2.0.0",
+    "invenio-access>=4.0.0",
+    "invenio-i18n>=2.0.0",
     "jsonpickle>=1.2",
     "psutil",
     "pycountry>=19.7.15",
     "python-dateutil",
-    "Flask>=2.2.0,<4.0",
+    "Flask>=2.2.0",
     "poethepoet",
 ]
 
