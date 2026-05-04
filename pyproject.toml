@@ -1,6 +1,6 @@
 [project]
 name = "invenio-sip2"
-version = "0.6.26"
+version = "1.0.0"
 description = "Invenio module that add a SIP2 communication for library self-check service"
 readme = "README.md"
 authors = [{name = "Laurent Dubois", email = "laurent.dubois@uclouvain.be"}]
@@ -13,11 +13,12 @@ classifiers = [
     "Programming Language :: Python",
     "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
     "Topic :: Software Development :: Libraries :: Python Modules",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
-    "Development Status :: 3 - Alpha",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Development Status :: 5 - Production/Stable",
 ]
 
 dependencies = [

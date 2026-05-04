@@ -1,8 +1,24 @@
 # Changes
 
+## Version 1.0.0 (released 2026-05-04)
+
+Major change:
+
+* Migrates from Poetry to uv as package manager.
+* Replaces isort, pydocstyle and pytest-black-ng with ruff for linting and formatting.
+* Adds pip-audit for vulnerability checking in the CI pipeline.
+* Adds poethepoet for task management.
+* Updates CI workflow to use uv and support Python 3.10–3.14.
+* Migrates documentation files from reStructuredText to Markdown format.
+* Removes unused Sphinx documentation build and related files.
+* Moves pytest configuration from pytest.ini into pyproject.toml.
+* Switches build backend from poetry-core to setuptools.
+* Updates all dependencies to their latest versions and removes upper bounds.
+
 ## Version 0.6.26 (released 2025-10-31)
 
 Minor change:
+
 * Adds decorator to inject language from the current patron session or client.
 * Sends the language to action handler when if possible.
 * Bumps dependencies.
