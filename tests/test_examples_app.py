@@ -38,9 +38,6 @@ def example_app():
     # Setup application
     assert subprocess.call("./app-setup.sh", shell=True) == 0
 
-    # Setup fixtures
-    # assert subprocess.call('./app-fixtures.sh', shell=True) == 0
-
     # Start example app
     webapp = subprocess.Popen(
         "FLASK_APP=app.py flask run --debugger -p 5000",

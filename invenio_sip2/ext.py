@@ -18,7 +18,7 @@
 
 import logging
 from copy import deepcopy
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from logging.handlers import RotatingFileHandler
 from typing import ClassVar
 
@@ -159,9 +159,7 @@ class InvenioSIP2:
     @property
     def sip2_current_date(self):
         """Get current date from system."""
-        return datetime.now(timezone.utc).strftime(
-            current_app.config["SIP2_DATE_FORMAT"]
-        )
+        return datetime.now(UTC).strftime(current_app.config["SIP2_DATE_FORMAT"])
 
     @cached_property
     def supported_protocol(self):
@@ -244,7 +242,7 @@ class _SIP2:
         """Execute action on message."""
         try:
             action = self.actions[msg.command]
-            logger.debug(f"[_SIP2] execute action: {action}")
+            logger.debug("[_SIP2] execute action: %s", action)
             return action.execute(msg, **kwargs)
         except (KeyError, AttributeError):
             logger.exception("[_SIP2] failed to execute action for message: %s", msg)
@@ -313,51 +311,55 @@ class _Sip2State:
 
         # register api handlers
         for remote, conf in app.config["SIP2_REMOTE_ACTION_HANDLERS"].items():
-            supported_messages = SupportedMessages()
-            # register login handler
-            if conf.get("login_handler"):
-                self.login_handler[remote] = handlers.make_api_handler(
-                    conf.get("login_handler"), with_data=True
-                )
-                supported_messages.add_supported_message("login")
+            self._register_remote_handlers(remote, conf)
 
-            if conf.get("system_status_handler"):
-                self.system_status_handler[remote] = handlers.make_api_handler(
-                    conf.get("system_status_handler"), with_data=True
-                )
-                supported_messages.add_supported_message("system_status")
+    def _register_remote_handlers(self, remote, conf):
+        """Register the action handlers declared for a single remote app."""
+        supported_messages = SupportedMessages()
+        # register login handler
+        if conf.get("login_handler"):
+            self.login_handler[remote] = handlers.make_api_handler(
+                conf.get("login_handler"), with_data=True
+            )
+            supported_messages.add_supported_message("login")
 
-            # register patron handlers
-            patron_handlers = {}
-            for k, v in conf.get("patron_handlers", {}).items():
-                patron_handlers[k] = handlers.make_api_handler(v, with_data=True)
-                supported_messages.add_supported_message(k)
+        if conf.get("system_status_handler"):
+            self.system_status_handler[remote] = handlers.make_api_handler(
+                conf.get("system_status_handler"), with_data=True
+            )
+            supported_messages.add_supported_message("system_status")
 
-            if patron_handlers:
-                self.patron_handlers[remote] = patron_handlers
+        # register patron handlers
+        patron_handlers = {}
+        for k, v in conf.get("patron_handlers", {}).items():
+            patron_handlers[k] = handlers.make_api_handler(v, with_data=True)
+            supported_messages.add_supported_message(k)
 
-            # register item handlers
-            item_handlers = {}
-            for k, v in conf.get("item_handlers", {}).items():
-                item_handlers[k] = handlers.make_api_handler(v, with_data=True)
-                supported_messages.add_supported_message(k)
+        if patron_handlers:
+            self.patron_handlers[remote] = patron_handlers
 
-            if item_handlers:
-                self.item_handlers[remote] = item_handlers
+        # register item handlers
+        item_handlers = {}
+        for k, v in conf.get("item_handlers", {}).items():
+            item_handlers[k] = handlers.make_api_handler(v, with_data=True)
+            supported_messages.add_supported_message(k)
 
-            # register circulation handlers
-            circulation_handlers = {}
-            for k, v in conf.get("circulation_handlers", {}).items():
-                circulation_handlers[k] = handlers.make_api_handler(v, with_data=True)
-                supported_messages.add_supported_message(k)
+        if item_handlers:
+            self.item_handlers[remote] = item_handlers
 
-            if circulation_handlers:
-                self.circulation_handlers[remote] = circulation_handlers
+        # register circulation handlers
+        circulation_handlers = {}
+        for k, v in conf.get("circulation_handlers", {}).items():
+            circulation_handlers[k] = handlers.make_api_handler(v, with_data=True)
+            supported_messages.add_supported_message(k)
 
-            if conf.get("fee_paid_handler"):
-                self.fee_paid_handler[remote] = handlers.make_api_handler(
-                    conf.get("fee_paid_handler"), with_data=True
-                )
-                supported_messages.add_supported_message("fee_paid")
+        if circulation_handlers:
+            self.circulation_handlers[remote] = circulation_handlers
 
-            self.supported_messages[remote] = supported_messages
+        if conf.get("fee_paid_handler"):
+            self.fee_paid_handler[remote] = handlers.make_api_handler(
+                conf.get("fee_paid_handler"), with_data=True
+            )
+            supported_messages.add_supported_message("fee_paid")
+
+        self.supported_messages[remote] = supported_messages

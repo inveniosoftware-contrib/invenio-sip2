@@ -157,7 +157,8 @@ class SocketEventListener:
         elif mode == "rw":
             events = selectors.EVENT_READ | selectors.EVENT_WRITE
         else:
-            raise ValueError(f"Invalid events mask mode {mode!r}.")
+            msg = f"Invalid events mask mode {mode!r}."
+            raise ValueError(msg)
         self.selector.modify(self.sock, events, data=self)
 
     def _read(self):
@@ -211,7 +212,8 @@ class SocketEventListener:
                     logger.info("{log_prefix} - {request_msg}")
                     raise RuntimeError(err) from err
             else:
-                raise RuntimeError("Peer closed.")
+                msg = "Peer closed."
+                raise RuntimeError(msg)
 
     def _write(self):
         """Send message to the selfcheck client."""
@@ -265,23 +267,19 @@ class SocketEventListener:
             self.selector.unregister(self.sock)
         except OSError:
             current_app.logger.exception(
-                "error: selector unregistered for {terminal}:{terminal_ip} "
-                "on {server}".format(
-                    terminal=self.client.terminal,
-                    terminal_ip=self.client.get("ip_address"),
-                    server=self.server.get("server_name"),
-                ),
+                "error: selector unregistered for %s:%s on %s",
+                self.client.terminal,
+                self.client.get("ip_address"),
+                self.server.get("server_name"),
             )
         try:
             self.sock.close()
         except OSError:
             current_app.logger.exception(
-                "error: socket closing exception for {terminal}:{terminal_ip} "
-                "on {server}".format(
-                    terminal=self.client.terminal,
-                    terminal_ip=self.client.get("ip_address"),
-                    server=self.server.get("server_name"),
-                )
+                "error: socket closing exception for %s:%s on %s",
+                self.client.terminal,
+                self.client.get("ip_address"),
+                self.server.get("server_name"),
             )
         finally:
             # Delete reference to socket object for garbage collection

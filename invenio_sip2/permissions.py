@@ -25,7 +25,7 @@ admin_user = Permission(SystemRoleNeed("admin"))
 
 def deny_all():
     """Deny all permission."""
-    return type("Deny", (), {"can": lambda self: False})()
+    return type("Deny", (), {"can": lambda *_: False})()
 
 
 def check_permission(permission):

@@ -36,8 +36,7 @@ def server_data():
 @pytest.fixture(scope="module")
 def server(app, server_data):
     """Load server record."""
-    server = Server.create(server_data, id_="key_1")
-    return server
+    return Server.create(server_data, id_="key_1")
 
 
 @pytest.fixture(scope="module")
@@ -53,5 +52,4 @@ def dummy_client_data():
 @pytest.fixture(scope="module")
 def dummy_client(app, server, dummy_client_data):
     """Load and create client."""
-    client = Client.create(data=dummy_client_data)
-    return client
+    return Client.create(data=dummy_client_data)

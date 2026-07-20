@@ -356,16 +356,13 @@ class EndPatronSession(Action):
         client.clear_patron_session()
 
         # prepare message based on required fields
-        response_message = self.prepare_message_response(
+        # TODO: add optional fields
+        return self.prepare_message_response(
             end_session=True,
             transaction_date=acs_system.sip2_current_date,
             institution_id=client.institution_id,
             patron_id=message.get_field_value("patron_id"),
         )
-
-        # TODO: add optional fields
-
-        return response_message
 
 
 class ItemInformation(Action):
@@ -462,7 +459,8 @@ class Checkin(Action):
         except SelfcheckCirculationError as error:
             checkin = error.data
             current_app.logger.exception(
-                f"[{client.terminal}] checkin error",
+                "[%s] checkin error",
+                client.terminal,
             )
 
         current_logger.debug(f"[Checkin]: handler response: {checkin}")
@@ -625,7 +623,8 @@ class Hold(Action):
         except SelfcheckCirculationError as error:
             hold = error.data
             current_app.logger.exception(
-                f"[{client.terminal}] hold error",
+                "[%s] hold error",
+                client.terminal,
             )
 
         current_logger.debug(f"[Hold]: handler response: {hold}")
@@ -679,7 +678,8 @@ class Renew(Action):
         except SelfcheckCirculationError as error:
             renew = error.data
             current_app.logger.exception(
-                f"[{client.terminal}] renew error",
+                "[%s] renew error",
+                client.terminal,
             )
 
         current_logger.debug(f"[Renew]: handler response: {renew}")
