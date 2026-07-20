@@ -22,6 +22,7 @@ from invenio_sip2.utils import (
     ensure_i18n_language,
     get_language_code,
     parse_circulation_date,
+    verify_checksum,
 )
 
 
@@ -63,3 +64,26 @@ def test_get_language_code():
     assert get_language_code("FRENCH") == "002"
     # test unknown value
     assert get_language_code("inexisting_language") == "000"
+
+
+def test_verify_checksum(app):
+    """Test checksum verification for byte-summing and code-point clients."""
+    # SIP2 message body up to the "AZ" checksum identifier. It contains non-ASCII
+    # characters ("€", "é") whose UTF-8 byte sum differs from their code point, so
+    # byte-summing and code-point-summing clients build a different checksum for
+    # the very same message.
+    body = "6300120260720    051335          AO|AA123456|AC|AD$kajshkj#€ééé|AY3AZ"
+
+    def checksum(total):
+        return format(-total & 0xFFFF, "04X")
+
+    byte_checksum = checksum(sum(body.encode("UTF-8")))
+    codepoint_checksum = checksum(sum(ord(char) for char in body))
+    # the two interpretations genuinely diverge because of the non-ASCII chars
+    assert byte_checksum != codepoint_checksum
+
+    # both interpretations are accepted
+    assert verify_checksum(f"{body}{byte_checksum}")
+    assert verify_checksum(f"{body}{codepoint_checksum}")
+    # a corrupted checksum is still rejected
+    assert not verify_checksum(f"{body}0000")

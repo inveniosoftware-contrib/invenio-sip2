@@ -140,16 +140,20 @@ def verify_checksum(message_str):
     # check minimum length of message
     # It should be 8 for request ACS resend and 11 for all other messaged
     minimum_len = 8 if message_str[:2] == "97" else 11
-    if len(message_str) >= minimum_len:
-        # sum all the byte values of each character in the message including
-        # the checksum identifier
-        value = sum(message.encode(acs_system.text_encoding))
-        # add the checksum hex value
-        value += checksum
+    if len(message_str) < minimum_len:
+        return False
 
-        # To validate the message the two's complement of calculated value
-        # should equal zero
-        return -value & 0xFFFF == 0
+    # SIP2 clients disagree on how to sum non-ASCII characters: some sum
+    # the encoded bytes, others sum the Unicode code points. Both agree on
+    # ASCII but diverge on multi-byte characters (e.g. "€"), so accept the
+    # message if either interpretation validates. The two's complement of the
+    # summed value plus the checksum should equal zero for a valid message.
+    for value in (
+        sum(message.encode(acs_system.text_encoding)),
+        sum(ord(char) for char in message),
+    ):
+        if -(value + checksum) & 0xFFFF == 0:
+            return True
     return False
 
 
