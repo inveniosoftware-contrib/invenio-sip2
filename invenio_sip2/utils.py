@@ -115,6 +115,28 @@ def get_circulation_status(status=None):
         return SelfcheckCirculationStatus.OTHER
 
 
+#: SIP2 variable field identifiers carrying credentials (terminal password,
+#: patron password and login password) that must be masked before logging.
+SENSITIVE_FIELD_IDS = ("AC", "AD", "CO")
+
+
+def mask_sensitive_data(message_str):
+    """Mask credential fields in a raw SIP2 message before logging.
+
+    SIP2 request messages embed passwords (fields "AC", "AD" and "CO") in
+    clear text. This replaces their value so logs and error reports never
+    expose them.
+
+    :param message_str: raw SIP2 string message
+    :returns: message with the value of sensitive fields replaced by "****"
+    """
+    parts = message_str.split("|")
+    for index, part in enumerate(parts):
+        if part[:2] in SENSITIVE_FIELD_IDS and len(part) > 2:
+            parts[index] = f"{part[:2]}****"
+    return "|".join(parts)
+
+
 def generate_checksum(message):
     """Generate and format checksum for SIP2 messages.
 

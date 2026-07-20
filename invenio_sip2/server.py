@@ -29,7 +29,11 @@ from invenio_sip2.errors import CommandNotFound
 from invenio_sip2.proxies import current_logger as logger
 from invenio_sip2.proxies import current_sip2
 from invenio_sip2.records import Client, Server
-from invenio_sip2.utils import verify_checksum, verify_sequence_number
+from invenio_sip2.utils import (
+    mask_sensitive_data,
+    verify_checksum,
+    verify_sequence_number,
+)
 
 
 class SocketServer:
@@ -183,11 +187,13 @@ class SocketEventListener:
                 ]
                 try:
                     self.request = Message(request=request_msg)
-                    request = (
-                        self.request.dumps()
-                        if logger.level == logging.DEBUG
-                        else request_msg
-                    )
+                    # mask credential fields so passwords never reach the logs
+                    masked_request_msg = mask_sensitive_data(request_msg)
+                    if logger.level == logging.DEBUG:
+                        request = self.request.dumps()
+                        request["_sip2"] = masked_request_msg
+                    else:
+                        request = masked_request_msg
 
                     logger.info(f"{log_prefix}: {request}")
 
@@ -195,7 +201,8 @@ class SocketEventListener:
                         self._recv_buffer += data
                     else:
                         logger.error(
-                            f"invalid checksum for: {request_msg}", exc_info=True
+                            f"invalid checksum for: {masked_request_msg}",
+                            exc_info=True,
                         )
                         # prepare request selcheck resend message
                         self.response = Message(
