@@ -87,7 +87,8 @@ def extract_and_add_language_parameter(func):
         )
 
         if client is None:
-            raise ValueError("Client not found")
+            msg = "Client not found"
+            raise ValueError(msg)
 
         # Try to get the language from the patron session first,
         # otherwise fall back to the client's `library_language`

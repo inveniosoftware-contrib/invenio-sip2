@@ -16,7 +16,7 @@
 
 """Pytest utils."""
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from flask import current_app
 from flask_security import login_user, logout_user
@@ -110,12 +110,11 @@ def remote_enable_patron_handler(patron_id, **kwargs):
 
 def remote_patron_status_handler(patron_id, **kwargs):
     """Dummy remote handler for patron information."""
-    response = SelfcheckPatronStatus(
+    return SelfcheckPatronStatus(
         patron_id="patron_id",
         institution_id="selfcheck_location",
         print_line="message on one line",
     )
-    return response
 
 
 def remote_patron_account_handler(patron_id, **kwargs):
@@ -163,7 +162,7 @@ def remote_checkout_handler(user_id, item_id, patron_id, **kwargs):
         security_marker=SelfcheckSecurityMarkerType.OTHER,
     )
     response["media_type"] = SelfcheckMediaType.OTHER
-    response["due_date"] = datetime.now(timezone.utc).strftime(
+    response["due_date"] = datetime.now(UTC).strftime(
         current_app.config["SIP2_CIRCULATION_DATE_FORMAT"]
     )
     response["hold_queue_length"] = 0

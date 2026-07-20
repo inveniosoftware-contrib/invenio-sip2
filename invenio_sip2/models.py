@@ -110,7 +110,8 @@ class PatronStatus:
         raise exception if patron status type does not exist.
         """
         if not isinstance(patron_status_type, PatronStatusTypes):
-            raise TypeError("patron status type does not exist")
+            msg = "patron status type does not exist"
+            raise TypeError(msg)
 
         self.patron_status_types[patron_status_type] = True
 
@@ -681,7 +682,7 @@ class SelfcheckSummary:
 
     def __init__(self, text):
         """Init."""
-        from .utils import decode_char_to_bool
+        from .utils import decode_char_to_bool  # noqa: PLC0415
 
         self.hold_items = decode_char_to_bool(text[0])
         self.overdue_items = decode_char_to_bool(text[1])

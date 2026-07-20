@@ -18,7 +18,7 @@
 
 import contextlib
 from copy import deepcopy
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import uuid4
 
 from invenio_sip2 import current_datastore as datastore
@@ -45,13 +45,14 @@ class Sip2RecordMetadata(dict):
         :param id_: Specify a UUID to use for the new record.
         """
         if not cls.record_type:
-            raise ValueError(f"{cls.__name__} must define a record_type")
+            msg = f"{cls.__name__} must define a record_type"
+            raise ValueError(msg)
         # TODO: check if record already exist and raise exception
         id_ = id_ or str(uuid4())
 
         data["id"] = id_
         record = cls(data, **kwargs)
-        record["created"] = datetime.now(timezone.utc).isoformat()
+        record["created"] = datetime.now(UTC).isoformat()
         datastore.add(record, id_=id_, **kwargs)
 
         return record
@@ -72,7 +73,7 @@ class Sip2RecordMetadata(dict):
         """
         if self.id:
             super().update(data)
-            data["updated"] = datetime.now(timezone.utc).isoformat()
+            data["updated"] = datetime.now(UTC).isoformat()
             datastore.update(self)
 
     def delete(self):
@@ -134,7 +135,7 @@ class Server(Sip2RecordMetadata):
     def down(self):
         """Set server status to `Down` and clear all clients data."""
         self["status"] = "down"
-        self["stopped_at"] = datetime.now(timezone.utc).isoformat()
+        self["stopped_at"] = datetime.now(UTC).isoformat()
         with contextlib.suppress(KeyError):
             del self["process_id"]
         self.update(self)
@@ -144,7 +145,7 @@ class Server(Sip2RecordMetadata):
     def up(self):
         """Set server status to `running` and clear all clients data."""
         self["status"] = "running"
-        self["started_at"] = datetime.now(timezone.utc).isoformat()
+        self["started_at"] = datetime.now(UTC).isoformat()
         with contextlib.suppress(KeyError):
             del self["stopped_at"]
         self.update(self)
@@ -166,10 +167,11 @@ class Server(Sip2RecordMetadata):
         if server:
             # check if server running
             if server.is_running:
-                raise ServerAlreadyRunning(f"server already running {server.id}")
+                msg = f"server already running {server.id}"
+                raise ServerAlreadyRunning(msg)
             return server
 
-        return super().create(data, id_=id_)
+        return super().create(data, id_=id_, **kwargs)
 
     @classmethod
     def find_server(cls, **kwargs):
