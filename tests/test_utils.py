@@ -21,6 +21,7 @@ from invenio_sip2.utils import (
     decode_char_to_bool,
     ensure_i18n_language,
     get_language_code,
+    mask_sensitive_data,
     parse_circulation_date,
     verify_checksum,
 )
@@ -87,3 +88,25 @@ def test_verify_checksum(app):
     assert verify_checksum(f"{body}{codepoint_checksum}")
     # a corrupted checksum is still rejected
     assert not verify_checksum(f"{body}0000")
+
+
+def test_mask_sensitive_data():
+    """Test masking of credential fields in raw SIP2 messages."""
+    # patron information request: patron password (AD) is masked
+    request = "6300120260720    051335          AO|AA123456|AC|AD$ecretPwd|AY3AZCC19"
+    masked = mask_sensitive_data(request)
+    assert "$ecretPwd" not in masked
+    assert "AD****" in masked
+    # non-sensitive fields (e.g. patron id) are left untouched
+    assert "AA123456" in masked
+    # empty credential field has no value to mask
+    assert "|AC|" in masked
+
+    # login request: login password (CO) is masked
+    login = "9300CNsip2ebook1|COs3cret|AY1AZF435"
+    masked_login = mask_sensitive_data(login)
+    assert "s3cret" not in masked_login
+    assert "CO****" in masked_login
+
+    # message without variable fields is returned unchanged
+    assert mask_sensitive_data("9900402.00AY2AZFCA3") == "9900402.00AY2AZFCA3"
