@@ -78,10 +78,26 @@ class Sip2RedisDatastore(Datastore):
     """Redis datastore for sip2."""
 
     def __init__(self, app=None, **kwargs):
-        """Initialize the datastore."""
+        """Initialize the datastore.
+
+        Connections are given explicit timeouts: an unresponsive datastore
+        must fail rather than block the caller forever. The server
+        deregisters itself while shutting down, and an unbounded wait there
+        outlives the grace period of the container runtime, so the process
+        gets killed with a stale `running` registration left behind.
+
+        Timeouts given as query arguments on ``SIP2_DATASTORE_REDIS_URL``
+        take precedence over the configured defaults.
+        """
         app = app or current_app
         redis_url = app.config["SIP2_DATASTORE_REDIS_URL"]
-        self.datastore = StrictRedis.from_url(redis_url)
+        self.datastore = StrictRedis.from_url(
+            redis_url,
+            socket_timeout=app.config.get("SIP2_DATASTORE_REDIS_SOCKET_TIMEOUT"),
+            socket_connect_timeout=app.config.get(
+                "SIP2_DATASTORE_REDIS_SOCKET_CONNECT_TIMEOUT"
+            ),
+        )
 
     def get(self, id_, record_type=None):
         """Retrieve object for given id.

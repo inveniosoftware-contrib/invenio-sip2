@@ -17,12 +17,22 @@
 """API for manipulating the client."""
 
 import contextlib
+import socket
 from copy import deepcopy
 from datetime import UTC, datetime
 from uuid import uuid4
 
+import psutil
+
 from invenio_sip2 import current_datastore as datastore
 from invenio_sip2.errors import ServerAlreadyRunning
+from invenio_sip2.proxies import current_logger as logger
+
+#: Fields describing the process that holds a server registration rather than
+#: the server itself. They must stay out of lookups, otherwise a restart under
+#: a new pid or in a new container would fail to recognise its own record and
+#: register a duplicate.
+SERVER_OWNER_KEYS = ("process_id", "hostname")
 
 
 class Sip2RecordMetadata(dict):
@@ -119,8 +129,59 @@ class Server(Sip2RecordMetadata):
 
     @property
     def is_running(self):
-        """Check if server is running."""
+        """Check if server is running.
+
+        Reflects the recorded status only. A server killed without the chance
+        to deregister itself still reads as running, so pair this with
+        :attr:`is_alive` before trusting it.
+        """
         return self.get("status") == "running"
+
+    @property
+    def is_alive(self):
+        """Check whether the process holding this registration still exists.
+
+        A `running` status is only meaningful while the process that wrote it
+        is around. Two things can make it a lie: the process was killed
+        outright (SIGKILL, OOM, host reboot), or the whole container was
+        replaced, in which case the recorded pid belongs to a namespace that
+        no longer exists and any pid check here would be meaningless.
+
+        The recorded hostname settles the second case. Registrations written
+        before hostnames were recorded fall back to checking the pid locally,
+        which is the best evidence left: it still protects a server that is
+        genuinely running here, and it lets a registration stranded by the
+        upgrade itself be reclaimed instead of blocking every restart.
+
+        :returns: False when the registration is provably stale.
+        :rtype: bool
+        """
+        process_id = self.get("process_id")
+        if not process_id:
+            # Nothing to check against, so nothing can be proven.
+            return True
+        hostname = self.get("hostname")
+        if hostname and hostname != socket.gethostname():
+            # Written by another machine, or by a previous container: the pid
+            # cannot be checked from here, but the writer is certainly gone.
+            return False
+        try:
+            process = psutil.Process(process_id)
+            started_at = self.get("started_at")
+            if not started_at:
+                return True
+            # Guards against a pid recycled after a reboot: the process that
+            # registered this server cannot have started after the
+            # registration it is supposed to own.
+            registered = datetime.fromisoformat(started_at).timestamp()
+            created_at = process.create_time()
+        except psutil.NoSuchProcess:
+            return False
+        except psutil.Error:
+            # Cannot inspect it, so cannot prove it is stale.
+            return True
+        else:
+            return created_at <= registered
 
     def delete(self):
         """Delete server and all attached clients."""
@@ -156,19 +217,42 @@ class Server(Sip2RecordMetadata):
             Client(client).delete()
 
     @classmethod
-    def create(cls, data, id_=None, **kwargs):
+    def create(cls, data, id_=None, force=False, **kwargs):
         """Create record.
+
+        Reuses the existing registration when the server is already known.
+        A registration still marked `running` whose owning process is gone is
+        reclaimed rather than treated as a conflict, so that a server killed
+        without a clean shutdown can be restarted without manual intervention.
 
         :param data: Dict with metadata.
         :param id_: Specify a UUID to use for the new record.
+        :param force: Reclaim the registration even from a live server.
+        :returns: The server record to run with.
+        :rtype: Server
+        :raises ServerAlreadyRunning: When another live process holds it.
         """
         # check if server already exist in datastore
         server = cls.find_server(**data)
         if server:
             # check if server running
             if server.is_running:
-                msg = f"server already running {server.id}"
-                raise ServerAlreadyRunning(msg)
+                if not force and server.is_alive:
+                    msg = f"server already running {server.id}"
+                    raise ServerAlreadyRunning(msg)
+                logger.warning(
+                    "reclaiming the registration of server %s held by pid %s on %s: %s",
+                    server.get("server_name"),
+                    server.get("process_id"),
+                    server.get("hostname"),
+                    "forced" if force else "that process is gone",
+                )
+                # Drops the stale status and the clients that went with it.
+                server.down()
+            # Hand the registration over to the process starting now. Only the
+            # owner changes: the rest of `data` is what matched the lookup, and
+            # rewriting the id would orphan the record under its old key.
+            server.update({key: data[key] for key in SERVER_OWNER_KEYS if key in data})
             return server
 
         return super().create(data, id_=id_, **kwargs)
@@ -176,8 +260,8 @@ class Server(Sip2RecordMetadata):
     @classmethod
     def find_server(cls, **kwargs):
         """Find server depending kwargs."""
-        with contextlib.suppress(KeyError):
-            del kwargs["process_id"]
+        for key in SERVER_OWNER_KEYS:
+            kwargs.pop(key, None)
         for server in datastore.all(cls.record_type):
             if kwargs.items() <= server.items():
                 # true only if `first` is a subset of `second`

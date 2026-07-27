@@ -35,11 +35,14 @@ from invenio_sip2.utils import (
     verify_sequence_number,
 )
 
+#: Longest a shutdown request can sit unnoticed by the event loop. A signal
+#: handler cannot interrupt a pending `select()`, so the loop has to come up
+#: for air regularly to observe that a stop was asked for.
+SHUTDOWN_POLL_INTERVAL = 1.0
+
 
 class SocketServer:
     """Socket server."""
-
-    selector = selectors.DefaultSelector()
 
     def __init__(self, name, host="0.0.0.0", port=3004, **kwargs):
         """Constructor."""
@@ -48,27 +51,45 @@ class SocketServer:
         self.port = port
         self.remote_app = kwargs.pop("remote")
         self.process_id = kwargs.pop("process_id")
-        self.server = Server.create(data=vars(self))
-        self.server["process_id"] = self.process_id
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        # Owned per instance: as a class attribute it would be shared by every
+        # server built in the same interpreter, and closing one would break
+        # the others.
+        self.selector = selectors.DefaultSelector()
+        self._stopping = False
+        self._closed = False
+        self.server = Server.create(
+            data={
+                "server_name": self.server_name,
+                "host": self.host,
+                "port": self.port,
+                "remote_app": self.remote_app,
+                "process_id": self.process_id,
+                # Records which machine owns the pid above, so that a later
+                # start can tell a live server from a registration left behind
+                # by a container that was killed.
+                "hostname": socket.gethostname(),
+            },
+            force=kwargs.pop("force", False),
+        )
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         # Avoid bind() exception: OSError: [Errno 48] Address already in use
-        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        sock.bind((self.host, self.port))
-        sock.listen()
+        self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.sock.bind((self.host, self.port))
+        self.sock.listen()
         logger.info(f"listening on {self.host}, {self.port}")
         signal.signal(signal.SIGINT, self.handler_stop_signals)
         signal.signal(signal.SIGTERM, self.handler_stop_signals)
-        sock.setblocking(False)
+        self.sock.setblocking(False)
         self.selector.register(
-            sock, selectors.EVENT_READ | selectors.EVENT_WRITE, data=None
+            self.sock, selectors.EVENT_READ | selectors.EVENT_WRITE, data=None
         )
 
     def run(self):
         """Run socket server."""
         try:
             self.server.up()
-            while True:
-                events = self.selector.select(timeout=None)
+            while not self._stopping:
+                events = self.selector.select(timeout=SHUTDOWN_POLL_INTERVAL)
                 for key, mask in events:
                     if key.data is None:
                         self.accept_wrapper(key.fileobj)
@@ -107,14 +128,43 @@ class SocketServer:
         self.selector.register(connection, selectors.EVENT_READ, data=message)
 
     def close(self):
-        """Close socket server."""
+        """Close the socket server and deregister it from the datastore.
+
+        Idempotent, and never raises: this runs on the way out, from the
+        `finally` of :meth:`run`, and an exception here would mask whatever
+        caused the shutdown in the first place.
+        """
+        if self._closed:
+            return
+        self._closed = True
+        logger.info(f"closing SIP2 server ({self.host}, {self.port})")
         with contextlib.suppress(Exception):
             self.selector.close()
-        self.server.down()
+        # Release the listening port before the datastore round trip below,
+        # so a replacement server can bind it even if the datastore is slow.
+        with contextlib.suppress(Exception):
+            self.sock.close()
+        try:
+            self.server.down()
+        except Exception:  # noqa: BLE001 - the datastore backend is pluggable,
+            # so there is no exception type to narrow to, and failing to
+            # deregister must never prevent the server from shutting down.
+            logger.error(
+                "cannot deregister the SIP2 server from the datastore; its "
+                "registration stays `running` until reclaimed by the next start",
+                exc_info=True,
+            )
 
     def handler_stop_signals(self, signum, frame):
-        """Handle stop signals."""
-        self.close()
+        """Ask the event loop to stop.
+
+        Deliberately does nothing but set a flag. A signal handler runs in the
+        middle of whatever the main thread was doing, so any I/O here — a
+        datastore round trip, even a log record — can block or deadlock
+        against a lock the interrupted code already holds. The actual
+        shutdown happens in :meth:`close`, in normal execution context.
+        """
+        self._stopping = True
 
 
 class SocketEventListener:
