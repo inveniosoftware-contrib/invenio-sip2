@@ -1,5 +1,13 @@
 # Changes
 
+## Version 1.0.1 (released 2026-07-29)
+
+Minor change:
+
+* Masks passwords in SIP2 request logs.
+* Accepts SIP2 checksums summed over code points.
+* Updates dependencies.
+
 ## Version 1.0.0 (released 2026-05-04)
 
 Major change:

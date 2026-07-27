@@ -1,6 +1,6 @@
 [project]
 name = "invenio-sip2"
-version = "1.0.0"
+version = "1.0.1"
 description = "Invenio module that add a SIP2 communication for library self-check service"
 readme = "README.md"
 authors = [{name = "Laurent Dubois", email = "laurent.dubois@uclouvain.be"}]
@@ -86,6 +86,7 @@ ignore = [
     "FBT003",  # boolean positional value — e.g. socket.setblocking (positional-only)
     # API design
     "PLR0913", # too many arguments — SIP2 handler signatures mirror protocol fields
+    "PLR0917", # too many positional arguments
     "PLR2004", # magic values — SIP2 protocol constants and HTTP codes
     # Security — intentional design decisions
     "S301",    # jsonpickle — trusted internal Redis store
