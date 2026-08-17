@@ -1,5 +1,7 @@
 # Changes
 
+<!-- version list -->
+
 ## Version 1.0.0 (released 2026-05-04)
 
 Major change:

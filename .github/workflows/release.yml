@@ -1,0 +1,122 @@
+# INVENIO-SIP2
+# Copyright (C) 2026 RERO+
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, version 3 of the License.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+# Cuts a release with python-semantic-release, then publishes it to PyPI. Run it
+# from `master`: it reads the conventional commits since the last tag, computes
+# the next version, updates the version, the lock file and the changelog, then
+# commits, tags and publishes a GitHub Release on `master`.
+#
+# Release and publish are two jobs of the SAME workflow on purpose. A GitHub
+# Release created with the automatic GITHUB_TOKEN does not trigger any workflow
+# of its own, so a separate `on: release` workflow would need an App token or a
+# PAT to be reachable. Chaining the jobs with `needs:` keeps everything inside
+# one run, which the GITHUB_TOKEN can drive on its own.
+#
+# The jobs are split rather than merged so that neither holds more rights than
+# it needs: `release` gets repository write but no OIDC, `publish` gets OIDC but
+# no repository write.
+
+name: Release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+    concurrency: release
+
+    permissions:
+      contents: write
+
+    outputs:
+      released: ${{ steps.release.outputs.released }}
+      tag: ${{ steps.release.outputs.tag }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+
+      - name: Set up Python
+        run: uv python install 3.14
+
+      - name: Install dependencies
+        run: uv sync --frozen
+
+      - name: Python Semantic Release
+        id: release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          before=$(git rev-parse HEAD)
+          uv run semantic-release version
+          after=$(git rev-parse HEAD)
+
+          # No commit worth releasing is not a failure: semantic-release says so
+          # and exits 0, leaving HEAD where it was. A release was made only if it
+          # added its bump commit, so testing the tag alone is not enough --
+          # re-running with nothing to release would find the previous release's
+          # tag still on HEAD and publish it a second time.
+          if [ "$before" != "$after" ] && tag=$(git describe --exact-match HEAD 2>/dev/null); then
+            echo "released=true" >> "$GITHUB_OUTPUT"
+            echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          else
+            echo "released=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  publish:
+    needs: release
+    if: needs.release.outputs.released == 'true'
+    runs-on: ubuntu-latest
+
+    # PyPI trusted publishing: no API token is stored, `uv publish` mints a
+    # short-lived one from this OIDC identity. The trusted publisher registered
+    # on PyPI must match this repository and `release.yml`, with the environment
+    # field left empty.
+    permissions:
+      id-token: write
+
+    steps:
+      - name: Checkout the released tag
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ needs.release.outputs.tag }}
+
+      # No dependency cache here on purpose: this job publishes to PyPI, and
+      # `uv build` only needs the build backend, so a cache would buy almost
+      # nothing for the risk of feeding a poisoned one into a release.
+      - name: Install uv
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+
+      - name: Set up Python
+        run: uv python install 3.14
+
+      - name: Build distributions
+        run: uv build
+
+      - name: Publish to PyPI
+        run: uv publish --trusted-publishing always

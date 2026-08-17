@@ -37,6 +37,7 @@ dev = [
     "mock>=4.0.0",
     "ruff>=0.12.3",
     "pip-audit",
+    "python-semantic-release>=10.5.3",
 ]
 
 [project.entry-points."invenio_base.apps"]
@@ -120,6 +121,38 @@ ignore = [
 
 [tool.ruff.lint.pydocstyle]
 convention = "pep257"
+
+[tool.semantic_release]
+version_toml = ["pyproject.toml:project.version"]
+version_variables = ["invenio_sip2/version.py:__version__"]
+tag_format = "v{version}"
+commit_message = "chore(release): v{version}"
+build_command = """
+    uv lock --upgrade-package invenio-sip2
+    git add uv.lock
+"""
+
+[tool.semantic_release.commit_author]
+env = "GIT_COMMIT_AUTHOR"
+default = "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
+
+[tool.semantic_release.commit_parser_options]
+allowed_tags = ["feat", "fix", "docs", "style", "refactor", "perf", "test", "build", "ci", "chore"]
+minor_tags = ["feat"]
+patch_tags = ["fix", "perf", "chore", "docs", "style", "refactor", "test", "build", "ci"]
+
+[tool.semantic_release.changelog]
+exclude_commit_patterns = [
+    "chore\\(release\\):.*",
+]
+mode = "update"
+
+[tool.semantic_release.changelog.default_templates]
+changelog_file = "CHANGES.md"
+
+[tool.semantic_release.branches.master]
+match = "master"
+prerelease = false
 
 [tool.coverage.run]
 relative_files = true
