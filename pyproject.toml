@@ -86,6 +86,7 @@ ignore = [
     "FBT003",  # boolean positional value — e.g. socket.setblocking (positional-only)
     # API design
     "PLR0913", # too many arguments — SIP2 handler signatures mirror protocol fields
+    "PLR0917", # too many positional arguments — SIP2 handler signatures mirror protocol fields
     "PLR2004", # magic values — SIP2 protocol constants and HTTP codes
     # Security — intentional design decisions
     "S301",    # jsonpickle — trusted internal Redis store
