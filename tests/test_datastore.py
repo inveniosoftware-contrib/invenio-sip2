@@ -16,13 +16,33 @@
 
 """Invenio-sip2 datastore test."""
 
+import os
+import socket
 from unittest.mock import patch
 
+import psutil
 import pytest
 
 from invenio_sip2.datastore import Datastore, Sip2RedisDatastore
 from invenio_sip2.errors import ServerAlreadyRunning
 from invenio_sip2.records.record import Client, Server
+
+#: A pid high enough that no process can be holding it.
+DEAD_PID = 2**22
+
+
+def registration(**overrides):
+    """Build what `SocketServer` writes when it registers itself."""
+    data = {
+        "server_name": "reclaim_server",
+        "host": "0.0.0.0",
+        "port": 3010,
+        "remote_app": "test_ils",
+        "hostname": socket.gethostname(),
+        "process_id": os.getpid(),
+    }
+    data.update(overrides)
+    return data
 
 
 @patch.multiple(Datastore, __abstractmethods__=set())
@@ -88,3 +108,99 @@ def test_record_metadata(app, server_data, dummy_client_data):
         assert Server.get_record_by_id("nonexistent_id") is None
         assert Server.find_server(server_name="nonexistent_server") is None
         server.delete()
+
+
+def test_server_is_alive(app):
+    """A `running` status is only trusted while its owner still exists."""
+    with app.app_context():
+        Sip2RedisDatastore(app).flush()
+        # An owner that cannot be identified gets the benefit of the doubt,
+        # so registrations written before hostnames were recorded still work.
+        server = Server.create({"server_name": "anonymous_owner"})
+        assert server.is_alive
+
+        server = Server.create(registration())
+        server.up()
+        # Owned by this very process.
+        assert server.is_alive
+
+        # Same pid, but written by another machine or a previous container:
+        # the pid means nothing here.
+        server["hostname"] = "a-container-that-is-gone"
+        assert not server.is_alive
+
+        # This machine, but the process is gone.
+        server["hostname"] = socket.gethostname()
+        server["process_id"] = DEAD_PID
+        assert not psutil.pid_exists(DEAD_PID)
+        assert not server.is_alive
+
+        # A pid recycled after a reboot points at a process that cannot
+        # predate the registration it would be answering for.
+        server["process_id"] = os.getpid()
+        server["started_at"] = "2000-01-01T00:00:00+00:00"
+        assert not server.is_alive
+
+
+def test_server_is_alive_without_hostname(app):
+    """Registrations written before hostnames were recorded still resolve.
+
+    The upgrade that introduced hostnames must not strand the registration it
+    finds in the datastore, or every restart keeps failing exactly as before.
+    """
+    with app.app_context():
+        Sip2RedisDatastore(app).flush()
+        legacy = Server.create(registration())
+        del legacy["hostname"]
+        legacy.up()
+        # Still running here, so still protected.
+        assert legacy.is_alive
+        # Left behind by a process that is gone: reclaimable.
+        legacy["process_id"] = DEAD_PID
+        assert not legacy.is_alive
+
+
+def test_create_reclaims_a_stale_registration(app):
+    """A server killed without deregistering can be started again."""
+    with app.app_context():
+        Sip2RedisDatastore(app).flush()
+        killed = Server.create(registration(process_id=DEAD_PID))
+        killed.up()
+        # Exactly the state a SIGKILL leaves behind.
+        assert killed.is_running
+        assert not killed.is_alive
+
+        reclaimed = Server.create(registration())
+        # Same registration, handed over to the process starting now.
+        assert reclaimed.id == killed.id
+        assert Server.count() == 1
+        assert reclaimed.get("process_id") == os.getpid()
+        assert not reclaimed.is_running
+
+
+def test_create_refuses_a_live_registration(app):
+    """A server that is genuinely running is still protected."""
+    with app.app_context():
+        Sip2RedisDatastore(app).flush()
+        server = Server.create(registration())
+        server.up()
+
+        with pytest.raises(ServerAlreadyRunning):
+            Server.create(registration())
+
+        # ...unless the takeover is explicit.
+        reclaimed = Server.create(registration(), force=True)
+        assert reclaimed.id == server.id
+        assert Server.count() == 1
+
+
+def test_find_server_ignores_the_owner(app):
+    """A restart must recognise its own record under a new pid and host."""
+    with app.app_context():
+        Sip2RedisDatastore(app).flush()
+        server = Server.create(registration())
+        found = Server.find_server(
+            **registration(process_id=DEAD_PID, hostname="somewhere-else")
+        )
+        assert found is not None
+        assert found.id == server.id

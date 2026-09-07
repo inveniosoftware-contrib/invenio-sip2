@@ -154,6 +154,26 @@ SIP2_DATASTORE_HANDLER = "invenio_sip2.datastore:Sip2RedisDatastore"
 SIP2_DATASTORE_REDIS_PREFIX = "sip2"
 SIP2_DATASTORE_REDIS_URL = "redis://localhost:16379/0"
 
+SIP2_DATASTORE_REDIS_SOCKET_TIMEOUT = 5
+"""Seconds to wait for a datastore reply before giving up.
+
+Without it a datastore that stopped answering blocks the caller forever. The
+server deregisters itself from the datastore while shutting down, so an
+unbounded wait there outlives the grace period of the container runtime and
+gets the process killed with its registration left behind.
+
+Can be overridden per deployment with a ``socket_timeout`` query argument on
+``SIP2_DATASTORE_REDIS_URL``. Set to ``None`` to wait forever.
+"""
+
+SIP2_DATASTORE_REDIS_SOCKET_CONNECT_TIMEOUT = 5
+"""Seconds to wait for the connection to the datastore to be established.
+
+Same rationale as ``SIP2_DATASTORE_REDIS_SOCKET_TIMEOUT``, for the case where
+the datastore is unreachable rather than unresponsive. Can be overridden with
+a ``socket_connect_timeout`` query argument on ``SIP2_DATASTORE_REDIS_URL``.
+"""
+
 # LOGGING
 # =======
 
